@@ -6,10 +6,10 @@ gets a human-readable category, not just a metric drop.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 
 
-class FailureMode(str, Enum):
+class FailureMode(StrEnum):
     """Discrete failure categories."""
     NO_RETRIEVAL = "no_retrieval"
     WRONG_RETRIEVAL = "wrong_retrieval"
