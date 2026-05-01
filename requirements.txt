@@ -10,7 +10,7 @@ openai>=1.54.0
 anthropic>=0.39.0
 sentence-transformers>=3.2.1
 
-# Vector store - 1.5.8 has pre-built wheels for Python 3.12 on Windows
+# Vector store - 1.5+ has pre-built wheels for all platforms (no compile needed)
 chromadb>=1.0.0
 
 # Document processing
