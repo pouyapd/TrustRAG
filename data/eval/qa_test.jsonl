@@ -1,0 +1,20 @@
+{"question": "How long do I have to request a refund on a monthly plan?", "answer": "14 days from the initial purchase.", "relevant_doc_ids": ["refund_policy"]}
+{"question": "What is the refund window for annual subscribers?", "answer": "30 days from the date of purchase.", "relevant_doc_ids": ["refund_policy"]}
+{"question": "Where do I email to request a refund?", "answer": "billing@acmecloud.example", "relevant_doc_ids": ["refund_policy"]}
+{"question": "How much does the Pro plan cost per month?", "answer": "29 EUR per month.", "relevant_doc_ids": ["product_specs"]}
+{"question": "How many user seats are included in the Starter plan?", "answer": "1 user seat.", "relevant_doc_ids": ["product_specs"]}
+{"question": "What is the storage limit on the Enterprise plan?", "answer": "1 TB of storage.", "relevant_doc_ids": ["product_specs"]}
+{"question": "Where are Acme Cloud data centers located?", "answer": "Frankfurt, Dublin, and Milan in the EU.", "relevant_doc_ids": ["product_specs"]}
+{"question": "Is SSO available on the Starter plan?", "answer": "No, SSO via SAML 2.0 is only available on Pro and Enterprise plans.", "relevant_doc_ids": ["product_specs"]}
+{"question": "What is the API rate limit on the Pro plan?", "answer": "1000 API requests per minute.", "relevant_doc_ids": ["product_specs"]}
+{"question": "How do I reset my password if I forgot it?", "answer": "Click 'Forgot password' on the login screen to receive a reset link valid for 30 minutes.", "relevant_doc_ids": ["support_faq"]}
+{"question": "How long does account recovery take if I lost email access?", "answer": "3 to 5 business days.", "relevant_doc_ids": ["support_faq"]}
+{"question": "Are backups included in the Starter plan?", "answer": "No, automatic daily backups are only available on Pro and Enterprise plans.", "relevant_doc_ids": ["support_faq"]}
+{"question": "Is 2FA mandatory on Enterprise accounts?", "answer": "Yes, two-factor authentication is mandatory for Enterprise accounts.", "relevant_doc_ids": ["support_faq"]}
+{"question": "What types of 2FA are supported?", "answer": "TOTP authenticator apps and FIDO2 hardware keys.", "relevant_doc_ids": ["support_faq"]}
+{"question": "Is Acme Cloud GDPR compliant?", "answer": "Yes, Acme Cloud is GDPR-compliant and ISO 27001 certified.", "relevant_doc_ids": ["product_specs"]}
+{"question": "Can I get a refund on add-on services I already activated?", "answer": "No, refunds do not apply to add-on services once activated.", "relevant_doc_ids": ["refund_policy"]}
+{"question": "What is the uptime SLA for Enterprise customers?", "answer": "99.9% uptime SLA.", "relevant_doc_ids": ["product_specs"]}
+{"question": "Where can I check current service status?", "answer": "At status.acmecloud.example.", "relevant_doc_ids": ["support_faq"]}
+{"question": "What is the capital of France?", "answer": "I cannot answer this from the provided context.", "relevant_doc_ids": []}
+{"question": "Does Acme Cloud offer cryptocurrency payment options?", "answer": "I cannot answer this from the provided context.", "relevant_doc_ids": []}

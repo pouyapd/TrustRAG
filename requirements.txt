@@ -1,0 +1,36 @@
+# Core
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+pydantic>=2.9.2
+pydantic-settings>=2.6.0
+python-dotenv>=1.0.1
+
+# LLM & Embeddings
+openai>=1.54.0
+anthropic>=0.39.0
+sentence-transformers>=3.2.1
+
+# Vector store - 1.5.8 has pre-built wheels for Python 3.12 on Windows
+chromadb>=1.0.0
+
+# Document processing
+pypdf>=5.1.0
+tiktoken>=0.8.0
+
+# Observability
+prometheus-client>=0.21.0
+structlog>=24.4.0
+
+# Evaluation
+numpy>=1.26.4
+pandas>=2.2.3
+scikit-learn>=1.5.2
+
+# Testing
+pytest>=8.3.3
+pytest-asyncio>=0.24.0
+pytest-cov>=6.0.0
+httpx>=0.27.2
+
+# Dev
+ruff>=0.7.4

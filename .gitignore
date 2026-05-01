@@ -1,0 +1,34 @@
+# Environment
+.env
+.venv
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+.ruff_cache/
+
+# Data
+data/chroma/
+data/documents/*.pdf
+data/documents/*.txt
+!data/documents/.gitkeep
+reports/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Docker
+*.log
