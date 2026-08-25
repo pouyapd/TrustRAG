@@ -92,6 +92,27 @@ class VectorStore:
         """Number of vectors stored."""
         return self.collection.count()
 
+    def doc_chunk_counts(self) -> dict[str, int]:
+        """How many chunks each document contributed to the collection.
+
+        Evaluation needs this to build a correct denominator: chunk-level
+        recall@k and the ideal ranking for nDCG both depend on how many chunks
+        the relevant documents actually have. Returns an empty dict if the
+        store cannot report metadata, so callers degrade to the weaker
+        "among retrieved" variants rather than failing.
+        """
+        try:
+            result = self.collection.get(include=["metadatas"])
+        except Exception as e:  # pragma: no cover - store-specific failure
+            log.warning("doc_chunk_counts_unavailable", error=str(e)[:80])
+            return {}
+
+        counts: dict[str, int] = {}
+        for meta in result.get("metadatas") or []:
+            doc_id = (meta or {}).get("doc_id", "unknown")
+            counts[doc_id] = counts.get(doc_id, 0) + 1
+        return counts
+
     def reset(self) -> None:
         """Delete the collection — useful for tests."""
         self.client.delete_collection(settings.collection_name)

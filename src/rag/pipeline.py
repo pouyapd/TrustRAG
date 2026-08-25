@@ -100,7 +100,14 @@ class RAGPipeline:
         )
 
     def _score_faithfulness(self, question: str, answer: str, context: str) -> float:
-        """LLM-as-judge faithfulness score in [0, 1]."""
+        """LLM-as-judge faithfulness score in [0, 1].
+
+        Note the judge is currently `self.llm` — the same model that produced
+        the answer. That is self-evaluation, and its optimistic bias is a known
+        limitation recorded in the evaluation report rather than corrected
+        here; an independent judge is a separate change.
+        """
+        raw = ""
         try:
             prompt = FAITHFULNESS_PROMPT.format(
                 question=question, answer=answer, context=context[:4000]
@@ -111,5 +118,7 @@ class RAGPipeline:
             score = float(raw.strip().split()[0])
             return max(0.0, min(1.0, score))
         except (ValueError, IndexError) as e:
+            # `raw` is initialised above so this handler cannot itself raise
+            # UnboundLocalError when generate() is what failed.
             log.warning("faithfulness_parse_failed", error=str(e), raw=raw[:50])
             return 0.0
