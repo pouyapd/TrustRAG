@@ -13,14 +13,35 @@ from src.rag.providers import EmbeddingProvider
 log = get_logger(__name__)
 
 
+def _optional_int(value: object) -> int | None:
+    """Coerce a stored metadata value to int, tolerating absence.
+
+    Older collections were written without offsets, so a missing key must read
+    as None rather than raising or defaulting to a misleading 0.
+    """
+    if value is None:
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
 @dataclass
 class RetrievalResult:
-    """A retrieved chunk with its similarity score."""
+    """A retrieved chunk with its similarity score.
+
+    `start_char`/`end_char` are the chunk's half-open character range in its
+    source document, carried through from ingestion. They are None only for
+    vectors written before offsets were recorded.
+    """
     chunk_id: str
     doc_id: str
     text: str
     source: str
     score: float
+    start_char: int | None = None
+    end_char: int | None = None
 
 
 class VectorStore:
@@ -84,6 +105,8 @@ class VectorStore:
                     text=doc,
                     source=meta.get("source", "unknown"),
                     score=float(1.0 - dist),
+                    start_char=_optional_int(meta.get("start_char")),
+                    end_char=_optional_int(meta.get("end_char")),
                 )
             )
         return results
