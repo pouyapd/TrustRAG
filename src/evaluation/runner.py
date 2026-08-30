@@ -39,6 +39,15 @@ from src.evaluation.correctness import (
     key_fact_recall,
     key_facts,
 )
+from src.evaluation.evidence import (
+    EvidenceMode,
+    EvidenceStatus,
+    align_evidence,
+    answer_supported_by_evidence,
+    attribute_stage,
+    retrieved_from_chunks,
+    spans_from_records,
+)
 from src.evaluation.failure_modes import FailureDiagnosis, classify_failure
 from src.evaluation.metrics import (
     chunk_precision_at_k,
@@ -127,6 +136,25 @@ class EvalRow:
     num_key_facts: int = 0
     abstained: bool = False
 
+    # ---- added (W2): evidence-aware retrieval and attribution ----
+    #: All acceptable reference answers, not just the first.
+    reference_answers: list[str] = field(default_factory=list)
+    evidence_status: str = ""
+    evidence_recall: float | None = None
+    evidence_precision: float | None = None
+    first_evidence_rank: int | None = None
+    n_gold_spans: int = 0
+    n_covered_spans: int = 0
+    missing_evidence_doc_ids: list[str] = field(default_factory=list)
+    evidence_mode: str = ""
+    evidence_degraded: bool = False
+    attribution_stage: str = ""
+    attribution_reason: str = ""
+    #: True only when the answer is correct AND the gold evidence was in
+    #: context. A correct answer without it indicates parametric knowledge.
+    answer_grounded: bool = False
+    answerability_label: str = ""
+
     # ---- added: taxonomy v2 ----
     failure_mode_v2: str = ""
     failure_reason_v2: str = ""
@@ -135,6 +163,13 @@ class EvalRow:
     taxonomy_version: str = ""
     taxonomy_config_fingerprint: str = ""
     decision_features: dict = field(default_factory=dict)
+
+
+def is_refusal_answer(answer: str) -> bool:
+    """Whether an answer is an explicit abstention."""
+    from src.evaluation.correctness import is_refusal
+
+    return is_refusal(answer)
 
 
 def load_dataset(path: Path) -> list[dict]:
@@ -184,6 +219,22 @@ def run_inference(
         reference: str = item.get("answer", "")
         relevant_ids: list[str] = item.get("relevant_doc_ids", [])
 
+        # Richer dataset fields when present. A legacy three-key item simply
+        # has none of these and everything downstream degrades gracefully.
+        evidence_metadata = {
+            key: item[key]
+            for key in (
+                "question_id",
+                "answers",
+                "supporting_spans",
+                "evidence_mode",
+                "answerability",
+                "hops",
+                "question_type",
+            )
+            if key in item
+        }
+
         response = pipeline.query(question, top_k=top_k)
 
         records.append(
@@ -211,6 +262,7 @@ def run_inference(
                 top_k=top_k,
                 n_relevant_chunks=_relevant_chunk_count(relevant_ids, doc_chunk_counts),
                 corpus_chunk_count=corpus_chunks,
+                metadata=evidence_metadata,
             )
         )
         log.info("inference_row_done", index=i, num_retrieved=len(response.sources))
@@ -220,6 +272,46 @@ def run_inference(
 # ---------------------------------------------------------------
 # Phase 2 — scoring and classification (pure, no model calls)
 # ---------------------------------------------------------------
+
+def _best_over_references(answer: str, references: list[str]) -> tuple[float, float, float, float, float | None]:
+    """Score against every acceptable answer and keep the best.
+
+    Natural Questions dev is five-way annotated and QASPER accepts several
+    extractive spans, so a prediction matching annotator three is still
+    correct. Taking the maximum over references is the standard treatment;
+    privileging `answers[0]` would understate correctness by construction.
+
+    Returns (exact_match, f1, precision, recall, key_fact_recall).
+    """
+    best = (0.0, 0.0, 0.0, 0.0, None)
+    for reference in references:
+        if not reference:
+            continue
+        precision, recall, f1 = answer_precision_recall_f1(answer, reference)
+        em = exact_match(answer, reference)
+        kfr = key_fact_recall(answer, reference)
+        candidate = (em, f1, precision, recall, kfr)
+        # Rank on exact match first, then F1: a reference the answer matches
+        # exactly is the one it should be judged against.
+        if (candidate[0], candidate[1]) > (best[0], best[1]):
+            best = candidate
+    return best
+
+
+def _evidence_for(record: InferenceRecord) -> tuple:
+    """Align gold evidence for one record, tolerating legacy records.
+
+    Legacy records carry no supporting spans, so alignment reports
+    NOT_APPLICABLE and attribution falls back to the answer alone.
+    """
+    metadata = record.metadata or {}
+    gold_spans = spans_from_records(metadata.get("supporting_spans") or [])
+    mode = metadata.get("evidence_mode") or EvidenceMode.ANY_SUFFICIENT.value
+    alignment = align_evidence(
+        gold_spans, retrieved_from_chunks(record.retrieved), evidence_mode=mode
+    )
+    return alignment, metadata
+
 
 def score_record(
     record: InferenceRecord,
@@ -248,8 +340,35 @@ def score_record(
         token_overlap_score=legacy_overlap,
     )
 
-    # --- corrected answer correctness ---
-    ans_precision, ans_recall, ans_f1 = answer_precision_recall_f1(answer, reference)
+    # --- corrected answer correctness, best over all acceptable answers ---
+    metadata = record.metadata or {}
+    references = [str(a) for a in (metadata.get("answers") or []) if str(a).strip()]
+    if not references and reference:
+        references = [reference]
+    best_em, best_f1, ans_precision, ans_recall, best_kfr = _best_over_references(
+        answer, references
+    )
+    # Legacy single-reference values stay available for continuity.
+    _, _, ans_f1 = answer_precision_recall_f1(answer, reference)
+
+    # --- evidence alignment and attribution (W2) ---
+    alignment, _meta = _evidence_for(record)
+    answerable = (
+        bool(record.relevant_doc_ids)
+        if "answerability" not in metadata
+        else str(metadata["answerability"]).startswith("answerable")
+    )
+    abstained_flag = is_refusal_answer(answer)
+    # "Correct" for attribution is deliberately strict: the answer must carry
+    # the reference's facts, not merely share vocabulary with it.
+    answer_is_correct = bool(best_em) or (best_kfr is not None and best_kfr >= 1.0) or best_f1 >= 0.6
+    stage, stage_reason = attribute_stage(
+        alignment=alignment,
+        answer_is_correct=answer_is_correct,
+        is_answerable=answerable,
+        abstained=abstained_flag,
+        n_retrieved=len(record.retrieved),
+    )
 
     # --- taxonomy v2 ---
     features = extract_features(
@@ -289,13 +408,27 @@ def score_record(
         first_relevant_rank=first_relevant_rank(retrieved_doc_ids, relevant_ids),
         reciprocal_rank=reciprocal_rank(retrieved_doc_ids, relevant_ids),
         ndcg_at_k=ndcg_at_k(retrieved_doc_ids, relevant_ids, top_k, record.n_relevant_chunks),
-        answer_exact_match=exact_match(answer, reference),
-        answer_f1_normalized=ans_f1,
+        answer_exact_match=best_em,
+        answer_f1_normalized=max(best_f1, ans_f1),
         answer_precision_normalized=ans_precision,
         answer_recall_normalized=ans_recall,
-        key_fact_recall=key_fact_recall(answer, reference),
+        key_fact_recall=best_kfr if best_kfr is not None else key_fact_recall(answer, reference),
         num_key_facts=len(key_facts(reference)),
         abstained=features.abstained,
+        reference_answers=references,
+        evidence_status=str(alignment.status),
+        evidence_recall=alignment.evidence_recall,
+        evidence_precision=alignment.evidence_precision,
+        first_evidence_rank=alignment.first_evidence_rank,
+        n_gold_spans=alignment.n_gold_spans,
+        n_covered_spans=alignment.n_covered_spans,
+        missing_evidence_doc_ids=list(alignment.missing_doc_ids),
+        evidence_mode=alignment.evidence_mode,
+        evidence_degraded=alignment.degraded_to_document_level,
+        attribution_stage=str(stage),
+        attribution_reason=stage_reason,
+        answer_grounded=answer_supported_by_evidence(alignment, answer_is_correct),
+        answerability_label=str(metadata.get("answerability", "")),
         failure_mode_v2=diagnosis_v2.mode.value,
         failure_reason_v2=diagnosis_v2.reason,
         failure_rule_v2=diagnosis_v2.rule_id,
@@ -514,10 +647,50 @@ def aggregate(rows: list[EvalRow], taxonomy_config: TaxonomyConfig | None = None
         abstained=[r.abstained for r in rows],
     )
 
+    report["evidence"] = _evidence_summary(rows)
     report["confidence_intervals"] = _confidence_intervals(rows, failures, v2_failures)
     report["taxonomy_comparison"] = _taxonomy_comparison(rows)
     report["statistical_notes"] = _statistical_notes(rows)
     return report
+
+
+def _evidence_summary(rows: list[EvalRow]) -> dict:
+    """Evidence-level retrieval and attribution, over rows that have gold spans.
+
+    Rows without gold evidence are excluded rather than counted as zero: an
+    unanswerable question has no evidence to retrieve, and scoring it as a
+    retrieval miss would understate retrieval quality for reasons that have
+    nothing to do with the retriever.
+    """
+    scored = [r for r in rows if r.n_gold_spans > 0]
+    if not scored:
+        return {"n_with_gold_evidence": 0, "note": "no rows carry gold evidence spans"}
+
+    status_counts = Counter(r.evidence_status for r in scored)
+    attribution = Counter(r.attribution_stage for r in rows if r.attribution_stage)
+    degraded = sum(1 for r in scored if r.evidence_degraded)
+    grounded = sum(1 for r in scored if r.answer_grounded)
+
+    complete = status_counts.get(str(EvidenceStatus.COMPLETE), 0)
+    return {
+        "n_with_gold_evidence": len(scored),
+        "evidence_status": dict(status_counts),
+        "evidence_complete_rate": round(complete / len(scored), 3),
+        "evidence_recall_mean": _mean_or_none([r.evidence_recall for r in scored]),
+        "evidence_precision_mean": _mean_or_none([r.evidence_precision for r in scored]),
+        "first_evidence_rank_mean": _mean_or_none(
+            [float(r.first_evidence_rank) if r.first_evidence_rank else None for r in scored]
+        ),
+        "answer_grounded_rate": round(grounded / len(scored), 3),
+        "attribution_stages": dict(attribution),
+        "rows_with_degraded_alignment": degraded,
+        "note": (
+            "Evidence metrics are computed from exact character-offset overlap between "
+            "gold spans and retrieved chunks. Rows without gold evidence are excluded. "
+            "answer_grounded counts answers that are both correct and supported by "
+            "evidence actually present in the retrieved context."
+        ),
+    }
 
 
 def _confidence_intervals(
