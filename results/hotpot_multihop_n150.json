@@ -1,0 +1,258 @@
+{
+  "total": 150,
+  "precision_at_k_mean": 0.3,
+  "recall_at_k_mean": 0.75,
+  "mrr_mean": 0.871,
+  "token_overlap_mean": 0.053,
+  "faithfulness_mean": 0.999,
+  "failure_rate": 0.987,
+  "failure_modes": {
+    "partial_answer": 147,
+    "wrong_retrieval": 1,
+    "ok": 2
+  },
+  "failure_rate_v2": 0.747,
+  "failure_modes_v2": {
+    "incorrect_answer": 102,
+    "ok": 38,
+    "partial_answer": 9,
+    "wrong_retrieval": 1
+  },
+  "attribution": {
+    "retrieval": 1,
+    "generation": 111,
+    "total_failures": 112,
+    "retrieval_share": 0.009,
+    "note": "Stage attribution is a declared mapping from failure mode to pipeline stage (see taxonomy.STAGE_ATTRIBUTION), not an inferred causal claim. A controlled oracle-context ablation is required for causal attribution."
+  },
+  "retrieval_corrected": {
+    "n_answerable": 150,
+    "n_unanswerable": 0,
+    "doc_recall_at_k_mean": 0.75,
+    "doc_precision_at_k_mean": 0.302,
+    "chunk_precision_at_k_mean": 0.3,
+    "chunk_recall_at_k_mean": 0.741,
+    "hit_rate_at_k_mean": 0.993,
+    "ndcg_at_k_mean": 0.717,
+    "reciprocal_rank_mean": 0.871,
+    "first_relevant_rank_mean": 1.376,
+    "note": "Computed over answerable questions only; unanswerable questions have no defined retrieval target and are excluded rather than scored as 0."
+  },
+  "answer_corrected": {
+    "exact_match_mean": 0.0,
+    "f1_normalized_mean": 0.045,
+    "key_fact_recall_mean": 0.313
+  },
+  "abstention": {
+    "n_answerable": 150,
+    "n_unanswerable": 0,
+    "false_answer_rate": null,
+    "false_refusal_rate": 0.0,
+    "abstention_accuracy": 1.0
+  },
+  "evidence": {
+    "n_with_gold_evidence": 150,
+    "evidence_status": {
+      "partial": 73,
+      "complete": 76,
+      "none": 1
+    },
+    "evidence_complete_rate": 0.507,
+    "evidence_recall_mean": 0.753,
+    "evidence_precision_mean": 0.3,
+    "first_evidence_rank_mean": 1.376,
+    "answer_grounded_rate": 0.18,
+    "attribution_stages": {
+      "retrieval": 74,
+      "none": 27,
+      "generation": 49
+    },
+    "rows_with_degraded_alignment": 0,
+    "note": "Evidence metrics are computed from exact character-offset overlap between gold spans and retrieved chunks. Rows without gold evidence are excluded. answer_grounded counts answers that are both correct and supported by evidence actually present in the retrieved context."
+  },
+  "confidence_intervals": {
+    "failure_rate": {
+      "point": 0.9866666666666667,
+      "lower": 0.9526930912996325,
+      "upper": 0.9963358708487731,
+      "n": 150,
+      "method": "wilson",
+      "confidence": 0.95,
+      "sufficient": true,
+      "note": "n=150"
+    },
+    "failure_rate_v2": {
+      "point": 0.7466666666666667,
+      "lower": 0.6715059067359275,
+      "upper": 0.8095087727091548,
+      "n": 150,
+      "method": "wilson",
+      "confidence": 0.95,
+      "sufficient": true,
+      "note": "n=150"
+    },
+    "token_overlap_mean": {
+      "point": 0.05304408157419057,
+      "lower": 0.0409192697871433,
+      "upper": 0.06591924065752668,
+      "n": 150,
+      "method": "bootstrap_percentile",
+      "confidence": 0.95,
+      "sufficient": true,
+      "note": "n=150"
+    },
+    "answer_f1_normalized_mean": {
+      "point": 0.04502534465264995,
+      "lower": 0.034072697736805616,
+      "upper": 0.056717207772915404,
+      "n": 150,
+      "method": "bootstrap_percentile",
+      "confidence": 0.95,
+      "sufficient": true,
+      "note": "n=150"
+    },
+    "failure_mode_shares_v2": {
+      "incorrect_answer": {
+        "point": 0.68,
+        "lower": 0.6016560026038712,
+        "upper": 0.7493547094236214,
+        "n": 150,
+        "method": "wilson",
+        "confidence": 0.95,
+        "sufficient": true,
+        "note": "n=150"
+      },
+      "ok": {
+        "point": 0.25333333333333335,
+        "lower": 0.19049122729084522,
+        "upper": 0.32849409326407264,
+        "n": 150,
+        "method": "wilson",
+        "confidence": 0.95,
+        "sufficient": true,
+        "note": "n=150"
+      },
+      "partial_answer": {
+        "point": 0.06,
+        "lower": 0.03188404420920533,
+        "upper": 0.11008977083470209,
+        "n": 150,
+        "method": "wilson",
+        "confidence": 0.95,
+        "sufficient": true,
+        "note": "n=150"
+      },
+      "wrong_retrieval": {
+        "point": 0.006666666666666667,
+        "lower": 0.0011778013350174366,
+        "upper": 0.03679283977481815,
+        "n": 150,
+        "method": "wilson",
+        "confidence": 0.95,
+        "sufficient": true,
+        "note": "n=150"
+      }
+    },
+    "hit_rate_at_k_mean": {
+      "point": 0.9933333333333333,
+      "lower": 0.9632071602251817,
+      "upper": 0.9988221986649826,
+      "n": 150,
+      "method": "wilson",
+      "confidence": 0.95,
+      "sufficient": true,
+      "note": "n=150"
+    },
+    "faithfulness_mean": {
+      "point": 0.9994,
+      "lower": 0.9982,
+      "upper": 1.0,
+      "n": 150,
+      "method": "bootstrap_percentile",
+      "confidence": 0.95,
+      "sufficient": true,
+      "note": "n=150"
+    }
+  },
+  "statistical_notes": [
+    "No unanswerable questions in this dataset: failure-to-abstain cannot be measured at all.",
+    "Inference is deterministic in the offline configuration, so repeated runs have zero variance. Intervals here describe sampling uncertainty over questions (n=150), not run-to-run variability."
+  ],
+  "experiment": {
+    "tag": "hotpot_multihop_n150",
+    "dataset": "hotpotqa",
+    "split": "validation",
+    "n_questions": 150,
+    "n_documents": 1491,
+    "loader_skipped": {},
+    "corpus": {
+      "n_documents": 1491,
+      "n_chunks": 1571,
+      "chunk_size": 256,
+      "chunk_overlap": 32,
+      "total_characters": 818554,
+      "offset_mismatches": 0
+    },
+    "retrieval": {
+      "top_k": 5,
+      "chunk_size": 256,
+      "chunk_overlap": 32,
+      "embedder": "sentence-transformers/all-MiniLM-L6-v2"
+    },
+    "generator": {
+      "name": "MockExtractiveLLM",
+      "kind": "extractive control condition",
+      "note": "No language model was called. The extractive control copies the sentence from retrieved context with the greatest overlap with the question, which bounds generation quality from below and makes the run fully deterministic. Generation-side conclusions must not be drawn from it; retrieval and evidence measurements are unaffected because retrieval is real."
+    },
+    "license": "CC-BY-SA-4.0",
+    "source_url": "https://huggingface.co/datasets/hotpotqa/hotpot_qa"
+  },
+  "provenance": {
+    "timestamp_utc": "2026-08-30T21:17:34+00:00",
+    "git": {
+      "commit": "c6d259ee0fd295f9e6c973b4d235bd114800ce4f",
+      "branch": "research/stages-1-4",
+      "dirty": false
+    },
+    "python": "3.12.7",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "packages": {
+      "chromadb": "1.5.8",
+      "numpy": "2.4.4",
+      "openai": "2.33.0",
+      "anthropic": "0.97.0",
+      "sentence-transformers": "5.4.1",
+      "tiktoken": "0.12.0",
+      "pydantic": "2.13.3",
+      "fastapi": "0.136.1"
+    },
+    "dataset": {
+      "name": "hotpotqa",
+      "raw_file": "hotpot-distractor-validation-0.parquet",
+      "sha256": "c20b638ca82b21d04fe12e14ff417ad05153d4d215a65de54497fca4e972f7c6",
+      "split": "validation",
+      "limit": 150
+    },
+    "taxonomy": {
+      "version": "v2.0",
+      "fingerprint": "4672f4ea2b70"
+    },
+    "pipeline": {
+      "embedder": "sentence-transformers/all-MiniLM-L6-v2",
+      "llm": "MockExtractiveLLM",
+      "top_k": 5
+    }
+  },
+  "taxonomy_v2": {
+    "version": "v2.0",
+    "config_fingerprint": "4672f4ea2b70",
+    "thresholds": {
+      "version": "v2.0",
+      "faithfulness_threshold": 0.6,
+      "answer_f1_ok": 0.6,
+      "key_fact_recall_ok": 1.0,
+      "key_fact_recall_incorrect": 0.2,
+      "fallback_f1_incorrect": 0.1
+    }
+  }
+}
