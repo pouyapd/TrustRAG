@@ -20,7 +20,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import sys
-import tempfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -112,23 +111,30 @@ def main() -> int:
     # A private directory and collection per run: two experiments must never
     # share a collection, and the store is told explicitly rather than through
     # a global that was already bound at import time.
-    with tempfile.TemporaryDirectory(prefix=f"exp_{args.dataset}_") as tmpdir:
-        store = VectorStore(
-            embedder,
-            persist_dir=tmpdir,
-            collection_name=f"exp_{args.dataset}_{args.split}",
-        )
-        corpus_stats = build_corpus(documents, store, chunker, reset=True)
-        log.info("corpus_built", **{k: v for k, v in corpus_stats.as_dict().items()
-                                   if k != "chunks_per_document"})
+    #
+    # The index lives under data/build/ (git-ignored) rather than in a
+    # TemporaryDirectory. On Windows, ChromaDB still holds its SQLite and HNSW
+    # files open when the context manager tries to remove them, so automatic
+    # cleanup raised PermissionError and killed the run before it could score
+    # anything. Keeping the index also makes a run auditable after the fact.
+    index_dir = Path("data/build") / f"index_{args.tag or args.dataset}"
+    index_dir.mkdir(parents=True, exist_ok=True)
+    store = VectorStore(
+        embedder,
+        persist_dir=str(index_dir),
+        collection_name=f"exp_{args.dataset}_{args.split}",
+    )
+    corpus_stats = build_corpus(documents, store, chunker, reset=True)
+    log.info("corpus_built", **{k: v for k, v in corpus_stats.as_dict().items()
+                               if k != "chunks_per_document"})
 
-        # ---- 3. inference ----
-        pipeline = RAGPipeline(vector_store=store, llm=MockExtractiveLLM())
-        dataset_items = [q.to_experiment_item() for q in questions]
-        records = run_inference(
-            dataset_items, pipeline, top_k=args.top_k,
-            doc_chunk_counts=store.doc_chunk_counts(),
-        )
+    # ---- 3. inference ----
+    pipeline = RAGPipeline(vector_store=store, llm=MockExtractiveLLM())
+    dataset_items = [q.to_experiment_item() for q in questions]
+    records = run_inference(
+        dataset_items, pipeline, top_k=args.top_k,
+        doc_chunk_counts=store.doc_chunk_counts(),
+    )
 
     # ---- 4. scoring ----
     taxonomy_config = TaxonomyConfig()

@@ -1,229 +1,237 @@
-# TrustRAG — Production RAG with Systematic Evaluation
+# TrustRAG — Evidence-Aware RAG Evaluation
 
 [![CI](https://github.com/pouyapd/TrustRAG/actions/workflows/ci.yml/badge.svg)](https://github.com/pouyapd/TrustRAG/actions/workflows/ci.yml)
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tests](https://img.shields.io/badge/tests-37%20passing-brightgreen.svg)](tests/)
-[![Coverage](https://img.shields.io/badge/coverage-77%25-green.svg)](tests/)
+![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)
+![License: MIT](https://img.shields.io/badge/license-MIT-green)
 
-A production-ready Retrieval-Augmented Generation (RAG) system with a built-in **evaluation and failure analysis framework**. Beyond standard RAG, TrustRAG measures *when and why* the system fails — retrieval quality, hallucination rate, answer faithfulness — and exposes it through an observable, reproducible pipeline.
+A production RAG service with a research evaluation layer that asks a narrower
+question than usual: **not "did we retrieve the right document?" but "did the
+passage that actually supports the answer reach the generator?"**
 
-> **Why this exists:** Most RAG systems in production have no idea when they're wrong. TrustRAG treats evaluation as a first-class citizen, not an afterthought.
+On a corpus of long documents those are very different questions. A Wikipedia
+page averages ~37,000 characters and an NLP paper ~22,000, so a chunk from
+anywhere inside one satisfies the conventional document-level retrieval test.
+Measured on real corpora, that gap is large, one-directional, and it changes
+where failures get attributed.
 
 ---
 
-## 📊 Real Evaluation Results
+## 1. Project overview
 
-The bundled offline evaluation runs against a 20-question Q/A dataset over a 3-document corpus. Reproducible across machines (deterministic embedder + extractive mock LLM):
+Two things live here:
 
-| Metric | Value | What it means |
+- **A RAG service** — FastAPI, ChromaDB, pluggable providers, Prometheus,
+  Docker. Ordinary, working, and not the interesting part.
+- **A research evaluation layer** — position-aware evidence alignment, a
+  versioned failure taxonomy, corrected retrieval metrics, an attribution
+  hierarchy, and statistics that refuse to overstate small samples.
+
+The research question: *can RAG failures be decomposed into retrieval,
+evidence, generation and abstention causes using reproducible,
+evidence-grounded evaluation rather than a single aggregate score?*
+
+---
+
+## 2. Engineering features
+
+- Modular pipeline — pluggable LLM, embedder and vector store
+- FastAPI service with structured logging and request tracing
+- Prometheus metrics; Docker and docker-compose
+- CI on every push: lint, tests, evaluation regression, Docker build
+- Deterministic offline mode — runs with no API keys and no network
+
+---
+
+## 3. Research methodology
+
+**Character offsets travel the whole path.** Chunk text is *sliced* from the
+source document, never rebuilt by decoding tokens, so
+`document[chunk.start_char:chunk.end_char] == chunk.text` holds by
+construction. Offsets survive chunker → vector store → retrieval → stored
+records.
+
+Offsets are not recovered by searching for the chunk text. `str.find()` returns
+the first occurrence, so in any document that repeats itself every copy
+resolves to the same wrong position.
+
+**Evidence alignment is arithmetic.** A gold span and a retrieved chunk are
+half-open character ranges in one document; overlap decides coverage.
+
+**Attribution refuses to credit ungrounded correctness.** A correct answer
+produced without the gold evidence in context is charged to retrieval, not
+counted as a success — on a Wikipedia-derived corpus that is the difference
+between measuring RAG and measuring memorisation.
+
+**Inference and scoring are separate.** Re-scoring a finished run costs no
+model calls, which is what makes threshold-sensitivity analysis and
+methodology comparison practical.
+
+See [docs/EVALUATION.md](docs/EVALUATION.md) and
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+---
+
+## 4. Evaluation protocol
+
+Three measurement layers, reported side by side, none overwriting another:
+
+1. **Legacy** — frozen, with defects documented, so old numbers reproduce.
+2. **Corrected** — explicit document vs chunk units; `None` instead of 0.0 for
+   unanswerable questions; nDCG, hit-rate, first-relevant-rank.
+3. **Evidence-level** — span coverage, evidence recall/precision, first
+   evidence rank, multi-hop completeness.
+
+---
+
+## 5. Datasets
+
+Natural Questions (CC BY-SA 3.0) and QASPER (CC BY 4.0), chosen because they
+differ structurally — Wikipedia pages with span evidence versus scientific
+papers with paragraph evidence. HotpotQA is implemented for multi-hop but not
+yet run.
+
+**Corpora are not redistributed.** `data/raw/` is git-ignored; loaders,
+checksums and licence metadata are committed instead. Download commands,
+checksums, split discipline and contamination analysis are in
+[docs/DATASETS.md](docs/DATASETS.md).
+
+---
+
+## 6. Failure taxonomy
+
+Nine categories including `incorrect_answer` separated from `partial_answer`,
+`answered_when_unanswerable`, and `ok_abstained` as an explicit success.
+Thresholds are versioned and hashable; every row records the rule that fired
+and the features behind it. See [docs/TAXONOMY.md](docs/TAXONOMY.md).
+
+---
+
+## 7. Evidence-aware evaluation
+
+```
+gold span [1200, 1760)  in doc qasper:1901.00001
+retrieved chunk [900, 2100) in doc qasper:1901.00001
+overlap = 560 chars  ->  covered
+```
+
+Multi-hop: under `all_required` every gold document must contribute a covered
+span. Retrieving one of two required documents is a *retrieval* failure, not a
+generation failure.
+
+---
+
+## 8. Experimental results
+
+Real corpora, real MiniLM embeddings, real retrieval. Two definitions of
+"retrieval succeeded" applied to the *same* retrieval output:
+
+| | QASPER dev | NQ validation |
 |---|---|---|
-| **Recall@k** | **0.90** | Retriever finds relevant docs 90% of the time |
-| **MRR** | **0.83** | Relevant docs typically rank #1 |
-| **Faithfulness** | **1.00** | No hallucinations (extractive baseline) |
-| **Failure rate** | **0.35** | All failures are `partial_answer` — actionable |
-| **Latency** | **2.4 ms** | Sub-millisecond retrieval, no network overhead |
+| n paired | 58 | 60 |
+| Document-level success | 0.707 | **1.000** |
+| Evidence-level success | 0.397 | 0.817 |
+| Gap | **31.0 pp** | **18.3 pp** |
+| Discordant (doc yes / evidence no) | 18 | 11 |
+| Discordant (evidence yes / doc no) | **0** | **0** |
+| Exact McNemar *p* | 7.6 × 10⁻⁶ | 9.8 × 10⁻⁴ |
 
-Reproduce in 30 seconds:
-```bash
-python scripts/run_offline_eval.py
-```
+Attribution moves accordingly. On QASPER a document-level reading blames
+generation for 39 of 60 rows; evidence-level attribution charges 35 to
+retrieval. On NQ the document-level view attributes **zero** failures to
+retrieval and cannot see the 11 that evidence alignment finds.
 
-![Evaluation Report](docs/screenshots/evaluation-report.png)
-
----
-
-## ✅ All 37 Tests Passing
-
-```bash
-pytest tests/ -v --cov=src
-```
-
-![Tests Passing](docs/screenshots/tests-passing.png)
+Full protocol, dataset census and reproduction commands:
+[docs/EXPERIMENTS.md](docs/EXPERIMENTS.md).
 
 ---
 
-## 🚀 Live API
+## 9. Statistical uncertainty
 
-FastAPI with auto-generated OpenAPI docs at `/docs`:
-
-![API Docs](docs/screenshots/api-docs.png)
-
----
-
-## 🎯 Key Features
-
-- **Modular RAG pipeline** — pluggable LLMs, embedders, and vector stores (OpenAI / Anthropic / local Ollama)
-- **Vector retrieval** with ChromaDB and configurable chunking strategies
-- **Systematic evaluation framework** measuring:
-  - Retrieval quality (Precision@k, Recall@k, MRR)
-  - Answer faithfulness (grounding in retrieved context, LLM-as-judge)
-  - Token-overlap with reference answers
-- **Failure mode classifier** — interpretable categorization into 6 distinct modes (`no_retrieval`, `wrong_retrieval`, `hallucination`, `partial_answer`, `refusal_when_answerable`, `ok`), inspired by my prior work on neural model failure analysis
-- **Production API** — FastAPI with async, structured logging, request tracing
-- **Containerized** — Docker + docker-compose for one-command deploy
-- **CI/CD** — GitHub Actions pipeline with automated tests and evaluation regression checks
-- **Observability** — Prometheus metrics + structured JSON logs
-- **Resilient design** — graceful fallbacks (OpenAI → Anthropic → local sentence-transformers → deterministic hash embedder); runs in CI without API keys
+Wilson intervals for proportions, seeded bootstrap for means, **exact** McNemar
+for paired binary comparisons, permutation tests for failure-mode
+distributions. Every estimate carries `n`, an interval and a `sufficient` flag;
+`MIN_N_FOR_INFERENCE = 30` is a stated convention, not a theorem. Reports
+detect and state saturated metrics, zero-variance metrics and rare categories
+in their own output.
 
 ---
 
-## 🏗️ Architecture
+## 10. Limitations
 
-```
-┌─────────────┐    ┌──────────────┐    ┌─────────────┐
-│   Client    │───▶│   FastAPI    │───▶│  RAG Core   │
-└─────────────┘    │   Gateway    │    │  Pipeline   │
-                   └──────┬───────┘    └──────┬──────┘
-                          │                   │
-                          ▼                   ▼
-                   ┌──────────────┐    ┌─────────────┐
-                   │  Prometheus  │    │  ChromaDB   │
-                   │   Metrics    │    │  (vectors)  │
-                   └──────────────┘    └─────────────┘
-                          │                   │
-                          ▼                   ▼
-                   ┌─────────────────────────────────┐
-                   │    Evaluation & Failure Layer   │
-                   │  (faithfulness, hallucination,  │
-                   │   retrieval quality, F-modes)   │
-                   └─────────────────────────────────┘
-```
+Read these before quoting anything above.
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for design decisions and tradeoffs.
+- **No language model was used.** No API key was available, so experiments run
+  a deterministic extractive control. **No generation-side conclusion — no
+  hallucination rate, no faithfulness claim, no model comparison — is supported
+  by these runs.** Retrieval and evidence results are unaffected, because
+  retrieval is real.
+- **The taxonomy is not validated against humans.** Its thresholds were tuned
+  by inspection on a 20-question fixture, which is development data. The
+  annotation package exists; **no labels have been collected.** The headline
+  retrieval result does not depend on those thresholds.
+- **Multi-hop is untested empirically.** Implemented and unit-tested; neither
+  corpus produced a question requiring two documents.
+- **One retrieval configuration.** The size of the gap depends on chunk size,
+  top-k and embedder. Its direction cannot reverse; its magnitude is not a
+  constant.
+- **Contamination is mitigated, not eliminated.** NQ comes from Wikipedia.
+- **Sample sizes are modest** (n≈60 per dataset in the reported comparison).
 
 ---
 
-## 🚀 Quick Start
+## 11. Reproducibility
 
-### Option 1: Offline mode (no API keys, ~2 minutes)
+Every report carries a provenance block: git commit and dirty flag, raw-file
+SHA-256, split, sample size, chunk size and overlap, top-k, embedder and
+generator identity, taxonomy version and threshold fingerprint, Python version,
+platform and package versions. The offline path is deterministic.
 
-Runs the full pipeline using a deterministic mock LLM and hash embedder. Useful for smoke-testing, CI, and demos.
+---
+
+## 12. How to run
 
 ```bash
-git clone https://github.com/pouyapd/TrustRAG.git
-cd TrustRAG
-python -m venv venv && source venv/Scripts/activate  # Windows
-# source venv/bin/activate                            # Mac/Linux
 pip install -r requirements.txt
+
+# Deterministic offline evaluation, no keys, no network
 python scripts/run_offline_eval.py
-```
 
-### Option 2: Local Python with a real LLM
+# Re-score a finished run under different thresholds - no model calls
+python scripts/reclassify.py --records reports/inference.jsonl \
+    --out reports/sweep --sweep-faithfulness 0.3,0.6,0.9
 
-```bash
-cp .env.example .env
-# Edit .env and set OPENAI_API_KEY (or ANTHROPIC_API_KEY)
-python -m src.ingest --path data/documents
-uvicorn src.api.main:app --reload
-```
+# A real experiment (see docs/DATASETS.md for the data first)
+python scripts/run_experiment.py --dataset qasper \
+    --raw data/raw/qasper-dev-v0.3.json --split dev \
+    --limit 60 --embedder minilm --out reports/experiments/qasper
 
-Then open `http://localhost:8000/docs`.
+# Paired methodology comparison
+python scripts/run_ablation.py \
+    --records reports/experiments/qasper/inference.jsonl \
+    --out reports/experiments/ablation_qasper.json
 
-### Option 3: Docker (production-like)
+# Human-annotation package (produces empty labels for a person to fill in)
+python scripts/build_annotation_package.py \
+    --records reports/experiments/qasper/inference.jsonl \
+    --out reports/annotation/qasper
 
-```bash
-cp .env.example .env
-docker-compose up --build
-```
-
-This starts the API on `:8000` and Prometheus on `:9090`.
-
----
-
-## 📡 API Endpoints
-
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/ingest` | Ingest documents into the vector store |
-| POST | `/query` | Ask a question, get an answer + sources + faithfulness score |
-| POST | `/evaluate` | Run evaluation suite on a Q/A dataset |
-| GET | `/metrics` | Prometheus metrics |
-| GET | `/health` | Health check |
-
-### Example query
-
-```bash
-curl -X POST http://localhost:8000/query \
-  -H "Content-Type: application/json" \
-  -d '{"question": "How long is the refund window for annual plans?"}'
-```
-
-```json
-{
-  "answer": "The refund window for annual plans is 30 days from the date of purchase.",
-  "sources": [
-    {
-      "doc_id": "refund_policy",
-      "source": "refund_policy.md",
-      "score": 0.91,
-      "snippet": "Annual subscribers have a 30-day refund window..."
-    }
-  ],
-  "faithfulness_score": 0.97,
-  "latency_ms": 412.3
-}
-```
-
----
-
-## 📊 Evaluation Framework
-
-TrustRAG ships with an evaluation suite that runs against a labeled Q/A dataset and produces:
-
-- **Per-query metrics** — faithfulness, retrieval quality, token overlap
-- **Aggregate report** — mean / median / failure rate
-- **Failure case catalog** — every failure tagged with its category
-- **Markdown report** suitable for stakeholders
-
-Run it:
-
-```bash
-python -m src.evaluation.runner --dataset data/eval/qa_test.jsonl --out reports/
-```
-
-The framework distinguishes 6 failure modes — see [src/evaluation/failure_modes.py](src/evaluation/failure_modes.py) for the decision tree.
-
-See [docs/SAMPLE_EVALUATION.md](docs/SAMPLE_EVALUATION.md) for an annotated walkthrough of a full evaluation run.
-
----
-
-## 🧪 Testing
-
-```bash
 pytest tests/ -v --cov=src
 ```
 
-37 tests across unit, integration, and API levels. CI runs the full suite + an evaluation regression on every PR.
+The service still runs as a service:
+
+```bash
+cp .env.example .env      # set OPENAI_API_KEY
+docker-compose up --build # API on :8000, Prometheus on :9090
+```
 
 ---
 
-## 🛠️ Tech Stack
+## License
 
-- **Backend:** Python 3.11+, FastAPI, Pydantic v2, async/await
-- **LLM/Embeddings:** OpenAI, Anthropic, local sentence-transformers (pluggable)
-- **Vector store:** ChromaDB
-- **Evaluation:** custom framework with retrieval metrics + LLM-as-judge faithfulness
-- **Infra:** Docker, docker-compose, GitHub Actions
-- **Observability:** Prometheus, structlog
+MIT (this code). The evaluated corpora carry their own licences — see
+[docs/DATASETS.md](docs/DATASETS.md).
 
----
+## Author
 
-## 🧭 Why "TrustRAG"?
-
-My background is in **safety-critical AI evaluation** — analyzing when and why neural models fail in autonomous robotics ([SafeTraj](https://github.com/pouyapd/SafeTraj-Prototype), part of the EU Horizon REXASI-PRO project). This project applies the same evaluation-first mindset to LLM systems: don't just build it — measure it, characterize its failure modes, and make them visible.
-
-The decision-tree failure classifier here is the same shape as the one I used to extract human-readable failure rules from neural trajectory predictors — different domain, same engineering discipline.
-
----
-
-## 📄 License
-
-MIT
-
----
-
-## 👤 Author
-
-**Pouya Bathaei Pourmand** — ML Engineer · Safe AI & Evaluation
-[GitHub](https://github.com/pouyapd) · [LinkedIn](https://www.linkedin.com/in/pouya-pourmand-021654325)
+Pouya Bathaei Pourmand — ML Engineer, safe AI and evaluation.
