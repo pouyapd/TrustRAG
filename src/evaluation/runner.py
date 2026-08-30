@@ -201,6 +201,8 @@ def run_inference(
                         source=s.source,
                         score=s.score,
                         text=s.text,
+                        start_char=getattr(s, "start_char", None),
+                        end_char=getattr(s, "end_char", None),
                     )
                     for rank, s in enumerate(response.sources, start=1)
                 ],

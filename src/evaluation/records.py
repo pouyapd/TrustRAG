@@ -25,7 +25,14 @@ RECORD_SCHEMA_VERSION = "1.0"
 
 @dataclass
 class RetrievedChunk:
-    """One retrieved chunk, with its position in the ranking."""
+    """One retrieved chunk, with its position in the ranking.
+
+    `start_char`/`end_char` locate the chunk in its source document as a
+    half-open range. Storing them here is what will let a scorer decide whether
+    this exact chunk overlaps a labelled supporting span, without searching for
+    the chunk text — a search that is ambiguous in any document that repeats
+    itself. None means the vector predates offset recording.
+    """
 
     rank: int
     chunk_id: str
@@ -33,6 +40,8 @@ class RetrievedChunk:
     source: str
     score: float
     text: str = ""
+    start_char: int | None = None
+    end_char: int | None = None
 
     def as_dict(self) -> dict:
         return asdict(self)
@@ -46,6 +55,10 @@ class RetrievedChunk:
             source=str(data.get("source", "unknown")),
             score=float(data.get("score", 0.0)),
             text=str(data.get("text", "")),
+            start_char=(
+                None if data.get("start_char") is None else int(data["start_char"])
+            ),
+            end_char=None if data.get("end_char") is None else int(data["end_char"]),
         )
 
 
