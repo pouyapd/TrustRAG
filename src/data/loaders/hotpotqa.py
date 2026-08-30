@@ -44,7 +44,7 @@ from src.data.schema import (
 class HotpotQaLoader(DatasetLoader):
     """Loads HotpotQA into the unified schema."""
 
-    name = "hotpotqa"
+    name = "hotpotqa_json"
     license_spdx = "CC-BY-SA-4.0"
     source_url = "https://hotpotqa.github.io/"
 
