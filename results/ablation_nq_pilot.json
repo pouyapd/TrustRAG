@@ -1,0 +1,83 @@
+{
+  "tag": "NQ validation pilot",
+  "source_records": "reports\\experiments\\pilot_nq\\inference.jsonl",
+  "n_records": 60,
+  "comparison": {
+    "n_paired": 60,
+    "document_level_success_rate": 1.0,
+    "evidence_level_success_rate": 0.8167,
+    "document_level_ci": {
+      "point": 1.0,
+      "lower": 0.93982814785791,
+      "upper": 0.9999999999999998,
+      "n": 60,
+      "method": "wilson",
+      "confidence": 0.95,
+      "sufficient": true,
+      "note": "n=60"
+    },
+    "evidence_level_ci": {
+      "point": 0.8166666666666667,
+      "lower": 0.7008024625353194,
+      "upper": 0.8944220311080237,
+      "n": 60,
+      "method": "wilson",
+      "confidence": 0.95,
+      "sufficient": true,
+      "note": "n=60"
+    },
+    "gap_percentage_points": 18.33,
+    "discordant_document_only": 11,
+    "discordant_evidence_only": 0,
+    "mcnemar": {
+      "statistic": 11.0,
+      "p_value": 0.0009765625,
+      "effect": 1.0,
+      "n": 11,
+      "method": "mcnemar_exact",
+      "sufficient": true,
+      "note": "11 discordant pairs"
+    },
+    "paired_bootstrap_difference": {
+      "point": 0.18333333333333332,
+      "lower": 0.1,
+      "upper": 0.2833333333333333,
+      "n": 60,
+      "method": "paired_bootstrap_difference",
+      "confidence": 0.95,
+      "sufficient": true,
+      "note": "n=60"
+    },
+    "attribution_document_level": {
+      "none": 18,
+      "generation": 42
+    },
+    "attribution_evidence_level": {
+      "none": 14,
+      "retrieval": 11,
+      "generation": 35
+    },
+    "interpretation": "discordant_document_only counts questions where the conventional document-level metric reports a retrieval success but the labelled supporting span was never placed in the generator's context. Those rows are the ones a document-level evaluation misattributes."
+  },
+  "provenance": {
+    "timestamp_utc": "2026-08-30T20:43:28+00:00",
+    "git": {
+      "commit": "a60df5ee7b243e436505faf85969822d926b16cc",
+      "branch": "research/stages-1-4",
+      "dirty": true
+    },
+    "python": "3.12.7",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "packages": {
+      "chromadb": "1.5.8",
+      "numpy": "2.4.4",
+      "openai": "2.33.0",
+      "anthropic": "0.97.0",
+      "sentence-transformers": "5.4.1",
+      "tiktoken": "0.12.0",
+      "pydantic": "2.13.3",
+      "fastapi": "0.136.1"
+    },
+    "note": "Methodology comparison. Scored from stored records; no model was called."
+  }
+}
