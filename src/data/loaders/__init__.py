@@ -12,6 +12,7 @@ from src.data.loaders.base import (
     get_loader,
     register_loader,
 )
+from src.data.loaders.hotpot_parquet import HotpotQaParquetLoader
 from src.data.loaders.hotpotqa import HotpotQaLoader
 from src.data.loaders.natural_questions import NaturalQuestionsLoader
 from src.data.loaders.nq_parquet import NaturalQuestionsParquetLoader
@@ -21,6 +22,7 @@ __all__ = [
     "DatasetFormatError",
     "DatasetLoader",
     "HotpotQaLoader",
+    "HotpotQaParquetLoader",
     "LoadResult",
     "NaturalQuestionsLoader",
     "NaturalQuestionsParquetLoader",
