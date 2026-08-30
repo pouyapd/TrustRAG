@@ -47,15 +47,33 @@ class RetrievalResult:
 class VectorStore:
     """Persistent vector store over ChromaDB."""
 
-    def __init__(self, embedder: EmbeddingProvider) -> None:
+    def __init__(
+        self,
+        embedder: EmbeddingProvider,
+        persist_dir: str | None = None,
+        collection_name: str | None = None,
+    ) -> None:
+        """Open a collection, defaulting to the configured service settings.
+
+        `persist_dir` and `collection_name` are explicit arguments because the
+        module-level `settings` is bound at import time: reassigning
+        `config.settings` afterwards rebinds the name inside `config` but not
+        the reference captured here, so a caller that set an environment
+        variable and rebuilt Settings would still silently get the original
+        directory. Two experiments doing that concurrently landed in one
+        collection and raced on reset(). Passing the values in removes the
+        ambiguity entirely.
+        """
         self.embedder = embedder
-        Path(settings.chroma_persist_dir).mkdir(parents=True, exist_ok=True)
+        self.persist_dir = persist_dir or settings.chroma_persist_dir
+        self.collection_name = collection_name or settings.collection_name
+        Path(self.persist_dir).mkdir(parents=True, exist_ok=True)
         self.client = chromadb.PersistentClient(
-            path=settings.chroma_persist_dir,
+            path=self.persist_dir,
             settings=ChromaSettings(anonymized_telemetry=False),
         )
         self.collection = self.client.get_or_create_collection(
-            name=settings.collection_name,
+            name=self.collection_name,
             metadata={"hnsw:space": "cosine"},
         )
 
@@ -137,9 +155,16 @@ class VectorStore:
         return counts
 
     def reset(self) -> None:
-        """Delete the collection — useful for tests."""
-        self.client.delete_collection(settings.collection_name)
+        """Delete and recreate this store's collection.
+
+        Tolerates the collection already being absent: a concurrent reset or a
+        fresh directory should not turn into an error here.
+        """
+        try:
+            self.client.delete_collection(self.collection_name)
+        except Exception as e:  # pragma: no cover - store-specific failure
+            log.info("collection_absent_on_reset", error=str(e)[:80])
         self.collection = self.client.get_or_create_collection(
-            name=settings.collection_name,
+            name=self.collection_name,
             metadata={"hnsw:space": "cosine"},
         )

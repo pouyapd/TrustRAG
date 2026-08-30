@@ -109,15 +109,15 @@ def main() -> int:
     embedder, embedder_name = build_embedder(args.embedder)
     chunker = DocumentChunker(chunk_size=args.chunk_size, chunk_overlap=args.chunk_overlap)
 
+    # A private directory and collection per run: two experiments must never
+    # share a collection, and the store is told explicitly rather than through
+    # a global that was already bound at import time.
     with tempfile.TemporaryDirectory(prefix=f"exp_{args.dataset}_") as tmpdir:
-        import os
-
-        os.environ["CHROMA_PERSIST_DIR"] = tmpdir
-        from src import config
-
-        config.settings = config.Settings()
-
-        store = VectorStore(embedder)
+        store = VectorStore(
+            embedder,
+            persist_dir=tmpdir,
+            collection_name=f"exp_{args.dataset}_{args.split}",
+        )
         corpus_stats = build_corpus(documents, store, chunker, reset=True)
         log.info("corpus_built", **{k: v for k, v in corpus_stats.as_dict().items()
                                    if k != "chunks_per_document"})
