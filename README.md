@@ -125,20 +125,29 @@ generation failure.
 Real corpora, real MiniLM embeddings, real retrieval. Two definitions of
 "retrieval succeeded" applied to the *same* retrieval output:
 
-| | QASPER dev | NQ validation |
-|---|---|---|
-| n paired | 58 | 60 |
-| Document-level success | 0.707 | **1.000** |
-| Evidence-level success | 0.397 | 0.817 |
-| Gap | **31.0 pp** | **18.3 pp** |
-| Discordant (doc yes / evidence no) | 18 | 11 |
-| Discordant (evidence yes / doc no) | **0** | **0** |
-| Exact McNemar *p* | 7.6 × 10⁻⁶ | 9.8 × 10⁻⁴ |
+| | QASPER dev | NQ validation | HotpotQA (2-hop) |
+|---|---|---|---|
+| n paired | 290 | 60 | 150 |
+| Document-level success | 0.441 | **1.000** | **0.993** |
+| Evidence-level success | 0.276 | 0.817 | 0.507 |
+| **Gap** | **16.6 pp** | **18.3 pp** | **48.7 pp** |
+| Discordant (doc yes / evidence no) | 48 | 11 | 73 |
+| Discordant (evidence yes / doc no) | **0** | **0** | **0** |
+| Exact McNemar *p* | 7.1e-15 | 9.8e-4 | 2.1e-22 |
 
-Attribution moves accordingly. On QASPER a document-level reading blames
-generation for 39 of 60 rows; evidence-level attribution charges 35 to
-retrieval. On NQ the document-level view attributes **zero** failures to
-retrieval and cannot see the 11 that evidence alignment finds.
+The effect replicates across three corpora with three different evidence
+structures, and the discordance is one-directional in all three.
+
+**Multi-hop is the sharpest case.** Every HotpotQA question needs two
+documents. Document-level retrieval reports 0.993 — it sees almost no retrieval
+failures. Evidence-level measurement finds that **73 of 150 questions received
+exactly one of the two documents they needed**. A document-level metric scores
+all 73 as retrieval successes; the generator could not have answered them
+however good it was.
+
+Attribution moves accordingly. On HotpotQA a document-level reading charges
+**1** failure to retrieval and 111 to generation; evidence-aware attribution
+charges **74** to retrieval.
 
 Full protocol, dataset census and reproduction commands:
 [docs/EXPERIMENTS.md](docs/EXPERIMENTS.md).
@@ -169,8 +178,9 @@ Read these before quoting anything above.
   by inspection on a 20-question fixture, which is development data. The
   annotation package exists; **no labels have been collected.** The headline
   retrieval result does not depend on those thresholds.
-- **Multi-hop is untested empirically.** Implemented and unit-tested; neither
-  corpus produced a question requiring two documents.
+- **Multi-hop rests on one corpus.** Demonstrated on HotpotQA, whose
+  crowdworkers wrote questions while looking at the paragraphs, so lexical
+  anchoring makes retrieval easier than on naturally occurring queries.
 - **One retrieval configuration.** The size of the gap depends on chunk size,
   top-k and embedder. Its direction cannot reverse; its magnitude is not a
   constant.

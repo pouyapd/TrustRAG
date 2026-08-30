@@ -11,7 +11,7 @@ third-party corpora. Nothing is estimated, projected or illustrative.
 | Failure attribution between retrieval and generation | **Real for the retrieval side.** A row is charged to retrieval on evidence grounds that do not involve the generator. |
 | Generation quality, hallucination rates, LLM comparison | **Not supported.** No API key was available, so the generator is a deterministic extractive control, not a language model. |
 | Agreement between the taxonomy and human judgement | **Not measured.** The annotation package exists; no labels have been collected. |
-| Multi-hop evidence behaviour | **Implemented and unit-tested, not empirically exercised.** Neither NQ nor QASPER produced a question requiring more than one document. |
+| Multi-hop evidence behaviour | **Real.** Demonstrated on HotpotQA distractor: 150 genuine 2-hop questions, all `all_required`. |
 
 ---
 
@@ -43,35 +43,60 @@ succeeded" are applied to the *same* retrieval output:
 - **Evidence-level**: did a retrieved chunk actually contain the labelled
   supporting span, by character-offset overlap?
 
-### Pilot, n = 60 per dataset
+### Three datasets, three evidence structures
 
-| | QASPER dev | NQ validation |
-|---|---|---|
-| n paired | 58 | 60 |
-| Document-level success | **0.707** | **1.000** |
-| Evidence-level success | **0.397** | **0.817** |
-| Gap | **31.0 pp** | **18.3 pp** |
-| Discordant: doc says yes, evidence says no | **18** | **11** |
-| Discordant: evidence says yes, doc says no | **0** | **0** |
-| Exact McNemar *p* | **7.6 × 10⁻⁶** | **9.8 × 10⁻⁴** |
+| | QASPER dev | NQ validation | HotpotQA distractor |
+|---|---|---|---|
+| n paired | **290** | 60 | **150** |
+| Evidence structure | paragraph | span | **2-hop, all required** |
+| Document-level success | 0.441 | **1.000** | **0.993** |
+| Evidence-level success | 0.276 | 0.817 | 0.507 |
+| **Gap** | **16.6 pp** | **18.3 pp** | **48.7 pp** |
+| Discordant: doc yes, evidence no | 48 | 11 | 73 |
+| Discordant: evidence yes, doc no | **0** | **0** | **0** |
+| Exact McNemar *p* | 7.1 × 10⁻¹⁵ | 9.8 × 10⁻⁴ | 2.1 × 10⁻²² |
+| Paired bootstrap CI on the gap | [0.124, 0.207] | — | [0.407, 0.567] |
+| n sufficient by project convention | **yes** | no (n=60) | **yes** |
 
-Both are significant, and the discordance is **entirely one-directional** in
-both datasets. That is what the construction predicts — evidence-level coverage
-implies document-level coverage, never the reverse — and its appearance in the
-data is a consistency check on the implementation as much as a result.
+Wilson intervals do not overlap in either sufficiently-powered dataset:
+QASPER document-level [0.385, 0.499] vs evidence-level [0.228, 0.330];
+HotpotQA [0.963, 0.999] vs [0.427, 0.586].
 
-The NQ column is the sharper illustration. Document-level retrieval scores
-**1.000**: it reports that retrieval never failed, and has no discriminative
-power whatsoever on this corpus. Evidence-level measurement finds that 11 of 60
-questions never received their supporting passage.
+The effect replicates across three corpora with different document types and
+three different evidence granularities, and the discordance is **entirely
+one-directional in all three**. That direction is forced by the construction —
+evidence-level coverage implies document-level coverage, never the reverse — so
+its appearance in the data is a consistency check on the implementation as much
+as a result.
 
-**Why this happens.** NQ documents average ~37,000 characters and QASPER papers
-~22,000. Any chunk from anywhere inside one satisfies the document-level test.
-Median gold spans are 636 (NQ) and 560 (QASPER) characters — smaller than the
-median retrieved chunk (~1,100–1,200 characters), so the evidence test is a
-genuinely finer-grained question rather than a degenerate one.
+### The multi-hop case is the sharpest
 
----
+HotpotQA questions each require evidence from **two** documents
+(`evidence_mode = all_required`). Document-level retrieval reports 0.993 — it
+sees essentially no retrieval failures at all. Evidence-level measurement finds:
+
+| Evidence status | count |
+|---|---|
+| complete (both documents) | 76 |
+| **partial (one of two)** | **73** |
+| none | 1 |
+
+**Half the dataset received exactly one of the two documents it needed.** A
+document-level metric counts every one of those as a retrieval success, because
+*a* relevant document was retrieved. Under `all_required` they are retrieval
+failures, and the generator could not have answered them however good it was.
+
+Partial evidence is therefore not a theoretical edge case introduced for
+completeness — on a real multi-hop corpus it is the single largest category.
+
+### Why the gap is smaller on QASPER at n=300 than at n=60
+
+The QASPER gap moved from 31.0 pp (n=58) to 16.6 pp (n=290), because
+document-level success itself fell from 0.707 to 0.441 as the corpus grew from
+22 to 111 papers and retrieval got harder. Evidence-level success fell too
+(0.397 → 0.276). The *gap* narrowed; the *direction and significance*
+strengthened. Quoting a single gap figure as a constant would be wrong: it is a
+property of a corpus and a retrieval configuration.
 
 ## Result 2 — Failure attribution changes materially
 
@@ -79,14 +104,14 @@ Same runs, same rows; only the attribution rule differs. Document-level
 attribution can only reason "the document was retrieved, so what went wrong
 must be generation".
 
-**QASPER dev, n = 60**
+**QASPER dev, n = 300**
 
 | Attributed to | Document-level | Evidence-level |
 |---|---|---|
-| retrieval | 17 | **35** |
-| generation | 39 | 20 |
-| abstention | — | 2 |
-| none | 4 | 3 |
+| retrieval | 162 | **210** |
+| generation | 131 | 74 |
+| abstention | — | 10 |
+| none | 7 | 6 |
 
 **NQ validation, n = 60**
 
@@ -96,11 +121,18 @@ must be generation".
 | generation | 42 | 35 |
 | none | 18 | 14 |
 
-On QASPER the majority verdict flips: a document-level reading blames
-generation for 39 of 60 rows, while evidence-level attribution charges 35 to
-retrieval, because the supporting passage was never in the context. On NQ the
-document-level view attributes **zero** failures to retrieval — it structurally
-cannot see any.
+**HotpotQA multi-hop, n = 150**
+
+| Attributed to | Document-level | Evidence-level |
+|---|---|---|
+| retrieval | **1** | **74** |
+| generation | 111 | 49 |
+| none | 38 | 27 |
+
+The HotpotQA row is the clearest statement of the problem. A document-level
+reading attributes a single failure out of 150 to retrieval and charges 111 to
+generation. Evidence-aware attribution charges 74 to retrieval, because in
+those rows one of the two required documents never reached the generator.
 
 This is the practical consequence of Result 1. An engineer acting on the
 document-level report would tune prompts; the evidence-level report says the
@@ -110,21 +142,24 @@ retriever is the binding constraint.
 
 ## Result 3 — Dataset properties measured, not assumed
 
-| | QASPER dev | NQ validation |
-|---|---|---|
-| Questions loaded (of 300/400 attempted) | 400 | 300 |
-| Documents | 128 papers | 297 pages |
-| Mean document length | 21,831 chars | 37,181 chars |
-| Answerable / unanswerable | 386 / 14 | 300 / 0 |
-| Questions with >1 reference answer | — | **49%** |
-| Mean gold spans per question | 2.16 | 1.0 |
-| Questions requiring >1 document | **0** | **0** |
-| Duplicate page content under distinct ids | — | **0** |
-| Dataset validation failures | **0 / 400** | **0 / 300** |
+| | QASPER dev | NQ validation | HotpotQA |
+|---|---|---|---|
+| Questions loaded | 400 | 300 | 150 |
+| Documents | 128 papers | 297 pages | 1,491 paragraphs |
+| Mean document length | 21,831 chars | 37,181 chars | ~1,100 chars |
+| Answerable / unanswerable | 386 / 14 | 300 / 0 | 150 / 0 |
+| Questions with >1 reference answer | — | **49%** | — |
+| Mean gold spans per question | 2.16 | 1.0 | 2.0+ |
+| Questions requiring >1 document | 0 | 0 | **150 (all)** |
+| Duplicate page content under distinct ids | — | **0** | — |
+| Dataset validation failures | **0 / 400** | **0 / 300** | **0 / 150** |
+| Corpus offset mismatches at index time | **0** | **0** | **0** |
 
-Every gold span in both datasets resolves exactly against the document text the
-loader built — 0 validation failures across 700 questions. That is the
-precondition for every evidence number above.
+Every gold span in all three datasets resolves exactly against the document
+text the loader built — 0 validation failures across 850 questions — and
+`build_corpus` re-verified `document[start:end] == chunk.text` for every chunk
+at index time, including 2,272 chunks over 2.4 M characters of QASPER, with 0
+mismatches. That is the precondition for every evidence number above.
 
 **NQ loader census (300 questions emitted):** 153 items skipped as page-scoped
 nulls — correctly *not* treated as corpus-scoped unanswerables — and 90 skipped
