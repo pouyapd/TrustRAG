@@ -254,6 +254,33 @@ def _tokens_to_char_span(
     return kept[0][0], kept[-1][1]
 
 
+#: The parquet distribution encodes yes/no as a ClassLabel index, where -1 means
+#: "no yes/no answer". The order is authoritative from the parquet schema
+#: metadata: {"yes_no_answer": {"names": ["NO", "YES"], "_type": "ClassLabel"}}.
+#: So 0 is NO and 1 is YES -- not the other way round, which is easy to assume
+#: and would silently invert the reference answer on every yes/no question.
+#: Spot-checked against the data: "did anyone die from ebola in the us" is
+#: annotated 1, "are all firestone tires made in the usa" is annotated 0.
+#:
+#: Older JSON releases use the strings "YES"/"NO". Both are accepted, because
+#: reading only the string form produced a dataset with no yes/no questions at
+#: all -- the run reported question types {factoid: 242, list: 58} and zero
+#: yes_no, which is what exposed this.
+_YES_NO_BY_INDEX = {0: "No", 1: "Yes"}
+
+
+def _yes_no_label(value: object) -> str | None:
+    """Normalise a yes/no annotation to "Yes"/"No", or None when absent."""
+    if isinstance(value, bool):
+        return "Yes" if value else "No"
+    if isinstance(value, int):
+        return _YES_NO_BY_INDEX.get(value)
+    label = str(value).strip().upper()
+    if label in {"YES", "NO"}:
+        return label.capitalize()
+    return None
+
+
 def _collect_answers(
     short_answers: list,
     yes_no: list,
@@ -270,9 +297,9 @@ def _collect_answers(
     question_type = QuestionType.FACTOID
 
     for value in yes_no or []:
-        label = str(value).upper()
-        if label in {"YES", "NO"}:
-            answers.append(label.capitalize())
+        label = _yes_no_label(value)
+        if label:
+            answers.append(label)
             question_type = QuestionType.YES_NO
 
     for annotation in short_answers or []:
