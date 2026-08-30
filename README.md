@@ -85,10 +85,11 @@ Three measurement layers, reported side by side, none overwriting another:
 
 ## 5. Datasets
 
-Natural Questions (CC BY-SA 3.0) and QASPER (CC BY 4.0), chosen because they
-differ structurally — Wikipedia pages with span evidence versus scientific
-papers with paragraph evidence. HotpotQA is implemented for multi-hop but not
-yet run.
+Natural Questions (CC BY-SA 3.0), QASPER (CC BY 4.0) and HotpotQA
+(CC BY-SA 4.0), chosen because they differ structurally: Wikipedia pages with
+span evidence, scientific papers with paragraph evidence, and 2-hop questions
+whose evidence is split across two documents. Agreement across three such
+different corpora is what makes the result more than a property of one dataset.
 
 **Corpora are not redistributed.** `data/raw/` is git-ignored; loaders,
 checksums and licence metadata are committed instead. Download commands,
