@@ -138,6 +138,15 @@ Worked examples from the bundled dataset:
 | How do I reset my password? | Click 'Forgot password' on the login screen to receive a reset link valid for 30 minutes. | If you forget your password, click "Forgot password" on the login screen. | 0.45 | `partial_answer` |
 | How much does the Pro plan cost per month? | 29 EUR per month. | The Pro plan allows 1000 API requests per minute. | 0.00 | `incorrect_answer` |
 
+**Correction to an earlier claim.** An audit of the dataset layer asserted that
+excluding the QASPER abstract from the document body was silently discarding
+abstract-grounded questions. Measured on the real dev split, **zero** evidence
+strings match the abstract exactly, so that loss does not occur. Including the
+abstract is still correct — it is part of the paper a reader saw — but it is a
+robustness improvement, not the bug it was claimed to be. The real unresolvable
+-evidence problem is figure and table captions; see
+[DATASETS.md](DATASETS.md).
+
 Normalization detail: punctuation is replaced with a space rather than deleted.
 Deleting it merges hyphenated compounds — `30-day` becomes the single token
 `30day`, matching neither `30` nor `day` — which produced a false
@@ -147,14 +156,42 @@ Deleting it merges hyphenated compounds — `30-day` becomes the single token
 
 ## Stage attribution
 
-`taxonomy.STAGE_ATTRIBUTION` maps each mode to `retrieval`, `generation`, or
-`none`, and the evaluation report aggregates failures by stage.
+There are now **two** attribution mechanisms, and they answer different
+questions. Both are reported.
 
-**This is a declared mapping, not a causal measurement.** It says where a
-failure of that kind belongs by definition, not that fixing that stage would
-have prevented this row. Establishing causation needs a controlled ablation —
-feed the generator gold context and observe what still fails — which is not
-implemented yet. The report says so in its own `attribution.note` field.
+### 1. Mode-based mapping (`taxonomy.STAGE_ATTRIBUTION`)
+
+Maps each failure mode to `retrieval`, `generation` or `none`. This is a
+**declared mapping, not a causal measurement**: it says where a failure of that
+kind belongs by definition, not that fixing that stage would have prevented
+this row. The report says so in its own `attribution.note` field.
+
+### 2. Evidence-based attribution (`evidence.attribute_stage`)
+
+Introduced with W2 and used whenever gold evidence spans are available. Instead
+of reasoning from the label, it reasons from **what the generator was actually
+given**, established by exact character-offset overlap between gold spans and
+retrieved chunks:
+
+1. Unanswerable question → judged only on abstention.
+2. Nothing retrieved → `retrieval`.
+3. Required evidence never retrieved → `retrieval`, *regardless of the answer*.
+   A correct answer here is not credited as success: without the evidence in
+   context it indicates parametric knowledge, not retrieval.
+4. Evidence present, answer wrong → `generation`.
+5. Evidence present, answer correct → no failure.
+
+This is stronger than the mapping because it can distinguish a generation
+failure from a retrieval failure that merely *looks* like one. Measured on real
+corpora, the two disagree substantially: on QASPER dev the mode-based view
+attributed most failures to generation, while evidence-based attribution
+charged the majority to retrieval, because the supporting passage had never
+reached the generator. See [EXPERIMENTS.md](EXPERIMENTS.md).
+
+Multi-hop is where the difference bites hardest: under `all_required`,
+retrieving one of two required documents is `partial` — a retrieval failure —
+whereas the v2 taxonomy's `retrieval_hit` feature counts any single overlap as
+a hit and would charge the row to generation.
 
 ---
 
@@ -175,6 +212,11 @@ diagnostic instrument and not yet a validated one.
    what a person would say. Until an annotation study with at least two
    annotators and a reported agreement statistic exists, the taxonomy is a
    proposal. This is the single largest gap.
+
+   The annotation package now exists — `scripts/build_annotation_package.py`
+   produces stratified, blinded units with the proposed label withheld in a
+   separate key file and sampling weights recorded for reweighting. **No labels
+   have been collected.** Nothing in this repository fills them in.
 
 3. **Key-fact recall is lexical.** It cannot recognise a correct paraphrase
    that shares no vocabulary with the reference, and it cannot detect a negation

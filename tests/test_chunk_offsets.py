@@ -337,3 +337,57 @@ class TestBackwardCompatibility:
         assert_offsets_exact(document, chunks)
         # Overlap on tokens must show up as overlap on characters.
         assert chunks[1].start_char < chunks[0].end_char
+
+
+# ---------------------------------------------------------------
+# Regression: vector store isolation
+# ---------------------------------------------------------------
+
+class TestVectorStoreIsolation:
+    """`from src.config import settings` binds at import time.
+
+    Rebinding `config.settings` afterwards therefore did not change the
+    directory the store actually used, so two concurrent experiments that each
+    set CHROMA_PERSIST_DIR landed in one collection and raced on reset(),
+    failing with "Collection does not exist". The store now takes both values
+    explicitly.
+    """
+
+    def test_explicit_persist_dir_and_collection_are_honoured(self, tmp_path):
+        from src.rag.providers import HashEmbeddings
+        from src.rag.vector_store import VectorStore
+
+        store = VectorStore(
+            HashEmbeddings(), persist_dir=str(tmp_path / "a"), collection_name="coll_a"
+        )
+        assert store.persist_dir == str(tmp_path / "a")
+        assert store.collection_name == "coll_a"
+        assert (tmp_path / "a").exists()
+
+    def test_two_stores_do_not_share_a_collection(self, tmp_path):
+        from src.rag.chunking import DocumentChunker, _WordTokenizer
+        from src.rag.providers import HashEmbeddings
+        from src.rag.vector_store import VectorStore
+
+        chunker = DocumentChunker(chunk_size=5, chunk_overlap=0)
+        chunker.encoder = _WordTokenizer()
+
+        a = VectorStore(HashEmbeddings(), persist_dir=str(tmp_path / "a"), collection_name="coll_a")
+        b = VectorStore(HashEmbeddings(), persist_dir=str(tmp_path / "b"), collection_name="coll_b")
+        a.add(chunker.chunk_text("alpha beta gamma delta", doc_id="da", source="a.md"))
+        b.add(chunker.chunk_text("epsilon zeta eta theta", doc_id="db", source="b.md"))
+
+        # Resetting one must not disturb the other.
+        a.reset()
+        assert a.count() == 0
+        assert b.count() > 0
+        assert {r.doc_id for r in b.search("zeta", top_k=5)} == {"db"}
+
+    def test_reset_tolerates_a_missing_collection(self, tmp_path):
+        from src.rag.providers import HashEmbeddings
+        from src.rag.vector_store import VectorStore
+
+        store = VectorStore(HashEmbeddings(), persist_dir=str(tmp_path), collection_name="coll_c")
+        store.reset()
+        store.reset()  # second reset must not raise
+        assert store.count() == 0

@@ -14,6 +14,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
+
+# Install the CPU-only PyTorch build BEFORE the rest of the requirements.
+# sentence-transformers depends on torch, and the default PyPI wheel bundles
+# the entire CUDA runtime (cuBLAS, cuDNN, Triton and friends), which added
+# roughly 8 GB to a CPU-only image. Installing the CPU wheel first satisfies
+# the dependency, so the later resolve leaves it alone. Embeddings are
+# identical: this image never had a GPU to use.
+RUN pip install --index-url https://download.pytorch.org/whl/cpu torch
+
 RUN pip install -r requirements.txt
 
 COPY src/ ./src/
