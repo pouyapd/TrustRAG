@@ -22,6 +22,33 @@ where failures get attributed.
 
 ---
 
+## TrustRAG in action
+
+**The running service.** FastAPI with the RAG endpoints and the evaluation
+endpoint side by side — captured from the live application, not a mockup:
+
+![TrustRAG OpenAPI interface](docs/screenshots/api-docs.png)
+
+**The study.** `python scripts/reproduce_study.py --all` runs all five
+experiments and prints this table. Verbatim output, no API key required:
+
+```
+experiment           chunks/doc   A doc  B quant  C span   quant    gran
+qasper_dev_300               19   0.441    0.441   0.276    0.0p   16.6p
+nq_val_300_fixed             31   0.997    0.997   0.730    0.0p   26.7p
+hotpot_150                    2   0.993    0.507   0.507   48.7p    0.0p
+qasper_c128                  43   0.445    0.445   0.259    0.0p   18.6p
+qasper_c512                   9   0.428    0.428   0.317    0.0p   11.0p
+```
+
+`A` is the conventional document-level retrieval metric; `C` asks whether the
+gold evidence span actually reached the generator. The two right-hand columns
+separate *why* they differ — a multi-hop quantifier effect from a span
+granularity effect — and the last two rows show the granularity effect tracking
+chunk size exactly as its mechanism predicts.
+
+---
+
 ## 1. Project overview
 
 Two things live here:
