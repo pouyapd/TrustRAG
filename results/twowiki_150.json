@@ -1,0 +1,259 @@
+{
+  "total": 150,
+  "precision_at_k_mean": 0.316,
+  "recall_at_k_mean": 0.645,
+  "mrr_mean": 0.893,
+  "token_overlap_mean": 0.045,
+  "faithfulness_mean": 1.0,
+  "failure_rate": 0.98,
+  "failure_modes": {
+    "partial_answer": 142,
+    "wrong_retrieval": 5,
+    "ok": 3
+  },
+  "failure_rate_v2": 0.767,
+  "failure_modes_v2": {
+    "incorrect_answer": 97,
+    "partial_answer": 13,
+    "ok": 35,
+    "wrong_retrieval": 5
+  },
+  "attribution": {
+    "retrieval": 5,
+    "generation": 110,
+    "total_failures": 115,
+    "retrieval_share": 0.043,
+    "note": "Stage attribution is a declared mapping from failure mode to pipeline stage (see taxonomy.STAGE_ATTRIBUTION), not an inferred causal claim. A controlled oracle-context ablation is required for causal attribution."
+  },
+  "retrieval_corrected": {
+    "n_answerable": 150,
+    "n_unanswerable": 0,
+    "doc_recall_at_k_mean": 0.645,
+    "doc_precision_at_k_mean": 0.309,
+    "chunk_precision_at_k_mean": 0.316,
+    "chunk_recall_at_k_mean": 0.585,
+    "hit_rate_at_k_mean": 0.967,
+    "ndcg_at_k_mean": 0.63,
+    "reciprocal_rank_mean": 0.893,
+    "first_relevant_rank_mean": 1.214,
+    "note": "Computed over answerable questions only; unanswerable questions have no defined retrieval target and are excluded rather than scored as 0."
+  },
+  "answer_corrected": {
+    "exact_match_mean": 0.0,
+    "f1_normalized_mean": 0.034,
+    "key_fact_recall_mean": 0.314
+  },
+  "abstention": {
+    "n_answerable": 150,
+    "n_unanswerable": 0,
+    "false_answer_rate": null,
+    "false_refusal_rate": 0.0,
+    "abstention_accuracy": 1.0
+  },
+  "evidence": {
+    "n_with_gold_evidence": 150,
+    "evidence_status": {
+      "complete": 46,
+      "partial": 99,
+      "none": 5
+    },
+    "evidence_complete_rate": 0.307,
+    "evidence_recall_mean": 0.636,
+    "evidence_precision_mean": 0.292,
+    "first_evidence_rank_mean": 1.248,
+    "answer_grounded_rate": 0.113,
+    "attribution_stages": {
+      "generation": 29,
+      "retrieval": 104,
+      "none": 17
+    },
+    "rows_with_degraded_alignment": 0,
+    "note": "Evidence metrics are computed from exact character-offset overlap between gold spans and retrieved chunks. Rows without gold evidence are excluded. answer_grounded counts answers that are both correct and supported by evidence actually present in the retrieved context."
+  },
+  "confidence_intervals": {
+    "failure_rate": {
+      "point": 0.98,
+      "lower": 0.9428533167296139,
+      "upper": 0.9931752486770326,
+      "n": 150,
+      "method": "wilson",
+      "confidence": 0.95,
+      "sufficient": true,
+      "note": "n=150"
+    },
+    "failure_rate_v2": {
+      "point": 0.7666666666666667,
+      "lower": 0.6928421847843321,
+      "upper": 0.827173684886027,
+      "n": 150,
+      "method": "wilson",
+      "confidence": 0.95,
+      "sufficient": true,
+      "note": "n=150"
+    },
+    "token_overlap_mean": {
+      "point": 0.04537135914151933,
+      "lower": 0.03235056045128155,
+      "upper": 0.06046458186384578,
+      "n": 150,
+      "method": "bootstrap_percentile",
+      "confidence": 0.95,
+      "sufficient": true,
+      "note": "n=150"
+    },
+    "answer_f1_normalized_mean": {
+      "point": 0.034085330363220326,
+      "lower": 0.023627098116775012,
+      "upper": 0.046541162007439005,
+      "n": 150,
+      "method": "bootstrap_percentile",
+      "confidence": 0.95,
+      "sufficient": true,
+      "note": "n=150"
+    },
+    "failure_mode_shares_v2": {
+      "incorrect_answer": {
+        "point": 0.6466666666666666,
+        "lower": 0.5673813792235438,
+        "upper": 0.7186273490951536,
+        "n": 150,
+        "method": "wilson",
+        "confidence": 0.95,
+        "sufficient": true,
+        "note": "n=150"
+      },
+      "ok": {
+        "point": 0.23333333333333334,
+        "lower": 0.17282631511397295,
+        "upper": 0.3071578152156679,
+        "n": 150,
+        "method": "wilson",
+        "confidence": 0.95,
+        "sufficient": true,
+        "note": "n=150"
+      },
+      "partial_answer": {
+        "point": 0.08666666666666667,
+        "lower": 0.051347178274724174,
+        "upper": 0.14262822373621914,
+        "n": 150,
+        "method": "wilson",
+        "confidence": 0.95,
+        "sufficient": true,
+        "note": "n=150"
+      },
+      "wrong_retrieval": {
+        "point": 0.03333333333333333,
+        "lower": 0.01432043189809255,
+        "upper": 0.07565179617877894,
+        "n": 150,
+        "method": "wilson",
+        "confidence": 0.95,
+        "sufficient": true,
+        "note": "n=150"
+      }
+    },
+    "hit_rate_at_k_mean": {
+      "point": 0.9666666666666667,
+      "lower": 0.9243482038212211,
+      "upper": 0.9856795681019074,
+      "n": 150,
+      "method": "wilson",
+      "confidence": 0.95,
+      "sufficient": true,
+      "note": "n=150"
+    },
+    "faithfulness_mean": {
+      "point": 1.0,
+      "lower": 1.0,
+      "upper": 1.0,
+      "n": 150,
+      "method": "bootstrap_percentile",
+      "confidence": 0.95,
+      "sufficient": true,
+      "note": "n=150"
+    }
+  },
+  "statistical_notes": [
+    "No unanswerable questions in this dataset: failure-to-abstain cannot be measured at all.",
+    "Faithfulness is constant at 1.0 across all rows \u2014 it has zero variance and is not discriminating between systems. With an extractive generator scored by the same model, this is expected by construction.",
+    "Inference is deterministic in the offline configuration, so repeated runs have zero variance. Intervals here describe sampling uncertainty over questions (n=150), not run-to-run variability."
+  ],
+  "experiment": {
+    "tag": "twowiki_150",
+    "dataset": "2wiki",
+    "split": "dev",
+    "n_questions": 150,
+    "n_documents": 1232,
+    "loader_skipped": {},
+    "corpus": {
+      "n_documents": 1232,
+      "n_chunks": 1358,
+      "chunk_size": 256,
+      "chunk_overlap": 32,
+      "total_characters": 476263,
+      "offset_mismatches": 0
+    },
+    "retrieval": {
+      "top_k": 5,
+      "chunk_size": 256,
+      "chunk_overlap": 32,
+      "embedder": "sentence-transformers/all-MiniLM-L6-v2"
+    },
+    "generator": {
+      "name": "MockExtractiveLLM",
+      "kind": "extractive control condition",
+      "note": "No language model was called. The extractive control copies the sentence from retrieved context with the greatest overlap with the question, which bounds generation quality from below and makes the run fully deterministic. Generation-side conclusions must not be drawn from it; retrieval and evidence measurements are unaffected because retrieval is real."
+    },
+    "license": "Apache-2.0",
+    "source_url": "https://huggingface.co/datasets/xanhho/2WikiMultihopQA"
+  },
+  "provenance": {
+    "timestamp_utc": "2026-08-31T18:36:50+00:00",
+    "git": {
+      "commit": "66a0d92a8e1ed6a7973557f39b4e63e699634b45",
+      "branch": "main",
+      "dirty": true
+    },
+    "python": "3.12.7",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "packages": {
+      "chromadb": "1.5.8",
+      "numpy": "2.4.4",
+      "openai": "2.33.0",
+      "anthropic": "0.97.0",
+      "sentence-transformers": "5.4.1",
+      "tiktoken": "0.12.0",
+      "pydantic": "2.13.3",
+      "fastapi": "0.136.1"
+    },
+    "dataset": {
+      "name": "2wiki",
+      "raw_file": "2wiki-dev.parquet",
+      "sha256": "c0d8b60b9026b728fb07ad74c5252a0f188f6942e8ba5c02df4dfa369502ea8d",
+      "split": "dev",
+      "limit": 150
+    },
+    "taxonomy": {
+      "version": "v2.0",
+      "fingerprint": "4672f4ea2b70"
+    },
+    "pipeline": {
+      "embedder": "sentence-transformers/all-MiniLM-L6-v2",
+      "llm": "MockExtractiveLLM",
+      "top_k": 5
+    }
+  },
+  "taxonomy_v2": {
+    "version": "v2.0",
+    "config_fingerprint": "4672f4ea2b70",
+    "thresholds": {
+      "version": "v2.0",
+      "faithfulness_threshold": 0.6,
+      "answer_f1_ok": 0.6,
+      "key_fact_recall_ok": 1.0,
+      "key_fact_recall_incorrect": 0.2,
+      "fallback_f1_incorrect": 0.1
+    }
+  }
+}

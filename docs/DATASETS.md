@@ -17,7 +17,8 @@ instead keeps the obligation with the original publisher.
 |---|---|---|---|
 | Natural Questions | CC BY-SA 3.0 | validation | Primary. Real search queries over Wikipedia, span-level evidence. |
 | QASPER | CC BY 4.0 | dev | Primary. NLP papers, paragraph-level evidence, native unanswerables. |
-| HotpotQA | CC BY-SA 4.0 | — | Supplementary. Multi-hop `all_required` evidence. Loader implemented, not yet run. |
+| HotpotQA | CC BY-SA 4.0 | validation (distractor) | Multi-hop `all_required` evidence. |
+| 2WikiMultihopQA | Apache-2.0 | dev | Second multi-hop corpus: replication target for the quantifier effect. |
 
 The two primaries were chosen because they **differ structurally**, which is
 what makes agreement between them informative rather than repetitive:
@@ -31,6 +32,36 @@ what makes agreement between them informative rather than repetitive:
 | Lexical anchoring | low | low |
 | Native unanswerables | no (nulls are page-scoped) | yes |
 | Memorisation risk | **high** — popular Wikipedia facts | lower — recent paper contents |
+
+### Why a second multi-hop corpus
+
+The quantifier effect was originally measured on HotpotQA alone, which made it
+a property of one dataset rather than of multi-hop questions. 2WikiMultihopQA
+was chosen as the replication target on structural grounds, before any result
+was seen:
+
+|  | HotpotQA | 2WikiMultihopQA |
+|---|---|---|
+| Context per question | 10 paragraphs, 2 gold | 10 paragraphs, 2-4 gold |
+| Evidence granularity | supporting sentences `(title, sent_id)` | supporting sentences `(title, sent_id)` |
+| Hops | 2 | 2 and 4 |
+| Question construction | crowdworkers writing while reading the paragraphs | generated from Wikidata relation paths, then templated |
+| Dominant bias | lexical anchoring to the paragraph wording | templated phrasing, entity-heavy |
+| Licence | CC BY-SA 4.0 | Apache-2.0 |
+
+The identical evidence-alignment and A/B/C code runs over both, so a difference
+in outcome is a difference in the data rather than in the method. The two also
+fail differently: HotpotQA's crowdworkers copied phrasing out of the paragraphs,
+making retrieval easier than natural queries; 2Wiki's templates do not, but its
+questions are narrower in form. Agreement across two corpora with *different*
+weaknesses is worth more than agreement across two crowdsourced sets.
+
+**Considered and not used: MuSiQue.** Structurally suitable and arguably more
+rigorous, since it is built to defeat single-hop shortcuts. It was not used
+because the readily downloadable mirror declares no licence, and this
+repository does not evaluate corpora whose redistribution terms are unclear.
+The loader interface would accept it unchanged if a clearly licensed
+distribution is available.
 
 ### Deliberately excluded
 
@@ -66,6 +97,7 @@ curl -L -o data/raw/nq-validation-0.parquet \
 |---|---|
 | `qasper-train-dev-v0.3.tgz` | `a28fdf966db827bcee3d873107d6b6669864fb7ca8fbf73a192f5e39191bdb5a` |
 | `nq-validation-0.parquet` | `d38ab58b0dc7065992f0175320203dd321cb14a7d29ae6c622f87c8935fb23d1` |
+| `2wiki-dev.parquet` | `c0d8b60b9026b728fb07ad74c5252a0f188f6942e8ba5c02df4dfa369502ea8d` |
 
 Every experiment report records the SHA-256 of the raw file it read, so a
 result can always be traced to its exact input.
@@ -138,9 +170,39 @@ Loaded from the HuggingFace parquet distribution of the **full** release
 
 ### HotpotQA
 
-Loader implemented with sentence-level supporting facts mapped to character
-offsets and `evidence_mode = all_required` for genuine multi-hop items. **Not
-yet run in any reported experiment.**
+Sentence-level supporting facts are mapped to character offsets, and genuine
+multi-hop items get `evidence_mode = all_required`. Sentences are joined
+verbatim: they usually carry their own leading space, so inserting a separator
+would shift every offset relative to the text a reader sees.
+
+The eight distractor paragraphs are kept. They are the point of the distractor
+setting — removing them would make retrieval trivial and inflate every rate.
+
+Single-document items are filtered out by default (`multi_hop_only=True`): the
+subset exists to supply multi-hop difficulty, and an item whose evidence sits in
+one paragraph cannot exercise the `all_required` path.
+
+### 2WikiMultihopQA
+
+Handled the same way as HotpotQA, deliberately — the comparison is only
+meaningful if the methodology is identical. Two format differences are absorbed
+in the loader rather than by pre-processing the file:
+
+- The mirror stores `context`, `supporting_facts` and `evidences` as
+  **JSON-encoded strings** rather than native parquet structs, so each is
+  parsed on read. A distribution that keeps real nested values also works.
+- `context` is a list of `[title, [sentences]]` pairs rather than two parallel
+  arrays.
+
+Questions come in four types (`compositional`, `comparison`, `inference`,
+`bridge_comparison`) and in 2-hop and 4-hop forms; the type and hop count are
+recorded on every record. Of the first 150 dev items kept, 122 are 2-hop and 28
+are 4-hop, and all 150 are `all_required`.
+
+Its documents are short — median 232 characters, roughly one chunk at
+`chunk_size=256`. That is a structural fact worth stating in advance, because
+it predicts a near-zero granularity effect on this corpus for the same reason it
+does on HotpotQA: retrieving the document essentially *is* retrieving the span.
 
 ---
 
