@@ -138,6 +138,26 @@ On NQ and HotpotQA a document-level reading attributes a single failure out of
 tune prompts; the evidence-aware report says the retriever is the binding
 constraint.
 
+## Result 3b — The failure taxonomy inherits the same blind spot
+
+The v2 taxonomy decides `wrong_retrieval` on whether a relevant *document* was
+retrieved. A row whose document arrived but whose gold span did not passes that
+gate and is labelled by answer quality instead — as a generation failure.
+Re-running the identical rules with an evidence-level gate:
+
+| | `wrong_retrieval` v2 → evidence | `incorrect_answer` v2 → evidence | rows moved |
+|---|---|---|---|
+| QASPER n=300 | 162 → **210** | 88 → **51** | 46 (15%) |
+| NQ n=300 | **1** → **81** | 174 → **120** | 66 (22%) |
+| HotpotQA n=150 | **1** → **74** | 102 → **45** | 62 (41%) |
+
+On NQ the document-gated taxonomy reports a single retrieval failure in 300
+questions; the evidence gate reports 81. Both labels are emitted on every row.
+`failure_mode_v2` is frozen for reproducibility; `failure_mode_evidence` is the
+one consistent with the attribution and the one new analysis should use.
+
+---
+
 ## Result 4 — Dataset properties measured, not assumed
 
 | | QASPER dev | NQ validation | HotpotQA |
@@ -280,15 +300,25 @@ answer without its evidence is charged to retrieval rather than counted as
 success. That is a mitigation. With a real LLM the risk would be materially
 larger.
 
-**One retrieval configuration.** A single embedder, chunk size and top-k. The
-size of the doc/evidence gap certainly depends on all three — a smaller chunk
-size would narrow it mechanically. The *direction* cannot reverse, since
-evidence-level coverage implies document-level coverage, but the magnitude is
-configuration-specific and should not be quoted as a constant.
+**The direction of both gaps is true by construction; the magnitude is not.**
+Span-level coverage implies document-level coverage, and requiring every gold
+document implies requiring one, so neither gap can be negative. That is why the
+reverse discordant cell is 0 in every dataset, and it is used here as an
+implementation check rather than presented as a finding. What is measured is
+the *magnitude*, its dependence on corpus structure, and its consequence for
+attribution. A reviewer who says "of course it is stricter" is right and has
+not engaged with the claim.
 
-**Multi-hop is untested empirically.** The `all_required` path has unit tests
-but neither corpus produced a question needing two documents. HotpotQA is
-loaded by the implementation but has not been run.
+**One embedder and one top-k.** Chunk size is swept over a fourfold range and
+the effect behaves as the mechanism predicts, but the embedder
+(all-MiniLM-L6-v2) and k (5) are fixed. A stronger retriever would raise all
+three conditions; whether it would narrow the *gap* is untested.
+
+**Each effect rests on limited data.** The granularity effect is shown on two
+corpora across four chunk sizes. The quantifier effect rests on a single
+multi-hop corpus, HotpotQA, whose crowdworkers wrote questions while looking at
+the paragraphs — lexical anchoring makes its retrieval easier than natural
+queries, and a second multi-hop corpus would strengthen it considerably.
 
 **Sample size.** The pilots are n≈60. The McNemar results are significant
 because the discordance is large and one-directional, but the *rate* estimates
