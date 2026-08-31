@@ -17,6 +17,7 @@ from src.data.loaders.hotpotqa import HotpotQaLoader
 from src.data.loaders.natural_questions import NaturalQuestionsLoader
 from src.data.loaders.nq_parquet import NaturalQuestionsParquetLoader
 from src.data.loaders.qasper import QasperLoader
+from src.data.loaders.twowiki_parquet import TwoWikiMultihopParquetLoader
 
 __all__ = [
     "DatasetFormatError",
@@ -27,6 +28,7 @@ __all__ = [
     "NaturalQuestionsLoader",
     "NaturalQuestionsParquetLoader",
     "QasperLoader",
+    "TwoWikiMultihopParquetLoader",
     "available_loaders",
     "get_loader",
     "register_loader",
