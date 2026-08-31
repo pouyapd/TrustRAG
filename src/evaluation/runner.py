@@ -155,6 +155,16 @@ class EvalRow:
     answer_grounded: bool = False
     answerability_label: str = ""
 
+    # ---- added: evidence-aware taxonomy (same rules, evidence-level R4) ----
+    #: The v2 rules re-run with `retrieval_hit` meaning "the gold span reached
+    #: the generator" instead of "a relevant document was retrieved". This is
+    #: the label that agrees with `attribution_stage`; `failure_mode_v2` is
+    #: kept unchanged so published v2 distributions stay reproducible.
+    failure_mode_evidence: str = ""
+    failure_reason_evidence: str = ""
+    failure_rule_evidence: str = ""
+    failure_stage_evidence: str = ""
+
     # ---- added: taxonomy v2 ----
     failure_mode_v2: str = ""
     failure_reason_v2: str = ""
@@ -380,6 +390,23 @@ def score_record(
     )
     diagnosis_v2: DiagnosisV2 = classify_features(features, cfg)
 
+    # The same rules with an evidence-level retrieval gate. Only meaningful
+    # when gold spans exist; otherwise it reproduces the v2 label exactly.
+    if alignment.status is EvidenceStatus.NOT_APPLICABLE:
+        diagnosis_evidence = diagnosis_v2
+    else:
+        diagnosis_evidence = classify_features(
+            extract_features(
+                answer=answer,
+                reference_answer=reference,
+                retrieved_doc_ids=retrieved_doc_ids,
+                relevant_doc_ids=relevant_ids,
+                faithfulness_score=record.faithfulness,
+                evidence_complete=alignment.status is EvidenceStatus.COMPLETE,
+            ),
+            cfg,
+        )
+
     return EvalRow(
         question=record.question,
         reference_answer=reference,
@@ -429,6 +456,10 @@ def score_record(
         attribution_reason=stage_reason,
         answer_grounded=answer_supported_by_evidence(alignment, answer_is_correct),
         answerability_label=str(metadata.get("answerability", "")),
+        failure_mode_evidence=diagnosis_evidence.mode.value,
+        failure_reason_evidence=diagnosis_evidence.reason,
+        failure_rule_evidence=diagnosis_evidence.rule_id,
+        failure_stage_evidence=diagnosis_evidence.stage,
         failure_mode_v2=diagnosis_v2.mode.value,
         failure_reason_v2=diagnosis_v2.reason,
         failure_rule_v2=diagnosis_v2.rule_id,
@@ -597,6 +628,30 @@ def aggregate(rows: list[EvalRow], taxonomy_config: TaxonomyConfig | None = None
         "thresholds": cfg.as_dict(),
     }
     report["failure_modes_v2"] = dict(v2_counts)
+    evidence_counts = Counter(r.failure_mode_evidence for r in rows if r.failure_mode_evidence)
+    if evidence_counts:
+        evidence_failures = [
+            r for r in rows if r.failure_mode_evidence and is_failure(r.failure_mode_evidence)
+        ]
+        report["failure_modes_evidence"] = dict(evidence_counts)
+        report["failure_rate_evidence"] = round(len(evidence_failures) / len(rows), 3)
+        report["taxonomy_agreement"] = {
+            "v2_vs_evidence_same_label": sum(
+                1 for r in rows if r.failure_mode_v2 == r.failure_mode_evidence
+            ),
+            "generation_relabelled_as_retrieval": sum(
+                1
+                for r in rows
+                if r.failure_stage_v2 == "generation" and r.failure_stage_evidence == "retrieval"
+            ),
+            "note": (
+                "failure_modes_v2 gates rule R4 on whether a relevant document was "
+                "retrieved; failure_modes_evidence gates it on whether the gold span "
+                "actually reached the generator. Rows counted in "
+                "generation_relabelled_as_retrieval are ones the document-level gate "
+                "charges to generation and the evidence-level gate charges to retrieval."
+            ),
+        }
     report["failure_rate_v2"] = round(len(v2_failures) / len(rows), 3)
     report["failure_rules_v2"] = dict(Counter(r.failure_rule_v2 for r in rows))
 

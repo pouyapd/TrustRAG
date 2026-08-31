@@ -184,3 +184,59 @@ class TestPairedStep:
 
     def test_relative_gap_is_none_when_nothing_succeeded(self):
         assert paired_step([False, False], [False, False], "x")["relative_gap"] is None
+
+
+class TestEvidenceAwareTaxonomy:
+    """The taxonomy's R4 gate and the evidence attribution must be able to agree.
+
+    `failure_mode_v2` gates R4 on whether a relevant *document* was retrieved,
+    so a row whose document arrived but whose evidence did not passes R4 and is
+    then labelled by answer quality — a generation failure. On the reported
+    runs that affects 15% of QASPER rows, 22% of NQ and 41% of HotpotQA.
+    `failure_mode_evidence` re-runs the same rules with an evidence-level gate.
+    """
+
+    def test_document_retrieved_but_evidence_missed_splits_the_two_labels(self):
+        r = record(retrieved=[("d1", 0, 100)], gold=[("d1", 500, 600)], answer="totally wrong")
+        row = score_records([r], TaxonomyConfig())[0]
+        # Document-level gate: R4 passes, so the row is judged on answer quality.
+        assert row.failure_stage_v2 == "generation"
+        # Evidence-level gate: R4 fires, so the row is charged to retrieval.
+        assert row.failure_mode_evidence == "wrong_retrieval"
+        assert row.failure_stage_evidence == "retrieval"
+        # And it agrees with the independent evidence attribution.
+        assert row.attribution_stage == "retrieval"
+
+    def test_labels_coincide_when_the_evidence_was_actually_retrieved(self):
+        r = record(retrieved=[("d1", 480, 620)], gold=[("d1", 500, 600)], answer="wrong")
+        row = score_records([r], TaxonomyConfig())[0]
+        assert row.failure_mode_v2 == row.failure_mode_evidence
+        assert row.failure_stage_evidence == "generation"
+
+    def test_v2_label_is_unchanged_by_the_new_field(self):
+        """Backward compatibility: the frozen label must not move."""
+        r = record(retrieved=[("d1", 0, 100)], gold=[("d1", 500, 600)], answer="wrong")
+        row = score_records([r], TaxonomyConfig())[0]
+        from src.evaluation.taxonomy import classify_v2
+
+        expected = classify_v2(
+            answer="wrong", reference_answer="ref",
+            retrieved_doc_ids=["d1"], relevant_doc_ids=["d1"], faithfulness_score=1.0,
+        )
+        assert row.failure_mode_v2 == expected.mode.value
+
+    def test_rows_without_gold_evidence_reuse_the_v2_label(self):
+        r = record(retrieved=[("d1", 0, 100)], gold=[], answer="anything")
+        row = score_records([r], TaxonomyConfig())[0]
+        assert row.failure_mode_evidence == row.failure_mode_v2
+
+    def test_aggregate_reports_the_relabelling_count(self):
+        from src.evaluation.runner import aggregate
+
+        records = [
+            record(retrieved=[("d1", 0, 100)], gold=[("d1", 500, 600)], answer="wrong"),
+            record(retrieved=[("d1", 480, 620)], gold=[("d1", 500, 600)], answer="wrong"),
+        ]
+        report = aggregate(score_records(records, TaxonomyConfig()))
+        assert "failure_modes_evidence" in report
+        assert report["taxonomy_agreement"]["generation_relabelled_as_retrieval"] == 1
