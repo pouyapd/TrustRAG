@@ -1,70 +1,71 @@
 {
-  "tag": "NQ validation pilot",
-  "source_records": "reports\\experiments\\pilot_nq\\inference.jsonl",
-  "n_records": 60,
+  "tag": "NQ validation n=300",
+  "source_records": "reports\\experiments\\nq_val_300\\inference.jsonl",
+  "n_records": 300,
   "comparison": {
-    "n_paired": 60,
-    "document_level_success_rate": 1.0,
-    "evidence_level_success_rate": 0.8167,
+    "n_paired": 300,
+    "document_level_success_rate": 0.9967,
+    "evidence_level_success_rate": 0.73,
     "document_level_ci": {
-      "point": 1.0,
-      "lower": 0.93982814785791,
-      "upper": 0.9999999999999998,
-      "n": 60,
+      "point": 0.9966666666666667,
+      "lower": 0.9813633063054688,
+      "upper": 0.9994113422781488,
+      "n": 300,
       "method": "wilson",
       "confidence": 0.95,
       "sufficient": true,
-      "note": "n=60"
+      "note": "n=300"
     },
     "evidence_level_ci": {
-      "point": 0.8166666666666667,
-      "lower": 0.7008024625353194,
-      "upper": 0.8944220311080237,
-      "n": 60,
+      "point": 0.73,
+      "lower": 0.6770882626256942,
+      "upper": 0.7770959706110145,
+      "n": 300,
       "method": "wilson",
       "confidence": 0.95,
       "sufficient": true,
-      "note": "n=60"
+      "note": "n=300"
     },
-    "gap_percentage_points": 18.33,
-    "discordant_document_only": 11,
+    "gap_percentage_points": 26.67,
+    "discordant_document_only": 80,
     "discordant_evidence_only": 0,
     "mcnemar": {
-      "statistic": 11.0,
-      "p_value": 0.0009765625,
+      "statistic": 80.0,
+      "p_value": 1.6543612251060553e-24,
       "effect": 1.0,
-      "n": 11,
+      "n": 80,
       "method": "mcnemar_exact",
       "sufficient": true,
-      "note": "11 discordant pairs"
+      "note": "80 discordant pairs"
     },
     "paired_bootstrap_difference": {
-      "point": 0.18333333333333332,
-      "lower": 0.1,
-      "upper": 0.2833333333333333,
-      "n": 60,
+      "point": 0.26666666666666666,
+      "lower": 0.21666666666666667,
+      "upper": 0.31666666666666665,
+      "n": 300,
       "method": "paired_bootstrap_difference",
       "confidence": 0.95,
       "sufficient": true,
-      "note": "n=60"
+      "note": "n=300"
     },
     "attribution_document_level": {
-      "none": 18,
-      "generation": 42
+      "none": 82,
+      "generation": 217,
+      "retrieval": 1
     },
     "attribution_evidence_level": {
-      "none": 14,
-      "retrieval": 11,
-      "generation": 35
+      "none": 65,
+      "retrieval": 81,
+      "generation": 154
     },
     "interpretation": "discordant_document_only counts questions where the conventional document-level metric reports a retrieval success but the labelled supporting span was never placed in the generator's context. Those rows are the ones a document-level evaluation misattributes."
   },
   "provenance": {
-    "timestamp_utc": "2026-08-30T20:43:28+00:00",
+    "timestamp_utc": "2026-08-31T14:47:10+00:00",
     "git": {
-      "commit": "a60df5ee7b243e436505faf85969822d926b16cc",
+      "commit": "e881914907a8885d43a66abc68a8e20c45e0f9d4",
       "branch": "research/stages-1-4",
-      "dirty": true
+      "dirty": false
     },
     "python": "3.12.7",
     "platform": "Windows-11-10.0.26200-SP0",

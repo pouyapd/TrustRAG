@@ -1,0 +1,272 @@
+{
+  "total": 300,
+  "precision_at_k_mean": 0.883,
+  "recall_at_k_mean": 0.997,
+  "mrr_mean": 0.971,
+  "token_overlap_mean": 0.073,
+  "faithfulness_mean": 0.963,
+  "failure_rate": 0.95,
+  "failure_modes": {
+    "ok": 15,
+    "partial_answer": 274,
+    "hallucination": 10,
+    "wrong_retrieval": 1
+  },
+  "failure_rate_v2": 0.74,
+  "failure_modes_v2": {
+    "ok": 78,
+    "incorrect_answer": 170,
+    "partial_answer": 41,
+    "hallucination": 10,
+    "wrong_retrieval": 1
+  },
+  "attribution": {
+    "retrieval": 1,
+    "generation": 221,
+    "total_failures": 222,
+    "retrieval_share": 0.005,
+    "note": "Stage attribution is a declared mapping from failure mode to pipeline stage (see taxonomy.STAGE_ATTRIBUTION), not an inferred causal claim. A controlled oracle-context ablation is required for causal attribution."
+  },
+  "retrieval_corrected": {
+    "n_answerable": 300,
+    "n_unanswerable": 0,
+    "doc_recall_at_k_mean": 0.997,
+    "doc_precision_at_k_mean": 0.834,
+    "chunk_precision_at_k_mean": 0.883,
+    "chunk_recall_at_k_mean": 0.218,
+    "hit_rate_at_k_mean": 0.997,
+    "ndcg_at_k_mean": 0.912,
+    "reciprocal_rank_mean": 0.971,
+    "first_relevant_rank_mean": 1.077,
+    "note": "Computed over answerable questions only; unanswerable questions have no defined retrieval target and are excluded rather than scored as 0."
+  },
+  "answer_corrected": {
+    "exact_match_mean": 0.0,
+    "f1_normalized_mean": 0.068,
+    "key_fact_recall_mean": 0.36
+  },
+  "abstention": {
+    "n_answerable": 300,
+    "n_unanswerable": 0,
+    "false_answer_rate": null,
+    "false_refusal_rate": 0.0,
+    "abstention_accuracy": 1.0
+  },
+  "evidence": {
+    "n_with_gold_evidence": 300,
+    "evidence_status": {
+      "complete": 219,
+      "none": 81
+    },
+    "evidence_complete_rate": 0.73,
+    "evidence_recall_mean": 0.73,
+    "evidence_precision_mean": 0.191,
+    "first_evidence_rank_mean": 1.927,
+    "answer_grounded_rate": 0.22,
+    "attribution_stages": {
+      "none": 66,
+      "retrieval": 81,
+      "generation": 153
+    },
+    "rows_with_degraded_alignment": 0,
+    "note": "Evidence metrics are computed from exact character-offset overlap between gold spans and retrieved chunks. Rows without gold evidence are excluded. answer_grounded counts answers that are both correct and supported by evidence actually present in the retrieved context."
+  },
+  "confidence_intervals": {
+    "failure_rate": {
+      "point": 0.95,
+      "lower": 0.9191529665272558,
+      "upper": 0.9694683593706526,
+      "n": 300,
+      "method": "wilson",
+      "confidence": 0.95,
+      "sufficient": true,
+      "note": "n=300"
+    },
+    "failure_rate_v2": {
+      "point": 0.74,
+      "lower": 0.6875519770721528,
+      "upper": 0.7863793967400652,
+      "n": 300,
+      "method": "wilson",
+      "confidence": 0.95,
+      "sufficient": true,
+      "note": "n=300"
+    },
+    "token_overlap_mean": {
+      "point": 0.07275071877616092,
+      "lower": 0.060859606529681136,
+      "upper": 0.08659073430533835,
+      "n": 300,
+      "method": "bootstrap_percentile",
+      "confidence": 0.95,
+      "sufficient": true,
+      "note": "n=300"
+    },
+    "answer_f1_normalized_mean": {
+      "point": 0.06788948324637452,
+      "lower": 0.05581454343908288,
+      "upper": 0.0816048416587261,
+      "n": 300,
+      "method": "bootstrap_percentile",
+      "confidence": 0.95,
+      "sufficient": true,
+      "note": "n=300"
+    },
+    "failure_mode_shares_v2": {
+      "hallucination": {
+        "point": 0.03333333333333333,
+        "lower": 0.01820494733885481,
+        "upper": 0.06026182580405482,
+        "n": 300,
+        "method": "wilson",
+        "confidence": 0.95,
+        "sufficient": true,
+        "note": "n=300"
+      },
+      "incorrect_answer": {
+        "point": 0.5666666666666667,
+        "lower": 0.5100989219821965,
+        "upper": 0.6215486818545306,
+        "n": 300,
+        "method": "wilson",
+        "confidence": 0.95,
+        "sufficient": true,
+        "note": "n=300"
+      },
+      "ok": {
+        "point": 0.26,
+        "lower": 0.21362060325993487,
+        "upper": 0.3124480229278472,
+        "n": 300,
+        "method": "wilson",
+        "confidence": 0.95,
+        "sufficient": true,
+        "note": "n=300"
+      },
+      "partial_answer": {
+        "point": 0.13666666666666666,
+        "lower": 0.10236514609208625,
+        "upper": 0.1801554129977505,
+        "n": 300,
+        "method": "wilson",
+        "confidence": 0.95,
+        "sufficient": true,
+        "note": "n=300"
+      },
+      "wrong_retrieval": {
+        "point": 0.0033333333333333335,
+        "lower": 0.0005886577218511581,
+        "upper": 0.018636693694531237,
+        "n": 300,
+        "method": "wilson",
+        "confidence": 0.95,
+        "sufficient": true,
+        "note": "n=300"
+      }
+    },
+    "hit_rate_at_k_mean": {
+      "point": 0.9966666666666667,
+      "lower": 0.9813633063054688,
+      "upper": 0.9994113422781488,
+      "n": 300,
+      "method": "wilson",
+      "confidence": 0.95,
+      "sufficient": true,
+      "note": "n=300"
+    },
+    "faithfulness_mean": {
+      "point": 0.9634666666666666,
+      "lower": 0.9499333333333334,
+      "upper": 0.9758008333333333,
+      "n": 300,
+      "method": "bootstrap_percentile",
+      "confidence": 0.95,
+      "sufficient": true,
+      "note": "n=300"
+    }
+  },
+  "statistical_notes": [
+    "No unanswerable questions in this dataset: failure-to-abstain cannot be measured at all.",
+    "Inference is deterministic in the offline configuration, so repeated runs have zero variance. Intervals here describe sampling uncertainty over questions (n=300), not run-to-run variability."
+  ],
+  "experiment": {
+    "tag": "nq_val_n300",
+    "dataset": "nq",
+    "split": "validation",
+    "n_questions": 300,
+    "n_documents": 297,
+    "loader_skipped": {
+      "no_long_answer_page_scoped_null": 153,
+      "no_short_answer_text": 90
+    },
+    "corpus": {
+      "n_documents": 297,
+      "n_chunks": 12245,
+      "chunk_size": 256,
+      "chunk_overlap": 32,
+      "total_characters": 11042917,
+      "offset_mismatches": 0
+    },
+    "retrieval": {
+      "top_k": 5,
+      "chunk_size": 256,
+      "chunk_overlap": 32,
+      "embedder": "sentence-transformers/all-MiniLM-L6-v2"
+    },
+    "generator": {
+      "name": "MockExtractiveLLM",
+      "kind": "extractive control condition",
+      "note": "No language model was called. The extractive control copies the sentence from retrieved context with the greatest overlap with the question, which bounds generation quality from below and makes the run fully deterministic. Generation-side conclusions must not be drawn from it; retrieval and evidence measurements are unaffected because retrieval is real."
+    },
+    "license": "CC-BY-SA-3.0",
+    "source_url": "https://huggingface.co/datasets/google-research-datasets/natural_questions"
+  },
+  "provenance": {
+    "timestamp_utc": "2026-08-30T21:34:57+00:00",
+    "git": {
+      "commit": "e881914907a8885d43a66abc68a8e20c45e0f9d4",
+      "branch": "research/stages-1-4",
+      "dirty": false
+    },
+    "python": "3.12.7",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "packages": {
+      "chromadb": "1.5.8",
+      "numpy": "2.4.4",
+      "openai": "2.33.0",
+      "anthropic": "0.97.0",
+      "sentence-transformers": "5.4.1",
+      "tiktoken": "0.12.0",
+      "pydantic": "2.13.3",
+      "fastapi": "0.136.1"
+    },
+    "dataset": {
+      "name": "nq",
+      "raw_file": "nq-validation-0.parquet",
+      "sha256": "d38ab58b0dc7065992f0175320203dd321cb14a7d29ae6c622f87c8935fb23d1",
+      "split": "validation",
+      "limit": 300
+    },
+    "taxonomy": {
+      "version": "v2.0",
+      "fingerprint": "4672f4ea2b70"
+    },
+    "pipeline": {
+      "embedder": "sentence-transformers/all-MiniLM-L6-v2",
+      "llm": "MockExtractiveLLM",
+      "top_k": 5
+    }
+  },
+  "taxonomy_v2": {
+    "version": "v2.0",
+    "config_fingerprint": "4672f4ea2b70",
+    "thresholds": {
+      "version": "v2.0",
+      "faithfulness_threshold": 0.6,
+      "answer_f1_ok": 0.6,
+      "key_fact_recall_ok": 1.0,
+      "key_fact_recall_incorrect": 0.2,
+      "fallback_f1_incorrect": 0.1
+    }
+  }
+}

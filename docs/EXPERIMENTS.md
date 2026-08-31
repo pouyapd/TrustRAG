@@ -47,20 +47,22 @@ succeeded" are applied to the *same* retrieval output:
 
 | | QASPER dev | NQ validation | HotpotQA distractor |
 |---|---|---|---|
-| n paired | **290** | 60 | **150** |
+| n paired | **290** | **300** | **150** |
 | Evidence structure | paragraph | span | **2-hop, all required** |
-| Document-level success | 0.441 | **1.000** | **0.993** |
-| Evidence-level success | 0.276 | 0.817 | 0.507 |
-| **Gap** | **16.6 pp** | **18.3 pp** | **48.7 pp** |
-| Discordant: doc yes, evidence no | 48 | 11 | 73 |
+| Document-level success | 0.441 | **0.997** | **0.993** |
+| Evidence-level success | 0.276 | 0.730 | 0.507 |
+| **Gap** | **16.6 pp** | **26.7 pp** | **48.7 pp** |
+| Discordant: doc yes, evidence no | 48 | 80 | 73 |
 | Discordant: evidence yes, doc no | **0** | **0** | **0** |
-| Exact McNemar *p* | 7.1 × 10⁻¹⁵ | 9.8 × 10⁻⁴ | 2.1 × 10⁻²² |
-| Paired bootstrap CI on the gap | [0.124, 0.207] | — | [0.407, 0.567] |
-| n sufficient by project convention | **yes** | no (n=60) | **yes** |
+| Exact McNemar *p* | 7.1 × 10⁻¹⁵ | 1.7 × 10⁻²⁴ | 2.1 × 10⁻²² |
+| Paired bootstrap CI on the gap | [0.124, 0.207] | [0.217, 0.317] | [0.407, 0.567] |
+| n sufficient by project convention | **yes** | **yes** | **yes** |
 
-Wilson intervals do not overlap in either sufficiently-powered dataset:
-QASPER document-level [0.385, 0.499] vs evidence-level [0.228, 0.330];
+Wilson intervals do not overlap in any of the three:
+QASPER [0.385, 0.499] vs [0.228, 0.330];
+NQ [0.981, 0.999] vs [0.677, 0.777];
 HotpotQA [0.963, 0.999] vs [0.427, 0.586].
+Every paired-bootstrap interval on the gap excludes zero.
 
 The effect replicates across three corpora with different document types and
 three different evidence granularities, and the discordance is **entirely
@@ -113,13 +115,13 @@ must be generation".
 | abstention | — | 10 |
 | none | 7 | 6 |
 
-**NQ validation, n = 60**
+**NQ validation, n = 300**
 
 | Attributed to | Document-level | Evidence-level |
 |---|---|---|
-| retrieval | **0** | **11** |
-| generation | 42 | 35 |
-| none | 18 | 14 |
+| retrieval | **1** | **81** |
+| generation | 217 | 154 |
+| none | 82 | 65 |
 
 **HotpotQA multi-hop, n = 150**
 
@@ -145,6 +147,7 @@ retriever is the binding constraint.
 | | QASPER dev | NQ validation | HotpotQA |
 |---|---|---|---|
 | Questions loaded | 400 | 300 | 150 |
+| Chunks indexed | 2,272 | 12,245 | 1,571 |
 | Documents | 128 papers | 297 pages | 1,491 paragraphs |
 | Mean document length | 21,831 chars | 37,181 chars | ~1,100 chars |
 | Answerable / unanswerable | 386 / 14 | 300 / 0 | 150 / 0 |
