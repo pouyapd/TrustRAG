@@ -20,6 +20,7 @@ Implemented with numpy only — no new dependencies.
 from __future__ import annotations
 
 import math
+from collections import Counter
 from collections.abc import Sequence
 from dataclasses import asdict, dataclass
 
@@ -320,3 +321,143 @@ def sample_size_warning(n: int, context: str = "") -> str | None:
         "Reported intervals are descriptive; differences between configurations "
         "at this sample size should not be interpreted as evidence."
     )
+
+
+@dataclass(frozen=True)
+class AgreementResult:
+    """Inter-annotator agreement on a nominal label set."""
+
+    kappa: float | None
+    observed_agreement: float | None
+    expected_agreement: float | None
+    n: int
+    n_categories: int
+    #: Per-category Cohen's kappa, treating each category as one-vs-rest. A
+    #: single overall kappa hides a category that both annotators use often but
+    #: never on the same item.
+    per_category: dict
+    sufficient: bool
+    note: str
+
+    def as_dict(self) -> dict:
+        return asdict(self)
+
+
+def _kappa_from_counts(agree: int, expected: float, n: int) -> float | None:
+    """(observed - expected) / (1 - expected), guarding the degenerate case."""
+    if n == 0:
+        return None
+    observed = agree / n
+    if expected >= 1.0:
+        # Both annotators used one category for everything: agreement is total
+        # but chance-corrected agreement is undefined, not perfect.
+        return None
+    return (observed - expected) / (1.0 - expected)
+
+
+def cohens_kappa(labels_a: Sequence[str], labels_b: Sequence[str]) -> AgreementResult:
+    """Cohen's kappa for two annotators labelling the same items.
+
+    Kappa rather than raw agreement because the label distribution is heavily
+    skewed: if 80% of rows are one category, two annotators who both guess that
+    category agree 64% of the time knowing nothing. Kappa subtracts that.
+
+    It is not a sufficient summary on its own. A high kappa with one dominant
+    category can coexist with the rules being wrong on every rare category,
+    which is why `per_category` is reported beside it and the confusion matrix
+    is reported beside that.
+    """
+    if len(labels_a) != len(labels_b):
+        raise ValueError(
+            f"annotators labelled different numbers of items: {len(labels_a)} vs {len(labels_b)}"
+        )
+    n = len(labels_a)
+    if n == 0:
+        return AgreementResult(None, None, None, 0, 0, {}, False, "no annotated items")
+
+    categories = sorted(set(labels_a) | set(labels_b))
+    count_a = Counter(labels_a)
+    count_b = Counter(labels_b)
+    agree = sum(1 for x, y in zip(labels_a, labels_b, strict=True) if x == y)
+    expected = sum((count_a[c] / n) * (count_b[c] / n) for c in categories)
+    kappa = _kappa_from_counts(agree, expected, n)
+
+    per_category = {}
+    for category in categories:
+        binary_a = [x == category for x in labels_a]
+        binary_b = [y == category for y in labels_b]
+        b_agree = sum(1 for x, y in zip(binary_a, binary_b, strict=True) if x == y)
+        pa, pb = sum(binary_a) / n, sum(binary_b) / n
+        b_expected = pa * pb + (1 - pa) * (1 - pb)
+        per_category[category] = {
+            "kappa": _kappa_from_counts(b_agree, b_expected, n),
+            "n_annotator_a": count_a[category],
+            "n_annotator_b": count_b[category],
+            "n_both": sum(
+                1 for x, y in zip(labels_a, labels_b, strict=True)
+                if x == category and y == category
+            ),
+        }
+
+    sufficient, note = _sufficiency_note(n)
+    if kappa is None:
+        note = (note + "; " if note else "") + (
+            "chance agreement is total, so kappa is undefined"
+        )
+    return AgreementResult(
+        kappa=None if kappa is None else round(kappa, 4),
+        observed_agreement=round(agree / n, 4),
+        expected_agreement=round(expected, 4),
+        n=n,
+        n_categories=len(categories),
+        per_category=per_category,
+        sufficient=sufficient,
+        note=note,
+    )
+
+
+def confusion_matrix(truth: Sequence[str], predicted: Sequence[str]) -> dict:
+    """Counts of predicted-vs-truth pairs, plus per-category precision/recall/F1.
+
+    Used two ways: annotator against annotator (where neither is truth), and
+    the taxonomy against adjudicated human labels (where the human side is).
+    The function does not care which; the caller names the axes.
+    """
+    if len(truth) != len(predicted):
+        raise ValueError("truth and predicted must be the same length")
+    categories = sorted(set(truth) | set(predicted))
+    matrix = {t: {p: 0 for p in categories} for t in categories}
+    for t, p in zip(truth, predicted, strict=True):
+        matrix[t][p] += 1
+
+    per_category = {}
+    for category in categories:
+        tp = matrix[category][category]
+        fn = sum(matrix[category][p] for p in categories if p != category)
+        fp = sum(matrix[t][category] for t in categories if t != category)
+        precision = tp / (tp + fp) if (tp + fp) else None
+        recall = tp / (tp + fn) if (tp + fn) else None
+        f1 = (
+            2 * precision * recall / (precision + recall)
+            if precision and recall
+            else (0.0 if (precision is not None and recall is not None) else None)
+        )
+        per_category[category] = {
+            "support": tp + fn,
+            "predicted": tp + fp,
+            "precision": None if precision is None else round(precision, 4),
+            "recall": None if recall is None else round(recall, 4),
+            "f1": None if f1 is None else round(f1, 4),
+        }
+
+    n = len(truth)
+    correct = sum(matrix[c][c] for c in categories)
+    macro = [v["f1"] for v in per_category.values() if v["f1"] is not None]
+    return {
+        "n": n,
+        "accuracy": round(correct / n, 4) if n else None,
+        "macro_f1": round(sum(macro) / len(macro), 4) if macro else None,
+        "categories": categories,
+        "matrix": matrix,
+        "per_category": per_category,
+    }

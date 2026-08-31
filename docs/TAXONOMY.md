@@ -248,10 +248,10 @@ diagnostic instrument and not yet a validated one.
    annotators and a reported agreement statistic exists, the taxonomy is a
    proposal. This is the single largest gap.
 
-   The annotation package now exists — `scripts/build_annotation_package.py`
-   produces stratified, blinded units with the proposed label withheld in a
-   separate key file and sampling weights recorded for reweighting. **No labels
-   have been collected.** Nothing in this repository fills them in.
+   The full validation protocol now exists — package, guidelines and scoring —
+   and is described below. **No labels have been collected.** Nothing in this
+   repository fills them in, and the scorer refuses to run on empty sheets
+   rather than emitting a plausible-looking table from no data.
 
 3. **Key-fact recall is lexical.** It cannot recognise a correct paraphrase
    that shares no vocabulary with the reference, and it cannot detect a negation
@@ -267,6 +267,87 @@ diagnostic instrument and not yet a validated one.
    unanswerable when its `relevant_doc_ids` is empty. That is a property of the
    dataset annotation, not of the corpus, and mislabelled items would propagate
    directly into the abstention metrics.
+
+---
+
+## Validating the taxonomy against humans
+
+The protocol is implemented end to end. What is missing is people, not code.
+
+### 1. Build the package
+
+```bash
+python scripts/build_annotation_package.py     --records reports/experiments/qasper_dev_300/inference.jsonl     --out reports/annotation/qasper_dev_300 --n-units 200
+```
+
+Four properties of the sample matter:
+
+- **Stratified by proposed mode, with a floor.** Every category the classifier
+  can emit gets at least `--min-per-mode` units. Without a floor, a category
+  occurring in 3% of rows barely appears, and its row of the confusion matrix is
+  empty — per-category recall would be undefined for exactly the rare categories
+  the taxonomy exists to separate.
+- **A quarter of the budget is boundary cases.** Units whose deciding feature
+  sits within 0.10 of the threshold that classified them. These are where a
+  tuned constant, rather than an obvious fact, chose the label; a uniform sample
+  is dominated by rows the rules get trivially right, which inflates agreement
+  and teaches nothing.
+- **Blinded.** The proposed label, the rule that fired, the metric values and
+  the decision features are all withheld from the annotation sheet and written
+  to `proposed_labels_key.jsonl` instead. Showing an annotator the system's
+  answer invites anchoring.
+- **Independently ordered per annotator.** Both annotators receive the same
+  units in different shuffles, so two returned sheets cannot be aligned by
+  position — only by `annotation_id`.
+
+The sampling weight per category is recorded so population proportions can be
+recovered. The sample is deliberately *not* representative.
+
+### 2. Annotate
+
+Two annotators, working independently, following
+[ANNOTATION_GUIDELINES.md](ANNOTATION_GUIDELINES.md). The guidelines define
+every category in terms of what is visible on the page — question, reference
+answer, retrieved context, system answer — and deliberately **not** in the terms
+the classifier uses. That distinction is the whole point: if an annotator
+reproduces the rule, the study measures only that the rules agree with
+themselves.
+
+### 3. Score
+
+```bash
+python scripts/score_annotations.py     --package reports/annotation/qasper_dev_300     --annotator a=.../annotator_a/completed.jsonl     --annotator b=.../annotator_b/completed.jsonl
+```
+
+Three separate measurements, in this order:
+
+1. **Annotator vs annotator** — Cohen's kappa, per-category kappa, and a
+   confusion matrix. This measures whether the *task* is well defined. Kappa
+   rather than raw agreement because the label distribution is heavily skewed:
+   with 80% of rows in one category, two annotators who both guess that category
+   agree 64% of the time knowing nothing. If kappa is low, the categories are at
+   fault and nothing downstream is interpretable.
+2. **Adjudication** — where both annotators agree, the label stands. Where they
+   disagree, the unit is **unresolved** unless a human third pass resolves it. A
+   disagreement is never broken using the system's own label, which would
+   quietly make the taxonomy its own referee.
+3. **Taxonomy vs adjudicated labels** — per-category precision, recall and F1,
+   not just accuracy. On a skewed label set, accuracy is dominated by the
+   majority class and says nothing about the distinctions that matter.
+
+### Status
+
+| Step | State |
+|---|---|
+| Sampling, blinding, guidelines, scoring | Implemented and tested |
+| Annotation units generated | 200 for `qasper_dev_300` (50 boundary cases) |
+| Human labels collected | **0** |
+| Cohen's kappa | Not computable — no labels |
+| Taxonomy precision/recall against humans | Not computable — no labels |
+
+This remains the largest open gap in the project. The headline retrieval and
+evidence results do not depend on the taxonomy's thresholds, but every
+generation-side failure label does.
 
 ---
 
