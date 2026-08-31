@@ -1,0 +1,20 @@
+# Extra dependencies for reproducing the study's figures and the optional
+# real-language-model experiment. Deliberately kept out of requirements.txt so
+# the service image does not carry a plotting stack or model weights it never
+# uses: the container is 2.99 GB and matplotlib alone would add ~50 MB for code
+# that only ever runs on a developer's machine.
+#
+#     pip install -r requirements.txt -r requirements-research.txt
+#
+# Everything in the main study — every retrieval, evidence and attribution
+# number — runs without this file.
+
+# Figures (scripts/make_figures.py)
+matplotlib>=3.8
+
+# Optional local generation experiment (scripts/run_llm_experiment.py).
+# `transformers` and `torch` already arrive with sentence-transformers in the
+# main requirements; they are named here so the dependency is explicit rather
+# than incidental.
+transformers>=4.40
+torch>=2.2
