@@ -49,6 +49,21 @@ from src.evaluation.statistics import (
 from src.evaluation.taxonomy import TaxonomyConfig
 
 
+def effective_k(record, k: int | None) -> int:
+    """How many retrieved chunks a condition may look at.
+
+    `None` means "whatever this run retrieved", which is the original
+    behaviour. An explicit k evaluates a shallower cutoff against the same
+    stored ranking, which is what the top-k sweep varies.
+    """
+    return k if k is not None else (record.top_k or 5)
+
+
+def retrieved_prefix(record, k: int | None):
+    """The first k retrieved chunks, in rank order."""
+    return record.retrieved[: effective_k(record, k)]
+
+
 def evidence_mode_of(record) -> str:
     return (record.metadata or {}).get("evidence_mode") or "any_sufficient"
 
@@ -57,17 +72,17 @@ def gold_spans_of(record):
     return spans_from_records((record.metadata or {}).get("supporting_spans") or [])
 
 
-def condition_a_document_any(record) -> bool | None:
+def condition_a_document_any(record, k: int | None = None) -> bool | None:
     """Conventional: did any retrieved chunk come from any relevant document?"""
     gold = gold_spans_of(record)
     if not gold:
         return None
     gold_docs = {s.doc_id for s in gold}
-    retrieved = set(record.retrieved_doc_ids[: record.top_k or 5])
+    retrieved = {c.doc_id for c in retrieved_prefix(record, k)}
     return bool(gold_docs & retrieved)
 
 
-def condition_b_document_quantified(record) -> bool | None:
+def condition_b_document_quantified(record, k: int | None = None) -> bool | None:
     """Document-level, but honouring the question's evidence mode.
 
     Under `all_required` every gold document must appear among the retrieved
@@ -78,19 +93,19 @@ def condition_b_document_quantified(record) -> bool | None:
     if not gold:
         return None
     gold_docs = {s.doc_id for s in gold}
-    retrieved = set(record.retrieved_doc_ids[: record.top_k or 5])
+    retrieved = {c.doc_id for c in retrieved_prefix(record, k)}
     if evidence_mode_of(record) == "all_required":
         return gold_docs.issubset(retrieved)
     return bool(gold_docs & retrieved)
 
 
-def condition_c_span(record) -> bool | None:
+def condition_c_span(record, k: int | None = None) -> bool | None:
     """Span-level: did a retrieved chunk actually contain the gold evidence?"""
     gold = gold_spans_of(record)
     if not gold:
         return None
     alignment = align_evidence(
-        gold, retrieved_from_chunks(record.retrieved), evidence_mode_of(record)
+        gold, retrieved_from_chunks(retrieved_prefix(record, k)), evidence_mode_of(record)
     )
     return alignment.status is EvidenceStatus.COMPLETE
 
@@ -122,13 +137,13 @@ def paired_step(before: list[bool], after: list[bool], label: str) -> dict:
     }
 
 
-def compare(records, rows) -> dict:
+def compare(records, rows, k: int | None = None) -> dict:
     """Three conditions, two isolated steps, and the covariate that explains them."""
     triples = []
     for record in records:
-        a = condition_a_document_any(record)
-        b = condition_b_document_quantified(record)
-        c = condition_c_span(record)
+        a = condition_a_document_any(record, k)
+        b = condition_b_document_quantified(record, k)
+        c = condition_c_span(record, k)
         if a is None or b is None or c is None:
             continue
         triples.append((a, b, c))
@@ -153,6 +168,7 @@ def compare(records, rows) -> dict:
 
     return {
         "n_paired": n,
+        "top_k_evaluated": k if k is not None else "as-retrieved",
         "evidence_modes": dict(modes),
         "median_chunks_per_relevant_document": median_chunks,
         "conditions": {
@@ -170,7 +186,7 @@ def compare(records, rows) -> dict:
             "granularity_B_to_C": paired_step(B, C, "document -> span (same quantifier)"),
             "total_A_to_C": paired_step(A, C, "conventional -> span-level"),
         },
-        "attribution": attribution_comparison(records, rows),
+        "attribution": attribution_comparison(records, rows, k),
         "interpretation": (
             "A->B isolates the quantifier: whether a metric requires every document a "
             "multi-hop question needs, or accepts any one of them. B->C isolates "
@@ -183,7 +199,7 @@ def compare(records, rows) -> dict:
     }
 
 
-def attribution_comparison(records, rows) -> dict:
+def attribution_comparison(records, rows, k: int | None = None) -> dict:
     """Where failures are charged, under the conventional and evidence views."""
     doc_stage, evidence_stage = [], []
     for record, row in zip(records, rows, strict=True):
@@ -191,7 +207,7 @@ def attribution_comparison(records, rows) -> dict:
         correct = bool(row.answer_exact_match) or (
             row.key_fact_recall is not None and row.key_fact_recall >= 1.0
         )
-        doc_ok = condition_a_document_any(record)
+        doc_ok = condition_a_document_any(record, k)
         if not answerable:
             doc_stage.append("none" if row.abstained else "generation")
         elif doc_ok is False:
@@ -201,7 +217,7 @@ def attribution_comparison(records, rows) -> dict:
 
         alignment = align_evidence(
             gold_spans_of(record),
-            retrieved_from_chunks(record.retrieved),
+            retrieved_from_chunks(retrieved_prefix(record, k)),
             evidence_mode_of(record),
         )
         stage, _ = attribute_stage(
@@ -209,7 +225,7 @@ def attribution_comparison(records, rows) -> dict:
             answer_is_correct=correct,
             is_answerable=answerable,
             abstained=row.abstained,
-            n_retrieved=len(record.retrieved),
+            n_retrieved=len(retrieved_prefix(record, k)),
         )
         evidence_stage.append(str(stage))
     return {
@@ -223,6 +239,11 @@ def main() -> int:
     parser.add_argument("--records", required=True, help="inference.jsonl from an experiment")
     parser.add_argument("--out", required=True, help="output JSON path")
     parser.add_argument("--tag", default="", help="label for this comparison")
+    parser.add_argument(
+        "--k", type=int, default=None,
+        help="evaluate a shallower cutoff against the same stored ranking "
+             "(default: whatever the run retrieved)",
+    )
     args = parser.parse_args()
 
     records_path = Path(args.records)
@@ -236,7 +257,7 @@ def main() -> int:
         "tag": args.tag or records_path.parent.name,
         "source_records": str(records_path),
         "n_records": len(records),
-        "comparison": compare(records, rows),
+        "comparison": compare(records, rows, args.k),
         "provenance": collect_provenance(
             note="Methodology decomposition. Scored from stored records; no model was called."
         ),

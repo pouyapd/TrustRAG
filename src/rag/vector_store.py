@@ -99,7 +99,9 @@ class VectorStore:
 
     def search(self, query: str, top_k: int = 4) -> list[RetrievalResult]:
         """Top-k cosine retrieval."""
-        query_emb = self.embedder.embed([query])[0]
+        # Asymmetric models (E5, BGE) encode a query differently from a passage;
+        # `embed_query` defaults to plain `embed` for symmetric ones.
+        query_emb = self.embedder.embed_query(query)
         result = self.collection.query(
             query_embeddings=[query_emb],
             n_results=top_k,

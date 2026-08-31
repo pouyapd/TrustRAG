@@ -18,12 +18,24 @@ class LLMProvider(ABC):
 
 
 class EmbeddingProvider(ABC):
-    """Abstract embedding interface."""
+    """Abstract embedding interface.
+
+    `embed` encodes passages (the things stored in the index). `embed_query`
+    encodes a search query and defaults to the same thing, which is correct for
+    symmetric models. Asymmetric retrieval models — E5 and BGE both — are
+    trained with distinct query and passage roles and lose measurable retrieval
+    quality if a query is encoded as a passage, so they override it. Keeping the
+    default delegation means every existing provider stays valid unchanged.
+    """
 
     @abstractmethod
     def embed(self, texts: Sequence[str]) -> list[list[float]]:
-        """Embed a batch of strings."""
+        """Embed a batch of passages."""
         ...
+
+    def embed_query(self, text: str) -> list[float]:
+        """Embed a single search query."""
+        return self.embed([text])[0]
 
 
 # ---------- OpenAI ----------
@@ -85,15 +97,51 @@ class AnthropicLLM(LLMProvider):
 # ---------- Local (sentence-transformers fallback) ----------
 
 class LocalEmbeddings(EmbeddingProvider):
-    """Local sentence-transformers fallback for offline / no-API-key use."""
+    """Local sentence-transformers provider.
 
-    def __init__(self, model_name: str = "all-MiniLM-L6-v2") -> None:
+    Used both as the offline / no-API-key fallback for the service and as the
+    experiment embedder, where the model is named explicitly rather than
+    discovered through the fallback chain.
+
+    `query_prefix` and `passage_prefix` exist because the instruction-tuned
+    retrieval models are not symmetric. E5 requires literal `query:` and
+    `passage:` prefixes; BGE prefixes only the query. Omitting them does not
+    error — it silently costs retrieval quality, which in a robustness sweep
+    would look like a property of the model rather than of how it was called.
+    """
+
+    def __init__(
+        self,
+        model_name: str = "all-MiniLM-L6-v2",
+        query_prefix: str = "",
+        passage_prefix: str = "",
+        normalize: bool = False,
+    ) -> None:
         from sentence_transformers import SentenceTransformer
         self.model = SentenceTransformer(model_name)
+        self.model_name = model_name
+        self.query_prefix = query_prefix
+        self.passage_prefix = passage_prefix
+        self.normalize = normalize
+
+    def _encode(self, texts: Sequence[str]) -> list[list[float]]:
+        emb = self.model.encode(
+            list(texts),
+            convert_to_numpy=True,
+            show_progress_bar=False,
+            normalize_embeddings=self.normalize,
+        )
+        return emb.tolist()
 
     def embed(self, texts: Sequence[str]) -> list[list[float]]:
-        emb = self.model.encode(list(texts), convert_to_numpy=True, show_progress_bar=False)
-        return emb.tolist()
+        return self._encode([self.passage_prefix + t for t in texts])
+
+    def embed_query(self, text: str) -> list[float]:
+        return self._encode([self.query_prefix + text])[0]
+
+    @property
+    def dimension(self) -> int:
+        return int(self.model.get_sentence_embedding_dimension())
 
 
 # ---------- Deterministic hash-based embedder ----------

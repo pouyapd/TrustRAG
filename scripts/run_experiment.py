@@ -32,10 +32,21 @@ from src.evaluation.runner import aggregate, run_inference, score_records, write
 from src.evaluation.taxonomy import TaxonomyConfig
 from src.logging_setup import get_logger, setup_logging
 from src.rag.chunking import DocumentChunker
+from src.rag.embedders import EMBEDDERS
+from src.rag.embedders import build_embedder as registry_build_embedder
 from src.rag.mock_llm import MockExtractiveLLM
 from src.rag.pipeline import RAGPipeline
-from src.rag.providers import HashEmbeddings, LocalEmbeddings
 from src.rag.vector_store import VectorStore
+
+
+def _int_list(value: str) -> list[int]:
+    """Parse `1,3,5` into [1, 3, 5], rejecting anything that is not a depth."""
+    if not value.strip():
+        return []
+    depths = [int(part) for part in value.split(",") if part.strip()]
+    if any(d < 1 for d in depths):
+        raise argparse.ArgumentTypeError("retrieval depths must be >= 1")
+    return sorted(set(depths))
 
 
 def file_checksum(path: Path) -> str:
@@ -54,11 +65,8 @@ def build_embedder(name: str):
     is right for a service and wrong for an experiment: a run must record which
     embedder it actually used, not discover it.
     """
-    if name == "minilm":
-        return LocalEmbeddings("all-MiniLM-L6-v2"), "sentence-transformers/all-MiniLM-L6-v2"
-    if name == "hash":
-        return HashEmbeddings(), "HashEmbeddings(deterministic-bag-of-words)"
-    raise ValueError(f"unknown embedder {name!r}; expected 'minilm' or 'hash'")
+    provider, spec = registry_build_embedder(name)
+    return provider, spec.identity
 
 
 def main() -> int:
@@ -70,10 +78,15 @@ def main() -> int:
     parser.add_argument("--top-k", type=int, default=5)
     parser.add_argument("--chunk-size", type=int, default=256)
     parser.add_argument("--chunk-overlap", type=int, default=32)
-    parser.add_argument("--embedder", default="minilm", choices=["minilm", "hash"])
+    parser.add_argument("--embedder", default="minilm", choices=sorted(EMBEDDERS))
     parser.add_argument("--out", required=True, help="output directory for the report")
     parser.add_argument(
         "--tag", default="", help="short label distinguishing this run in comparisons"
+    )
+    parser.add_argument(
+        "--topk-values", default="", type=_int_list,
+        help="comma-separated retrieval depths to run natively over one index, "
+             "e.g. 1,3,5,10,20. Each depth writes its own report directory.",
     )
     args = parser.parse_args()
 
@@ -128,78 +141,91 @@ def main() -> int:
     log.info("corpus_built", **{k: v for k, v in corpus_stats.as_dict().items()
                                if k != "chunks_per_document"})
 
-    # ---- 3. inference ----
+    # ---- 3-6. one pass per retrieval depth, over the same index ----
+    #
+    # The depths are run natively rather than by truncating one deep ranking.
+    # Truncation looked equivalent — and on the three study corpora it was,
+    # exactly — but it is not guaranteed: when two neighbours are near-tied the
+    # approximate index can return them in a different order depending on how
+    # many results were asked for, so a k-sweep built on truncation would carry
+    # an assumption it cannot enforce. Re-querying costs a few seconds per depth
+    # and removes the assumption. The corpus is embedded once regardless, which
+    # is where the real cost is.
+    depths = args.topk_values or [args.top_k]
     pipeline = RAGPipeline(vector_store=store, llm=MockExtractiveLLM())
     dataset_items = [q.to_experiment_item() for q in questions]
-    records = run_inference(
-        dataset_items, pipeline, top_k=args.top_k,
-        doc_chunk_counts=store.doc_chunk_counts(),
-    )
-
-    # ---- 4. scoring ----
     taxonomy_config = TaxonomyConfig()
-    rows = score_records(records, taxonomy_config)
-    report = aggregate(rows, taxonomy_config=taxonomy_config)
+    doc_chunk_counts = store.doc_chunk_counts()
 
-    # ---- 5. provenance ----
-    report["experiment"] = {
-        "tag": args.tag or f"{args.dataset}_{args.split}",
-        "dataset": args.dataset,
-        "split": args.split,
-        "n_questions": len(questions),
-        "n_documents": len(documents),
-        "loader_skipped": result.skipped,
-        "corpus": {k: v for k, v in corpus_stats.as_dict().items() if k != "chunks_per_document"},
-        "retrieval": {
-            "top_k": args.top_k,
-            "chunk_size": args.chunk_size,
-            "chunk_overlap": args.chunk_overlap,
-            "embedder": embedder_name,
-        },
-        "generator": {
-            "name": "MockExtractiveLLM",
-            "kind": "extractive control condition",
-            "note": (
-                "No language model was called. The extractive control copies the "
-                "sentence from retrieved context with the greatest overlap with the "
-                "question, which bounds generation quality from below and makes the "
-                "run fully deterministic. Generation-side conclusions must not be "
-                "drawn from it; retrieval and evidence measurements are unaffected "
-                "because retrieval is real."
-            ),
-        },
-        "license": loader.license_spdx,
-        "source_url": loader.source_url,
-    }
-    report["provenance"] = collect_provenance(
-        dataset={
-            "name": args.dataset,
-            "raw_file": raw_path.name,
-            "sha256": file_checksum(raw_path),
+    for depth in depths:
+        records = run_inference(
+            dataset_items, pipeline, top_k=depth, doc_chunk_counts=doc_chunk_counts,
+        )
+        rows = score_records(records, taxonomy_config)
+        report = aggregate(rows, taxonomy_config=taxonomy_config)
+
+        tag = args.tag or f"{args.dataset}_{args.split}"
+        if len(depths) > 1:
+            tag = f"{tag}_k{depth}"
+        report["experiment"] = {
+            "tag": tag,
+            "dataset": args.dataset,
             "split": args.split,
-            "limit": args.limit,
-        },
-        taxonomy={
-            "version": taxonomy_config.version,
-            "fingerprint": taxonomy_config.fingerprint(),
-        },
-        pipeline={"embedder": embedder_name, "llm": "MockExtractiveLLM", "top_k": args.top_k},
-    )
+            "n_questions": len(questions),
+            "n_documents": len(documents),
+            "loader_skipped": result.skipped,
+            "corpus": {k: v for k, v in corpus_stats.as_dict().items()
+                       if k != "chunks_per_document"},
+            "retrieval": {
+                "top_k": depth,
+                "chunk_size": args.chunk_size,
+                "chunk_overlap": args.chunk_overlap,
+                "embedder": embedder_name,
+                "retrieval_is_native_per_k": True,
+            },
+            "generator": {
+                "name": "MockExtractiveLLM",
+                "kind": "extractive control condition",
+                "note": (
+                    "No language model was called. The extractive control copies the "
+                    "sentence from retrieved context with the greatest overlap with the "
+                    "question, which bounds generation quality from below and makes the "
+                    "run fully deterministic. Generation-side conclusions must not be "
+                    "drawn from it; retrieval and evidence measurements are unaffected "
+                    "because retrieval is real."
+                ),
+            },
+            "license": loader.license_spdx,
+            "source_url": loader.source_url,
+        }
+        report["provenance"] = collect_provenance(
+            dataset={
+                "name": args.dataset,
+                "raw_file": raw_path.name,
+                "sha256": file_checksum(raw_path),
+                "split": args.split,
+                "limit": args.limit,
+            },
+            taxonomy={
+                "version": taxonomy_config.version,
+                "fingerprint": taxonomy_config.fingerprint(),
+            },
+            pipeline={"embedder": embedder_name, "llm": "MockExtractiveLLM", "top_k": depth},
+        )
 
-    out_dir = Path(args.out)
-    write_outputs(rows, report, out_dir, records=records)
+        out_dir = Path(args.out) if len(depths) == 1 else Path(f"{args.out}_k{depth}")
+        write_outputs(rows, report, out_dir, records=records)
 
-    ev = report.get("evidence", {})
-    print(f"\n=== {report['experiment']['tag']} ===")
-    print(f"questions            : {report['total']}")
-    print(f"documents / chunks   : {len(documents)} / {corpus_stats.n_chunks}")
-    print(f"doc recall@k (legacy): {report['recall_at_k_mean']}")
-    print(f"doc hit-rate@k       : {report['retrieval_corrected'].get('hit_rate_at_k_mean')}")
-    print(f"evidence complete    : {ev.get('evidence_complete_rate')}")
-    print(f"evidence recall      : {ev.get('evidence_recall_mean')}")
-    print(f"attribution          : {ev.get('attribution_stages')}")
-    print(f"failure_modes_v2     : {report['failure_modes_v2']}")
-    print(f"\nwrote {out_dir}")
+        ev = report.get("evidence", {})
+        print()
+        print(f"=== {report['experiment']['tag']} (k={depth}) ===")
+        print(f"questions            : {report['total']}")
+        print(f"documents / chunks   : {len(documents)} / {corpus_stats.n_chunks}")
+        print(f"doc recall@k (legacy): {report['recall_at_k_mean']}")
+        print(f"doc hit-rate@k       : {report['retrieval_corrected'].get('hit_rate_at_k_mean')}")
+        print(f"evidence complete    : {ev.get('evidence_complete_rate')}")
+        print(f"attribution          : {ev.get('attribution_stages')}")
+        print(f"wrote {out_dir}")
     return 0
 
 
