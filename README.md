@@ -6,9 +6,9 @@
 ![Tests](https://img.shields.io/badge/tests-308%20passing-brightgreen)
 ![Coverage](https://img.shields.io/badge/coverage-79%25-green)
 
-> **Branch note.** The research work lives on **`research/stages-1-4`**, which
-> is where this README and every result below come from. `main` still holds the
-> original production-RAG demo and is deliberately untouched.
+> **Branch note.** `main` carries the finalized research state. The work was
+> developed on **`research/stages-1-4`**, which is preserved at the same commit
+> for provenance.
 
 A production RAG service with a research evaluation layer that asks a narrower
 question than usual: **not "did we retrieve the right document?" but "did the
