@@ -35,6 +35,9 @@ evidence-grounded evaluation rather than a single aggregate score?*
 ## 2. Engineering features
 
 - Modular pipeline — pluggable LLM, embedder and vector store
+- CPU-only container: 9.53 GB → **2.99 GB** by installing the CPU PyTorch
+  wheel before the rest, so `sentence-transformers` does not drag the CUDA
+  runtime into an image with no GPU
 - FastAPI service with structured logging and request tracing
 - Prometheus metrics; Docker and docker-compose
 - CI on every push: lint, tests, evaluation regression, Docker build

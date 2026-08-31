@@ -142,6 +142,32 @@ retriever is the binding constraint.
 
 ---
 
+## Result 5 — The NQ result is insensitive to a loader defect found afterwards
+
+The NQ parquet loader was initially reading `yes_no_answer` as a string, but the
+HuggingFace distribution encodes it as a ClassLabel index, so every yes/no
+question was silently dropped. The first NQ run therefore contained none.
+
+The run was repeated with the fix. 17 yes/no questions entered the sample
+(`no_short_answer_text` skips fell from 90 to 71), and the measurement did not
+move:
+
+| | before fix | after fix |
+|---|---|---|
+| Document-level success | 0.9967 | 0.9967 |
+| Evidence-level success | 0.730 | 0.730 |
+| Gap | 26.67 pp | 26.67 pp |
+| Discordant (doc yes / evidence no) | 80 | 80 |
+| McNemar *p* | 1.65e-24 | 1.65e-24 |
+| Question types | factoid 242, list 58 | factoid 229, list 54, **yes_no 17** |
+
+The reported NQ figures are from the corrected run. That the numbers are
+identical to three decimals is a useful robustness observation rather than a
+coincidence: the defect changed which questions were sampled, not how retrieval
+was measured.
+
+---
+
 ## Result 4 — The gap is not an artifact of the overlap threshold
 
 Evidence alignment has exactly one free parameter: `min_overlap_chars`, how

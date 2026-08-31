@@ -1,6 +1,6 @@
 {
-  "tag": "NQ validation n=300",
-  "source_records": "reports\\experiments\\nq_val_300\\inference.jsonl",
+  "tag": "NQ validation n=300 (yes/no fix)",
+  "source_records": "reports\\experiments\\nq_val_300_fixed\\inference.jsonl",
   "n_records": 300,
   "comparison": {
     "n_paired": 300,
@@ -49,21 +49,21 @@
       "note": "n=300"
     },
     "attribution_document_level": {
-      "none": 82,
-      "generation": 217,
+      "none": 80,
+      "generation": 219,
       "retrieval": 1
     },
     "attribution_evidence_level": {
-      "none": 65,
+      "none": 64,
       "retrieval": 81,
-      "generation": 154
+      "generation": 155
     },
     "interpretation": "discordant_document_only counts questions where the conventional document-level metric reports a retrieval success but the labelled supporting span was never placed in the generator's context. Those rows are the ones a document-level evaluation misattributes."
   },
   "provenance": {
-    "timestamp_utc": "2026-08-31T14:47:10+00:00",
+    "timestamp_utc": "2026-08-31T15:00:51+00:00",
     "git": {
-      "commit": "e881914907a8885d43a66abc68a8e20c45e0f9d4",
+      "commit": "d9b4e89ccaa014e88a533ce958b0d39ba9fb91e7",
       "branch": "research/stages-1-4",
       "dirty": false
     },
