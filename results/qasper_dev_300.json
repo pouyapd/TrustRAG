@@ -4,7 +4,7 @@
   "recall_at_k_mean": 0.427,
   "mrr_mean": 0.337,
   "token_overlap_mean": 0.066,
-  "faithfulness_mean": 0.942,
+  "faithfulness_mean": 0.941,
   "failure_rate": 0.973,
   "failure_modes": {
     "wrong_retrieval": 162,
@@ -44,7 +44,7 @@
   "answer_corrected": {
     "exact_match_mean": 0.0,
     "f1_normalized_mean": 0.078,
-    "key_fact_recall_mean": 0.143
+    "key_fact_recall_mean": 0.144
   },
   "abstention": {
     "n_answerable": 290,
@@ -105,9 +105,9 @@
       "note": "n=300"
     },
     "answer_f1_normalized_mean": {
-      "point": 0.07788022326734953,
-      "lower": 0.0673285956181982,
-      "upper": 0.08915567860743094,
+      "point": 0.07787122641624741,
+      "lower": 0.0673195987670961,
+      "upper": 0.08914668175632881,
       "n": 300,
       "method": "bootstrap_percentile",
       "confidence": 0.95,
@@ -187,9 +187,9 @@
       "note": "n=290"
     },
     "faithfulness_mean": {
-      "point": 0.9416333333333332,
-      "lower": 0.9229983333333333,
-      "upper": 0.9588333333333332,
+      "point": 0.9407,
+      "lower": 0.9220333333333334,
+      "upper": 0.9578675000000001,
       "n": 300,
       "method": "bootstrap_percentile",
       "confidence": 0.95,
@@ -201,7 +201,7 @@
     "Inference is deterministic in the offline configuration, so repeated runs have zero variance. Intervals here describe sampling uncertainty over questions (n=300), not run-to-run variability."
   ],
   "experiment": {
-    "tag": "qasper_dev_n300",
+    "tag": "qasper_dev_300",
     "dataset": "qasper",
     "split": "dev",
     "n_questions": 300,
@@ -233,11 +233,11 @@
     "source_url": "https://allenai.org/data/qasper"
   },
   "provenance": {
-    "timestamp_utc": "2026-08-30T21:04:52+00:00",
+    "timestamp_utc": "2026-08-31T18:03:52+00:00",
     "git": {
-      "commit": "76f56f5df9e0fa557e5e7e9acfe3bb8cab53ad85",
-      "branch": "research/stages-1-4",
-      "dirty": false
+      "commit": "66a0d92a8e1ed6a7973557f39b4e63e699634b45",
+      "branch": "main",
+      "dirty": true
     },
     "python": "3.12.7",
     "platform": "Windows-11-10.0.26200-SP0",

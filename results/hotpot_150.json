@@ -179,7 +179,7 @@
     "Inference is deterministic in the offline configuration, so repeated runs have zero variance. Intervals here describe sampling uncertainty over questions (n=150), not run-to-run variability."
   ],
   "experiment": {
-    "tag": "hotpot_multihop_n150",
+    "tag": "hotpot_150",
     "dataset": "hotpotqa",
     "split": "validation",
     "n_questions": 150,
@@ -208,11 +208,11 @@
     "source_url": "https://huggingface.co/datasets/hotpotqa/hotpot_qa"
   },
   "provenance": {
-    "timestamp_utc": "2026-08-30T21:17:34+00:00",
+    "timestamp_utc": "2026-08-31T18:15:52+00:00",
     "git": {
-      "commit": "c6d259ee0fd295f9e6c973b4d235bd114800ce4f",
-      "branch": "research/stages-1-4",
-      "dirty": false
+      "commit": "66a0d92a8e1ed6a7973557f39b4e63e699634b45",
+      "branch": "main",
+      "dirty": true
     },
     "python": "3.12.7",
     "platform": "Windows-11-10.0.26200-SP0",

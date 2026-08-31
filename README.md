@@ -3,31 +3,58 @@
 [![CI](https://github.com/pouyapd/TrustRAG/actions/workflows/ci.yml/badge.svg)](https://github.com/pouyapd/TrustRAG/actions/workflows/ci.yml)
 ![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
-![Tests](https://img.shields.io/badge/tests-308%20passing-brightgreen)
-![Coverage](https://img.shields.io/badge/coverage-79%25-green)
+![Tests](https://img.shields.io/badge/tests-412%20passing-brightgreen)
+![Coverage](https://img.shields.io/badge/coverage-80%25-green)
 
-> **Branch note.** `main` carries the finalized research state. The work was
-> developed on **`research/stages-1-4`**, which is preserved at the same commit
-> for provenance.
+**A containerized RAG service (FastAPI + ChromaDB) with an evaluation layer that
+tells you *why* a RAG answer failed — retrieval, evidence, generation or
+abstention — instead of handing you one aggregate score.**
 
-A production RAG service with a research evaluation layer that asks a narrower
-question than usual: **not "did we retrieve the right document?" but "did the
-passage that actually supports the answer reach the generator?"**
+The system measures something most RAG evaluations do not: **not "did we
+retrieve the right document?" but "did the passage that actually supports the
+answer reach the generator?"** On corpora of long documents those come apart
+badly. Measured on four public datasets, across four embedding models and five
+retrieval depths, the gap is large, one-directional, and it moves where failures
+get attributed — on Natural Questions, a document-level reading blames retrieval
+for **1** failure out of 300; the evidence-level reading blames it for **81**.
 
-On a corpus of long documents those are very different questions. A Wikipedia
-page averages ~37,000 characters and an NLP paper ~22,000, so a chunk from
-anywhere inside one satisfies the conventional document-level retrieval test.
-Measured on real corpora, that gap is large, one-directional, and it changes
-where failures get attributed.
+Everything below runs offline, with no API key.
 
 ---
 
-## TrustRAG in action
+## Project at a glance
 
-**The running service.** FastAPI with the RAG endpoints and the evaluation
-endpoint side by side — captured from the live application, not a mockup:
+| | |
+|---|---|
+| **Language** | Python 3.11+ |
+| **API** | FastAPI — 5 endpoints (`/health`, `/metrics`, `/ingest`, `/query`, `/evaluate`) |
+| **Vector store** | ChromaDB, persistent, offset-carrying chunks |
+| **Embeddings** | 4 local models swept (MiniLM, MPNet, BGE, E5) + OpenAI + deterministic hash |
+| **Generation** | OpenAI, Anthropic, local open weights, or a deterministic extractive control |
+| **Observability** | Prometheus (6 metrics) + `structlog` structured JSON logging |
+| **Packaging** | Docker + docker-compose; CPU-only image, 9.53 GB → **2.99 GB** |
+| **CI** | GitHub Actions — 3 jobs: tests, evaluation regression, Docker build |
+| **Testing** | **412 tests, 80% line coverage**, `ruff` clean, nothing excluded |
+| **Codebase** | ~6,500 lines `src/`, ~2,900 lines `tests/`, 38 modules |
+| **Offline mode** | Full evaluation with no API key and no network |
+| **Datasets** | Natural Questions, QASPER, HotpotQA, 2WikiMultihopQA (loaders committed, corpora not) |
+
+> **Branch note.** `main` carries the finalized state. The work was developed on
+> **`research/stages-1-4`**, preserved at the same commit for provenance.
+
+---
+
+## See it running
+
+**The service.** FastAPI with the RAG endpoints and the evaluation endpoint side
+by side — captured from the live application, not a mockup:
 
 ![TrustRAG OpenAPI interface](docs/screenshots/api-docs.png)
+
+**The pipeline.** Every push runs lint + tests, an end-to-end evaluation
+regression, and a Docker build:
+
+![GitHub Actions CI run, all jobs green](docs/screenshots/ci-pipeline.png)
 
 **The study.** `python scripts/reproduce_study.py --all` runs all five
 experiments and prints this table. Verbatim output, no API key required:
@@ -44,14 +71,119 @@ qasper_c512                   9   0.428    0.428   0.317    0.0p   11.0p
 `A` is the conventional document-level retrieval metric; `C` asks whether the
 gold evidence span actually reached the generator. The two right-hand columns
 separate *why* they differ — a multi-hop quantifier effect from a span
-granularity effect — and the last two rows show the granularity effect tracking
-chunk size exactly as its mechanism predicts.
+granularity effect.
 
 ---
 
-## 1. Project overview
+## Quick start
 
-Two things live here:
+No API key, no network, no corpora needed for the smoke test:
+
+```bash
+git clone https://github.com/pouyapd/TrustRAG.git && cd TrustRAG
+pip install -r requirements.txt
+
+python scripts/run_offline_eval.py      # end-to-end evaluation, ~30s
+pytest tests/ -q                        # 412 tests
+```
+
+Run it as a service:
+
+```bash
+cp .env.example .env            # set OPENAI_API_KEY to enable /query
+docker-compose up --build       # API on :8000, Prometheus on :9090
+curl localhost:8000/health      # {"status":"ok","vectors_in_store":N,...}
+```
+
+`/health`, `/ingest` and `/metrics` need no API key — embeddings run locally via
+`sentence-transformers`, downloaded on first use. `/query` calls a generator, so
+it needs OpenAI, Anthropic or a local Ollama. **The evaluation layer never needs
+a key**, which is why the study and CI run without one.
+
+Full walkthrough: [docs/QUICKSTART.md](docs/QUICKSTART.md).
+
+---
+
+## What this demonstrates
+
+**Engineering.** A service that is actually operable: pluggable providers behind
+narrow interfaces, structured logging with request tracing, Prometheus metrics
+wired to real code paths, a container that was cut from 9.53 GB to 2.99 GB by
+installing the CPU PyTorch wheel before `sentence-transformers` could drag the
+CUDA runtime in, and CI that fails on a lint violation, a broken test, an
+evaluation regression, or an unbuildable image.
+
+**Measurement design.** Separating inference from scoring so a finished run can
+be re-scored under different thresholds with zero model calls. Carrying
+character offsets end-to-end so evidence claims are arithmetic rather than
+string search. Freezing the legacy metrics — defects documented — so old numbers
+still reproduce while corrected ones run beside them.
+
+**Research discipline.** The headline finding was originally overstated: the
+first ablation changed two variables at once on multi-hop data. Decomposing it
+into A/B/C reattributed HotpotQA's 48.7 pp from granularity to quantifier. That
+correction is in the repository, in [docs/EXPERIMENTS.md](docs/EXPERIMENTS.md),
+not quietly edited out. The [Limitations](#limitations) section is written to be
+read before the results are quoted.
+
+---
+
+## Why this matters in real RAG systems
+
+A team ships RAG, the dashboard says retrieval recall is 0.99, and users keep
+reporting wrong answers. The instinct is to blame the model and start swapping
+LLMs. That is often the wrong fix.
+
+Document-level recall answers "did a chunk from the right document appear?" On a
+37,000-character Wikipedia page, a chunk from anywhere in it passes — including
+chunks that contain none of the evidence. The retrieval metric is green while
+the generator is working from context that cannot support the answer.
+
+This is the concrete cost:
+
+| | Document-level reading | Evidence-level reading |
+|---|---|---|
+| Failures charged to retrieval (NQ, n=300) | 1 | **81** |
+| Suggested fix | "improve the model" | "fix chunking / top-k / ranking" |
+
+The same stored retrieval output, two definitions of success, opposite
+engineering conclusions. TrustRAG reports both side by side and never lets one
+overwrite the other — which is the difference between a metric you can act on
+and a metric that makes you feel good.
+
+It also refuses to credit ungrounded correctness: an answer that is right
+*without* the gold evidence in context is charged to retrieval, not counted as a
+success. On a Wikipedia-derived corpus that is the difference between measuring
+RAG and measuring what the model already memorized.
+
+---
+
+## Architecture
+
+```mermaid
+flowchart TD
+    Client([Client]) --> API
+
+    subgraph Service["Service layer"]
+        API["FastAPI · /ingest · /query · /evaluate · /health · /metrics"]
+        OBS["structlog + Prometheus — latency · failure modes · vectors"]
+        API -. emits .-> OBS
+    end
+
+    subgraph Pipeline["RAG pipeline — character offsets carried end to end"]
+        CHUNK["Chunker · start_char / end_char"] --> STORE[("ChromaDB · vectors + offsets")] --> RETR["Retriever · top-k"] --> GEN["Generator · OpenAI · Anthropic · extractive control"]
+    end
+
+    subgraph Eval["Evaluation layer"]
+        ALIGN["Evidence alignment · gold span ∩ retrieved chunk"] --> SCORE["Metrics + failure taxonomy v2 · legacy · corrected · evidence-level"] --> STATS["Statistics · Wilson · bootstrap · exact McNemar"]
+    end
+
+    API --> CHUNK
+    GEN --> ALIGN
+    STATS --> REPORT["Report + provenance block"]
+```
+
+Two things live in this repository:
 
 - **A RAG service** — FastAPI, ChromaDB, pluggable providers, Prometheus,
   Docker. Ordinary, working, and not the interesting part.
@@ -59,91 +191,50 @@ Two things live here:
   versioned failure taxonomy, corrected retrieval metrics, an attribution
   hierarchy, and statistics that refuse to overstate small samples.
 
-The research question: *can RAG failures be decomposed into retrieval,
-evidence, generation and abstention causes using reproducible,
-evidence-grounded evaluation rather than a single aggregate score?*
+Design decisions and their rationale: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ---
 
-## 2. Engineering features
+## Engineering details
 
-- Modular pipeline — pluggable LLM, embedder and vector store
-- CPU-only container: 9.53 GB → **2.99 GB** by installing the CPU PyTorch
-  wheel before the rest, so `sentence-transformers` does not drag the CUDA
-  runtime into an image with no GPU
-- FastAPI service with structured logging and request tracing
-- Prometheus metrics; Docker and docker-compose
-- CI on every push: lint, tests, evaluation regression, Docker build
-- Deterministic offline mode — runs with no API keys and no network
+- **Modular pipeline** — `LLMProvider` / `EmbeddingProvider` interfaces; swapping
+  OpenAI for Anthropic for a local model is a config change, not a refactor.
+- **Container discipline** — 9.53 GB → **2.99 GB** (3.2×) by ordering the CPU
+  PyTorch wheel ahead of `sentence-transformers`, so no CUDA runtime lands in an
+  image with no GPU.
+- **Observability** — `structlog` JSON logs with request tracing; Prometheus
+  counters, histograms and gauges for query volume, latency, faithfulness,
+  failure modes and vector-store size.
+- **CI on every push** — lint, tests, an end-to-end evaluation regression that
+  runs without API credits, and a Docker build.
+- **Deterministic offline mode** — no API keys, no network; the same code path
+  CI uses.
+- **Provenance on every report** — git commit and dirty flag, raw-file SHA-256,
+  split, sample size, chunk size, top-k, embedder and generator identity,
+  taxonomy version and threshold fingerprint, Python version, platform and
+  package versions.
 
 ---
 
-## 3. Research methodology
+## The research contribution
+
+The question: *can RAG failures be decomposed into retrieval, evidence,
+generation and abstention causes using reproducible, evidence-grounded
+evaluation rather than a single aggregate score?*
+
+### Method
 
 **Character offsets travel the whole path.** Chunk text is *sliced* from the
 source document, never rebuilt by decoding tokens, so
-`document[chunk.start_char:chunk.end_char] == chunk.text` holds by
-construction. Offsets survive chunker → vector store → retrieval → stored
-records.
+`document[chunk.start_char:chunk.end_char] == chunk.text` holds by construction.
+Offsets survive chunker → vector store → retrieval → stored records.
 
 Offsets are not recovered by searching for the chunk text. `str.find()` returns
-the first occurrence, so in any document that repeats itself every copy
-resolves to the same wrong position.
+the first occurrence, so in any document that repeats itself every copy resolves
+to the same wrong position.
 
 **Evidence alignment is arithmetic.** A gold span and a retrieved chunk are
 half-open character ranges in one document; overlap decides coverage.
-
-**Attribution refuses to credit ungrounded correctness.** A correct answer
-produced without the gold evidence in context is charged to retrieval, not
-counted as a success — on a Wikipedia-derived corpus that is the difference
-between measuring RAG and measuring memorisation.
-
-**Inference and scoring are separate.** Re-scoring a finished run costs no
-model calls, which is what makes threshold-sensitivity analysis and
-methodology comparison practical.
-
-See [docs/EVALUATION.md](docs/EVALUATION.md) and
-[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
-
----
-
-## 4. Evaluation protocol
-
-Three measurement layers, reported side by side, none overwriting another:
-
-1. **Legacy** — frozen, with defects documented, so old numbers reproduce.
-2. **Corrected** — explicit document vs chunk units; `None` instead of 0.0 for
-   unanswerable questions; nDCG, hit-rate, first-relevant-rank.
-3. **Evidence-level** — span coverage, evidence recall/precision, first
-   evidence rank, multi-hop completeness.
-
----
-
-## 5. Datasets
-
-Natural Questions (CC BY-SA 3.0), QASPER (CC BY 4.0) and HotpotQA
-(CC BY-SA 4.0), chosen because they differ structurally: Wikipedia pages with
-span evidence, scientific papers with paragraph evidence, and 2-hop questions
-whose evidence is split across two documents. Agreement across three such
-different corpora is what makes the result more than a property of one dataset.
-
-**Corpora are not redistributed.** `data/raw/` is git-ignored; loaders,
-checksums and licence metadata are committed instead. Download commands,
-checksums, split discipline and contamination analysis are in
-[docs/DATASETS.md](docs/DATASETS.md).
-
----
-
-## 6. Failure taxonomy
-
-Nine categories including `incorrect_answer` separated from `partial_answer`,
-`answered_when_unanswerable`, and `ok_abstained` as an explicit success.
-Thresholds are versioned and hashable; every row records the rule that fired
-and the features behind it. See [docs/TAXONOMY.md](docs/TAXONOMY.md).
-
----
-
-## 7. Evidence-aware evaluation
 
 ```
 gold span [1200, 1760)  in doc qasper:1901.00001
@@ -155,9 +246,54 @@ Multi-hop: under `all_required` every gold document must contribute a covered
 span. Retrieving one of two required documents is a *retrieval* failure, not a
 generation failure.
 
+**Inference and scoring are separate.** Re-scoring a finished run costs no model
+calls, which is what makes threshold-sensitivity analysis and methodology
+comparison practical.
+
+### Evaluation protocol
+
+Three measurement layers, reported side by side, none overwriting another:
+
+1. **Legacy** — frozen, with defects documented, so old numbers reproduce.
+2. **Corrected** — explicit document vs chunk units; `None` instead of 0.0 for
+   unanswerable questions; nDCG, hit-rate, first-relevant-rank.
+3. **Evidence-level** — span coverage, evidence recall/precision, first evidence
+   rank, multi-hop completeness.
+
+See [docs/EVALUATION.md](docs/EVALUATION.md).
+
+### Datasets
+
+Four corpora, chosen because they differ structurally — agreement across them is
+what makes a result more than a property of one dataset.
+
+| Dataset | Licence | Structure | Role |
+|---|---|---|---|
+| Natural Questions | CC BY-SA 3.0 | Wikipedia pages, span evidence, ~37k chars | Granularity |
+| QASPER | CC BY 4.0 | Scientific papers, paragraph evidence, ~22k chars | Granularity |
+| HotpotQA | CC BY-SA 4.0 | 10 paragraphs, 2 gold, 2-hop | Quantifier |
+| 2WikiMultihopQA | Apache-2.0 | 10 paragraphs, 2–4 gold, 2- and 4-hop | Quantifier (replication) |
+
+The two multi-hop sets are deliberately not two of the same thing: HotpotQA's
+questions were written by crowdworkers reading the paragraphs, 2Wiki's are
+generated from Wikidata relation paths and templated. They carry different
+biases, so agreement between them is worth more than a third crowdsourced set.
+
+**Corpora are not redistributed.** `data/raw/` is git-ignored; loaders, checksums
+and licence metadata are committed instead. Download commands, checksums, split
+discipline and contamination analysis are in
+[docs/DATASETS.md](docs/DATASETS.md).
+
+### Failure taxonomy
+
+Nine categories including `incorrect_answer` separated from `partial_answer`,
+`answered_when_unanswerable`, and `ok_abstained` as an explicit success.
+Thresholds are versioned and hashable; every row records the rule that fired and
+the features behind it. See [docs/TAXONOMY.md](docs/TAXONOMY.md).
+
 ---
 
-## 8. Experimental results
+## Experimental results
 
 Three definitions of "retrieval succeeded", applied to the **same** stored
 retrieval output. **A** is the conventional metric (any chunk from any relevant
@@ -183,12 +319,53 @@ the data where it bites:
 - **Quantifier blindness** — on multi-hop questions, retrieving *a* relevant
   document counts as success when the question needs *all* of them.
 
-Discordance is one-directional everywhere (48/0, 80/0, 73/0): span-level
-success implies document-level success, never the reverse.
+Discordance is one-directional everywhere (48/0, 80/0, 73/0): span-level success
+implies document-level success, never the reverse.
 
-**The granularity effect is mechanistically explained and predicted.** It
-scales with how many chunks a gold document spans — varying chunk size on
-QASPER, same corpus and questions throughout:
+![A/B/C decomposition across four corpora](results/figures/abc_decomposition.png)
+
+### It is robust, and the two effects behave differently
+
+Three things were varied, one at a time, with everything else held constant.
+
+**Four embedding models, three training lineages.** On QASPER the granularity gap
+ranges 14.5–18.3 pp (MiniLM 16.6, MPNet 14.5, BGE 18.3, E5 15.9), significant and
+strictly one-directional in every case. On HotpotQA the quantifier gap ranges far
+more — 48.7 pp down to 26.7 pp — because the two instruction-trained retrievers
+are much better at getting *all* the required documents into the window (B rises
+0.507 → 0.727 while A stays at 0.993).
+
+> Granularity blindness is a property of chunking against document length, and a
+> better encoder does not fix it. Quantifier blindness *is* substantially
+> mitigated by a better multi-hop retriever — though not eliminated, and the
+> conventional metric reports 0.993 for the best and worst configuration alike.
+
+![Embedder robustness](results/figures/embedder_robustness.png)
+
+**Five retrieval depths, k = 1 to 20, each retrieved natively.** Retrieving more
+does help, and the honest summary is that the magnitude is strongly k-dependent
+while the distinction is not. On NQ the gap falls from 57.3 pp to 7.7 pp; on
+QASPER it barely moves (20.3 → 14.5 pp); on 2WikiMultihopQA it is still 48.0 pp
+at k=20. Every point remains significant.
+
+> The more telling result: on NQ and HotpotQA the conventional metric
+> **saturates at A = 1.000 by k=10**. A metric with zero variance cannot rank
+> systems or diagnose regressions. At NQ k=20 it charges **0** failures to
+> retrieval while the evidence-level reading still charges **23**.
+
+![Gap versus retrieval depth](results/figures/gap_vs_topk.png)
+
+**A second multi-hop corpus.** The quantifier effect was measured on HotpotQA
+alone. On 2WikiMultihopQA it replicates and is **larger — 64.7 pp**
+(p = 1.3e-29, 97/0 discordant), with a mechanical explanation predicted from the
+data: 28 of its 150 questions are 4-hop, so more documents are required and
+"any" diverges further from "all". Its granularity gap is 1.3 pp and **not
+significant** (p = 0.5) — reported as a null result, and exactly what its
+232-character documents predict.
+
+**The granularity effect is mechanistically explained and predicted.** It scales
+with how many chunks a gold document spans — varying chunk size on QASPER, same
+corpus and questions throughout:
 
 | chunk size | chunks per gold doc | granularity gap |
 |---|---|---|
@@ -202,83 +379,168 @@ and does not vanish at any realistic setting — at 512 tokens it is still 11 pp
 (p = 4.7e-10). It is a property of corpus structure relative to chunk size, not
 a universal constant.
 
-Attribution moves accordingly: on NQ a document-level reading charges **1** of
-300 failures to retrieval; evidence-aware attribution charges **81**.
+Attribution moves accordingly, on every corpus:
+
+| Corpus | n | retrieval (document-level) | retrieval (evidence-level) |
+|---|---|---|---|
+| QASPER | 290 | 162 | **210** |
+| Natural Questions | 300 | 1 | **81** |
+| HotpotQA | 150 | 1 | **74** |
+| 2WikiMultihopQA | 150 | 5 | **104** |
+
+QASPER is the informative exception: retrieval there is visibly poor under both
+readings, so the conventional metric is not misleading in the same way — which is
+itself evidence that this is about corpus structure rather than a universal
+correction.
+
+![Attribution shift](results/figures/attribution_shift.png)
 
 Full protocol, dataset census, threats to validity and reproduction commands:
 [docs/EXPERIMENTS.md](docs/EXPERIMENTS.md).
 
----
+### A real language model, and what evidence status predicts
 
-## 9. Statistical uncertainty
+Everything above uses a deterministic extractive control. To ask what a *language
+model* does when the supporting passage never reaches it, the stored QASPER run
+is replayed with only the generator swapped — retrieval, context and questions
+identical by construction. Two models, different vendors, both greedy on CPU,
+n=150 each.
+
+**Qwen2.5-0.5B-Instruct:**
+
+| Evidence that reached the generator | n | correct | abstained | answered |
+|---|---|---|---|---|
+| Complete — every required span arrived | 44 | **18.2%** | 9.1% | 90.9% |
+| **Document retrieved, span missing** | 26 | **0.0%** | **0.0%** | **100%** |
+| Nothing from any gold document | 75 | 1.3% | 4.0% | 96.0% |
+
+| Generator | P(correct \| complete) | P(correct \| incomplete) | difference | p |
+|---|---|---|---|---|
+| Qwen2.5-0.5B | 0.182 | 0.010 | **17.2 pp** | 0.0004 |
+| SmolLM2-360M | 0.136 | 0.030 | **10.7 pp** | 0.023 |
+
+The middle row of the first table is the argument in one line. Those 26 questions
+are exactly what a document-level metric scores as retrieval *success*. Qwen
+answered every one, never abstained, and was never right — and a conventional
+evaluation would charge all 26 to the generator.
+
+The direction replicates on both models. Neither abstains much when the evidence
+is missing: SmolLM declined on **none** of the 101 questions whose evidence never
+arrived.
+
+**What this does not show.** These are small local models (0.5B and 0.36B),
+chosen because no API key was available. Absolute accuracy is low even with
+complete evidence — a property of the generator, not the retrieval — and with
+n=150 split across strata neither run is powered to compare the two models.
+**No hallucination rate, faithfulness benchmark, or model ranking is claimed.**
+
+### Statistical uncertainty
 
 Wilson intervals for proportions, seeded bootstrap for means, **exact** McNemar
-for paired binary comparisons, permutation tests for failure-mode
-distributions. Every estimate carries `n`, an interval and a `sufficient` flag;
-`MIN_N_FOR_INFERENCE = 30` is a stated convention, not a theorem. Reports
-detect and state saturated metrics, zero-variance metrics and rare categories
-in their own output.
+for paired binary comparisons, permutation tests for failure-mode distributions.
+Every estimate carries `n`, an interval and a `sufficient` flag;
+`MIN_N_FOR_INFERENCE = 30` is a stated convention, not a theorem. Reports detect
+and state saturated metrics, zero-variance metrics and rare categories in their
+own output.
 
 ---
 
-## 10. Limitations
+## Limitations
 
 Read these before quoting anything above.
 
-- **No language model was used.** No API key was available, so experiments run
-  a deterministic extractive control. **No generation-side conclusion — no
-  hallucination rate, no faithfulness claim, no model comparison — is supported
-  by these runs.** Retrieval and evidence results are unaffected, because
-  retrieval is real.
-- **The taxonomy is not validated against humans.** Its thresholds were tuned
-  by inspection on a 20-question fixture, which is development data. The
-  annotation package exists; **no labels have been collected.** The headline
-  retrieval result does not depend on those thresholds.
-- **Each effect rests on limited data.** The granularity effect is shown on two
-  corpora across four chunk sizes; the quantifier effect on one multi-hop
-  corpus (HotpotQA), whose crowdworkers wrote questions while looking at the
-  paragraphs, so lexical anchoring makes its retrieval easier than natural
-  queries.
-- **The direction of both gaps is true by construction.** Span-level coverage
-  implies document-level coverage. What is measured here is the *magnitude*,
-  its dependence on corpus structure, and its consequence for attribution —
-  not the existence of an inequality.
-- **One embedder and one top-k.** Chunk size is swept; embedder and k are not. The size of the gap depends on chunk size,
-  top-k and embedder. Its direction cannot reverse; its magnitude is not a
-  constant.
-- **Contamination is mitigated, not eliminated.** NQ comes from Wikipedia.
-- **Sample sizes are moderate** (n = 290 / 300 / 150). Adequate for the paired
-  comparison reported; not a benchmark-scale study.
+- **The generation experiment uses small local models.** No API key was
+  available, so the reproducible baseline is a deterministic extractive control
+  and the real-language-model runs use open weights of 0.36B and 0.5B
+  parameters. Enough to ask whether evidence status predicts generation failure;
+  **not** enough to characterise any deployed or frontier model. **No
+  hallucination rate, no faithfulness benchmark and no model comparison is
+  claimed.** Retrieval and evidence results are unaffected — retrieval is real
+  and is held fixed while the generator changes.
+- **The taxonomy is not validated against humans.** Its thresholds were tuned by
+  inspection on a 20-question fixture, which is development data. The full
+  protocol — stratified blinded package, written guidelines, kappa and
+  per-category scoring — now exists and is tested. **Zero labels have been
+  collected.** The headline retrieval result does not depend on those
+  thresholds; every generation-side label does.
+- **The magnitude depends heavily on retrieval depth.** Embedder and k are now
+  swept and both matter. On Natural Questions the granularity gap falls from
+  57.3 pp at k=1 to 7.7 pp at k=20; on QASPER it barely moves (20.3 → 14.5 pp);
+  on 2WikiMultihopQA the quantifier gap is still 48.0 pp at k=20. The
+  distinction stays significant everywhere measured, but anyone quoting a single
+  number is quoting one configuration. Reranking, query expansion and hybrid
+  retrieval are untested and could shrink it further.
+- **Four embedders, all small and all English.** MiniLM, MPNet, BGE-small and
+  E5-small span three training lineages but not the space: no multilingual
+  model, no large retriever, no domain-adapted scientific embedder.
+- **Each effect rests on limited data.** Granularity is shown on two corpora,
+  four chunk sizes, four embedders and five depths; the quantifier effect on two
+  multi-hop corpora. Both multi-hop sets carry known biases — HotpotQA's
+  crowdworkers wrote questions while looking at the paragraphs, and
+  2WikiMultihopQA's are generated from Wikidata relation paths and templated.
+  They fail differently, which is why agreement between them is worth more than
+  a third crowdsourced set, but neither is a natural query distribution.
+- **`C ≤ B ≤ A` is true by construction and is not the finding.** Span coverage
+  implies document coverage. What is measured is the *magnitude* of the gap, its
+  dependence on corpus structure, its behaviour under embedder and depth, and
+  its consequence for attribution — not the existence of an inequality.
+- **At k=1 the multi-hop result is definitional.** A two-hop question cannot have
+  both required documents in one retrieved slot, so B = 0.000 there follows from
+  the pigeonhole principle. That row carries no evidential weight; k=10 and k=20
+  do.
+- **Contamination is mitigated, not eliminated.** NQ and both multi-hop corpora
+  derive from Wikipedia.
+- **Sample sizes are moderate** (n = 290 / 300 / 150 / 150). Adequate for the
+  paired comparisons reported; not a benchmark-scale study.
+- **Retrieval is approximate.** Two independently built indices over the same
+  corpus can rank one borderline question differently — a one-in-three-hundred
+  difference that moves chunk-level aggregates by ≤0.001 and changes no reported
+  gap. See [Reproducibility](#reproducibility).
+- **Not a deployed system.** It is containerized, instrumented and CI-tested, but
+  it has not been run at production scale or under production load.
 
 ---
 
-## 11. Reproducibility
+## Reproducibility
 
 `python scripts/reproduce_study.py --all` runs every experiment and prints the
 results table above. **No API key is required**: the embedder runs locally and
 the generator is a deterministic extractive control, so every retrieval and
 evidence measurement reproduces offline once the corpora are downloaded.
 
-Every report carries a provenance block: git commit and dirty flag, raw-file
-SHA-256, split, sample size, chunk size and overlap, top-k, embedder and
-generator identity, taxonomy version and threshold fingerprint, Python version,
-platform and package versions.
+Determinism is verified rather than assumed, and the verification found a limit
+worth stating. Re-running the whole study from scratch — fresh index, fresh
+embeddings, fresh retrieval — reproduced **every headline A/B/C figure exactly**
+(QASPER 0.441/0.441/0.276, NQ 0.997/0.997/0.730, HotpotQA 0.993/0.507/0.507),
+and HotpotQA reproduced bit-identically throughout.
 
-Determinism is verified, not assumed: re-running an experiment from scratch —
-fresh index, fresh embeddings, fresh retrieval — reproduces every reported
-figure exactly. Curated per-run summaries are tracked in `results/`; raw
-corpora, vector indices and full reports are git-ignored.
+What does *not* reproduce to the last digit are fine-grained aggregates on the
+long-document corpora: chunk precision, chunk recall and nDCG move by ≤0.001, and
+answer-side means such as faithfulness by ≤0.001. The cause is approximate
+nearest-neighbour search — two independently built indices over the same corpus
+can rank one borderline question differently, which is a one-in-three-hundred
+difference. It changes no reported gap, no significance test and no conclusion,
+but "reproduces exactly" would be too strong a claim and is not made here.
+
+Curated per-run summaries are tracked in `results/`; raw corpora, vector indices
+and full reports are git-ignored.
 
 ---
 
-## 12. How to run
+## All commands
 
 ```bash
 pip install -r requirements.txt
 
-# THE STUDY: all five experiments, prints the results table. No API key needed.
-# Fetch the three corpora first - see docs/DATASETS.md for commands + checksums.
+# THE STUDY: all five original experiments. No API key needed.
+# Fetch the corpora first - see docs/DATASETS.md for commands + checksums.
 python scripts/reproduce_study.py --all
+
+# The robustness experiments, also deterministic and key-free
+python scripts/reproduce_study.py --embedder-sweep   # 4 models, 3 lineages
+python scripts/reproduce_study.py --topk-sweep       # k = 1, 3, 5, 10, 20
+python scripts/reproduce_study.py --multihop         # 2WikiMultihopQA
+python scripts/reproduce_study.py --everything       # all of the above
 
 # Deterministic offline smoke test, no keys, no network, no corpora
 python scripts/run_offline_eval.py
@@ -297,27 +559,55 @@ python scripts/run_ablation.py \
     --records reports/experiments/qasper/inference.jsonl \
     --out reports/experiments/ablation_qasper.json
 
-# Human-annotation package (produces empty labels for a person to fill in)
+# Human-annotation package: 200 stratified, blinded units, two annotator sheets.
+# Emits empty labels for a person to fill in. Nothing here writes a label.
 python scripts/build_annotation_package.py \
-    --records reports/experiments/qasper/inference.jsonl \
-    --out reports/annotation/qasper
+    --records reports/experiments/qasper_dev_300/inference.jsonl \
+    --out reports/annotation/qasper_dev_300 --n-units 200
+
+# Score completed annotations: Cohen's kappa, confusion matrix, per-category F1.
+# Refuses to run on empty sheets rather than inventing a table.
+python scripts/score_annotations.py \
+    --package reports/annotation/qasper_dev_300 \
+    --annotator a=.../annotator_a/completed.jsonl \
+    --annotator b=.../annotator_b/completed.jsonl
+
+# Figures, and the documentation's result tables regenerated from result files
+pip install -r requirements-research.txt
+python scripts/make_figures.py --all
+python scripts/report_tables.py --inject docs/EXPERIMENTS.md
+
+# OPTIONAL: real-language-model generation study. Retrieval is reused verbatim
+# from a finished run, so only the generator changes. Never runs in CI.
+python scripts/run_llm_experiment.py \
+    --records reports/experiments/qasper_dev_300/inference.jsonl \
+    --generator qwen0.5b --limit 150 --out reports/experiments/llm_qasper_qwen
+# ... or openai:gpt-4o-mini / anthropic:claude-3-5-haiku with a key in the env
 
 pytest tests/ -v --cov=src
 ```
 
-**308 tests, 79% line coverage**, ruff clean. Nothing is excluded from the
+**412 tests, 80% line coverage**, ruff clean. Nothing is excluded from the
 coverage report. The suite includes unit tests, property-style invariants (span
 coverage implies document coverage, for every record), end-to-end integration
 tests that carry a question from a real dataset file through chunking, a real
 vector store and retrieval to a failure label, and regression tests for each
 defect found during the work.
 
-The service still runs as a service:
+---
 
-```bash
-cp .env.example .env      # set OPENAI_API_KEY
-docker-compose up --build # API on :8000, Prometheus on :9090
-```
+## Documentation
+
+| Document | Contents |
+|---|---|
+| [docs/QUICKSTART.md](docs/QUICKSTART.md) | Install, run the service, first query |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Design decisions and their rationale |
+| [docs/EVALUATION.md](docs/EVALUATION.md) | Metric definitions and the three measurement layers |
+| [docs/EXPERIMENTS.md](docs/EXPERIMENTS.md) | Full protocol, results, corrections, threats to validity |
+| [docs/DATASETS.md](docs/DATASETS.md) | Download commands, checksums, licences, contamination analysis |
+| [docs/TAXONOMY.md](docs/TAXONOMY.md) | The nine failure categories, decision rules, and the human-validation protocol |
+| [docs/ANNOTATION_GUIDELINES.md](docs/ANNOTATION_GUIDELINES.md) | What annotators are asked to do, and how the categories are defined independently of the rules |
+| [docs/SAMPLE_EVALUATION.md](docs/SAMPLE_EVALUATION.md) | The bundled smoke-test fixture, annotated |
 
 ---
 
