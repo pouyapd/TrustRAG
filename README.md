@@ -3,6 +3,12 @@
 [![CI](https://github.com/pouyapd/TrustRAG/actions/workflows/ci.yml/badge.svg)](https://github.com/pouyapd/TrustRAG/actions/workflows/ci.yml)
 ![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
+![Tests](https://img.shields.io/badge/tests-308%20passing-brightgreen)
+![Coverage](https://img.shields.io/badge/coverage-79%25-green)
+
+> **Branch note.** The research work lives on **`research/stages-1-4`**, which
+> is where this README and every result below come from. `main` still holds the
+> original production-RAG demo and is deliberately untouched.
 
 A production RAG service with a research evaluation layer that asks a narrower
 question than usual: **not "did we retrieve the right document?" but "did the
@@ -221,10 +227,20 @@ Read these before quoting anything above.
 
 ## 11. Reproducibility
 
+`python scripts/reproduce_study.py --all` runs every experiment and prints the
+results table above. **No API key is required**: the embedder runs locally and
+the generator is a deterministic extractive control, so every retrieval and
+evidence measurement reproduces offline once the corpora are downloaded.
+
 Every report carries a provenance block: git commit and dirty flag, raw-file
 SHA-256, split, sample size, chunk size and overlap, top-k, embedder and
 generator identity, taxonomy version and threshold fingerprint, Python version,
-platform and package versions. The offline path is deterministic.
+platform and package versions.
+
+Determinism is verified, not assumed: re-running an experiment from scratch —
+fresh index, fresh embeddings, fresh retrieval — reproduces every reported
+figure exactly. Curated per-run summaries are tracked in `results/`; raw
+corpora, vector indices and full reports are git-ignored.
 
 ---
 
@@ -233,7 +249,11 @@ platform and package versions. The offline path is deterministic.
 ```bash
 pip install -r requirements.txt
 
-# Deterministic offline evaluation, no keys, no network
+# THE STUDY: all five experiments, prints the results table. No API key needed.
+# Fetch the three corpora first - see docs/DATASETS.md for commands + checksums.
+python scripts/reproduce_study.py --all
+
+# Deterministic offline smoke test, no keys, no network, no corpora
 python scripts/run_offline_eval.py
 
 # Re-score a finished run under different thresholds - no model calls
@@ -257,6 +277,13 @@ python scripts/build_annotation_package.py \
 
 pytest tests/ -v --cov=src
 ```
+
+**308 tests, 79% line coverage**, ruff clean. Nothing is excluded from the
+coverage report. The suite includes unit tests, property-style invariants (span
+coverage implies document coverage, for every record), end-to-end integration
+tests that carry a question from a real dataset file through chunking, a real
+vector store and retrieval to a failure label, and regression tests for each
+defect found during the work.
 
 The service still runs as a service:
 

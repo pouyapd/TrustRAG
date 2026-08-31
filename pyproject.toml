@@ -31,7 +31,10 @@ asyncio_mode = "auto"
 
 [tool.coverage.run]
 source = ["src"]
-omit = ["src/api/main.py"]
+# Nothing is omitted. src/api/main.py was previously excluded; it is in fact
+# 91% covered by the TestClient suite, so excluding it hid tested code rather
+# than flattering the number -- the reported total is 79% either way.
+omit = []
 
 [tool.coverage.report]
 exclude_lines = [
