@@ -126,38 +126,53 @@ generation failure.
 
 ## 8. Experimental results
 
-Real corpora, real MiniLM embeddings, real retrieval. Two definitions of
-"retrieval succeeded" applied to the *same* retrieval output:
+Three definitions of "retrieval succeeded", applied to the **same** stored
+retrieval output. **A** is the conventional metric (any chunk from any relevant
+document). **B** additionally requires every document a multi-hop question
+needs. **C** requires that a retrieved chunk actually contained the gold span.
+A→B isolates the *quantifier*; B→C isolates the *granularity*.
 
-| | QASPER dev | NQ validation | HotpotQA (2-hop) |
+| | QASPER dev | NQ validation | HotpotQA |
 |---|---|---|---|
-| n paired | 290 | 300 | 150 |
-| Document-level success | 0.441 | **0.997** | **0.993** |
-| Evidence-level success | 0.276 | 0.730 | 0.507 |
-| **Gap** | **16.6 pp** | **26.7 pp** | **48.7 pp** |
-| Discordant (doc yes / evidence no) | 48 | 80 | 73 |
-| Discordant (evidence yes / doc no) | **0** | **0** | **0** |
-| Exact McNemar *p* | 7.1e-15 | 1.7e-24 | 2.1e-22 |
+| n | 290 | 300 | 150 |
+| median chunks per gold document | 19 | 31 | **2** |
+| A document, ANY | 0.441 | 0.997 | 0.993 |
+| B document, quantified | 0.441 | 0.997 | **0.507** |
+| C span, quantified | 0.276 | 0.730 | 0.507 |
+| **quantifier A→B** | 0.0 pp | 0.0 pp | **48.7 pp** (p=2.1e-22) |
+| **granularity B→C** | **16.6 pp** (p=7.1e-15) | **26.7 pp** (p=1.7e-24) | 0.0 pp |
 
-All three reach the project's n≥30 sufficiency threshold, Wilson intervals are
-non-overlapping in all three, and every paired-bootstrap interval on the gap
-excludes zero.
+Two distinct blind spots in conventional retrieval metrics, each showing up on
+the data where it bites:
 
-The effect replicates across three corpora with three different evidence
-structures, and the discordance is one-directional in all three.
+- **Granularity blindness** — on long documents, retrieving the document is not
+  retrieving the evidence.
+- **Quantifier blindness** — on multi-hop questions, retrieving *a* relevant
+  document counts as success when the question needs *all* of them.
 
-**Multi-hop is the sharpest case.** Every HotpotQA question needs two
-documents. Document-level retrieval reports 0.993 — it sees almost no retrieval
-failures. Evidence-level measurement finds that **73 of 150 questions received
-exactly one of the two documents they needed**. A document-level metric scores
-all 73 as retrieval successes; the generator could not have answered them
-however good it was.
+Discordance is one-directional everywhere (48/0, 80/0, 73/0): span-level
+success implies document-level success, never the reverse.
 
-Attribution moves accordingly. On HotpotQA a document-level reading charges
-**1** failure to retrieval and 111 to generation; evidence-aware attribution
-charges **74** to retrieval.
+**The granularity effect is mechanistically explained and predicted.** It
+scales with how many chunks a gold document spans — varying chunk size on
+QASPER, same corpus and questions throughout:
 
-Full protocol, dataset census and reproduction commands:
+| chunk size | chunks per gold doc | granularity gap |
+|---|---|---|
+| 128 | 43 | 18.6 pp |
+| 256 | 19 | 16.6 pp |
+| 512 | 9 | 11.0 pp |
+| HotpotQA paragraphs | 2 | 0.0 pp |
+
+So the gap **is** sensitive to chunk size, in a predictable and explained way,
+and does not vanish at any realistic setting — at 512 tokens it is still 11 pp
+(p = 4.7e-10). It is a property of corpus structure relative to chunk size, not
+a universal constant.
+
+Attribution moves accordingly: on NQ a document-level reading charges **1** of
+300 failures to retrieval; evidence-aware attribution charges **81**.
+
+Full protocol, dataset census, threats to validity and reproduction commands:
 [docs/EXPERIMENTS.md](docs/EXPERIMENTS.md).
 
 ---
@@ -186,10 +201,16 @@ Read these before quoting anything above.
   by inspection on a 20-question fixture, which is development data. The
   annotation package exists; **no labels have been collected.** The headline
   retrieval result does not depend on those thresholds.
-- **Multi-hop rests on one corpus.** Demonstrated on HotpotQA, whose
-  crowdworkers wrote questions while looking at the paragraphs, so lexical
-  anchoring makes retrieval easier than on naturally occurring queries.
-- **One retrieval configuration.** The size of the gap depends on chunk size,
+- **Each effect rests on limited data.** The granularity effect is shown on two
+  corpora across four chunk sizes; the quantifier effect on one multi-hop
+  corpus (HotpotQA), whose crowdworkers wrote questions while looking at the
+  paragraphs, so lexical anchoring makes its retrieval easier than natural
+  queries.
+- **The direction of both gaps is true by construction.** Span-level coverage
+  implies document-level coverage. What is measured here is the *magnitude*,
+  its dependence on corpus structure, and its consequence for attribution —
+  not the existence of an inequality.
+- **One embedder and one top-k.** Chunk size is swept; embedder and k are not. The size of the gap depends on chunk size,
   top-k and embedder. Its direction cannot reverse; its magnitude is not a
   constant.
 - **Contamination is mitigated, not eliminated.** NQ comes from Wikipedia.

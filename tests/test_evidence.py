@@ -244,3 +244,59 @@ class TestAdapters:
         data = align_evidence(GOLD, [chunk(1, "doc_a", 100, 200)]).as_dict()
         assert data["status"] == "complete"
         assert data["evidence_recall"] == 1.0
+
+
+class TestBoundaryCases:
+    """Cases where the geometry of chunks and spans is easy to get wrong."""
+
+    def test_evidence_straddling_two_chunks_is_covered_by_either(self):
+        """A gold span crossing a chunk boundary is carried by both halves.
+
+        With overlap-based coverage this is correct: each chunk genuinely
+        contains part of the evidence. Requiring full containment would score a
+        chunk that holds 90% of the answer as a miss.
+        """
+        gold = [GoldSpan("d", 90, 210)]
+        first_half = align_evidence(gold, [chunk(1, "d", 0, 100)])
+        second_half = align_evidence(gold, [chunk(1, "d", 100, 300)])
+        assert first_half.is_complete
+        assert second_half.is_complete
+
+    def test_evidence_at_the_very_first_character(self):
+        assert align_evidence([GoldSpan("d", 0, 5)], [chunk(1, "d", 0, 50)]).is_complete
+
+    def test_evidence_at_the_very_last_character(self):
+        gold = [GoldSpan("d", 995, 1000)]
+        assert align_evidence(gold, [chunk(1, "d", 900, 1000)]).is_complete
+
+    def test_zero_length_retrieved_range_covers_nothing(self):
+        assert align_evidence([GoldSpan("d", 10, 20)], [chunk(1, "d", 15, 15)]).status is (
+            EvidenceStatus.NONE
+        )
+
+    def test_duplicate_chunks_do_not_double_count_coverage(self):
+        """The same chunk retrieved twice must not inflate evidence recall."""
+        gold = [GoldSpan("d", 10, 20), GoldSpan("d", 100, 110)]
+        result = align_evidence(gold, [chunk(1, "d", 0, 50), chunk(2, "d", 0, 50)])
+        assert result.n_covered_spans == 1
+        assert result.evidence_recall == pytest.approx(0.5)
+
+    def test_overlapping_chunks_covering_one_span_count_it_once(self):
+        gold = [GoldSpan("d", 40, 60)]
+        result = align_evidence(gold, [chunk(1, "d", 0, 50), chunk(2, "d", 45, 100)])
+        assert result.n_covered_spans == 1
+        assert result.evidence_recall == 1.0
+        # Both chunks genuinely carry evidence, so precision is 1.0.
+        assert result.evidence_precision == 1.0
+
+    def test_first_evidence_rank_uses_the_best_rank_not_list_order(self):
+        gold = [GoldSpan("d", 40, 60)]
+        # The covering chunk is second in the list but ranked 1.
+        out_of_order = [chunk(5, "d", 900, 1000), chunk(1, "d", 40, 60)]
+        assert align_evidence(gold, out_of_order).first_evidence_rank == 1
+
+    def test_adjacent_non_overlapping_spans_are_distinct(self):
+        gold = [GoldSpan("d", 0, 50), GoldSpan("d", 50, 100)]
+        result = align_evidence(gold, [chunk(1, "d", 0, 50)])
+        assert result.n_covered_spans == 1  # half-open: [0,50) does not touch [50,100)
+        assert result.evidence_recall == pytest.approx(0.5)

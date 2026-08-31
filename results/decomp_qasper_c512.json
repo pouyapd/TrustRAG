@@ -1,0 +1,173 @@
+{
+  "tag": "qasper_c512",
+  "source_records": "reports\\experiments\\qasper_c512\\inference.jsonl",
+  "n_records": 300,
+  "comparison": {
+    "n_paired": 290,
+    "evidence_modes": {
+      "any_sufficient": 290
+    },
+    "median_chunks_per_relevant_document": 9,
+    "conditions": {
+      "A_document_any": 0.4276,
+      "B_document_quantified": 0.4276,
+      "C_span_quantified": 0.3172
+    },
+    "confidence_intervals": {
+      "A_document_any": {
+        "point": 0.42758620689655175,
+        "lower": 0.3719585808789103,
+        "upper": 0.4851071981688688,
+        "n": 290,
+        "method": "wilson",
+        "confidence": 0.95,
+        "sufficient": true,
+        "note": "n=290"
+      },
+      "B_document_quantified": {
+        "point": 0.42758620689655175,
+        "lower": 0.3719585808789103,
+        "upper": 0.4851071981688688,
+        "n": 290,
+        "method": "wilson",
+        "confidence": 0.95,
+        "sufficient": true,
+        "note": "n=290"
+      },
+      "C_span_quantified": {
+        "point": 0.31724137931034485,
+        "lower": 0.2663637304874676,
+        "upper": 0.3728975213950227,
+        "n": 290,
+        "method": "wilson",
+        "confidence": 0.95,
+        "sufficient": true,
+        "note": "n=290"
+      }
+    },
+    "steps": {
+      "quantifier_A_to_B": {
+        "step": "any -> all_required (document level)",
+        "n": 290,
+        "rate_before": 0.4276,
+        "rate_after": 0.4276,
+        "absolute_gap_pp": 0.0,
+        "relative_gap": 0.0,
+        "discordant_lost": 0,
+        "discordant_gained": 0,
+        "mcnemar": {
+          "statistic": null,
+          "p_value": null,
+          "effect": 0.0,
+          "n": 0,
+          "method": "mcnemar_exact",
+          "sufficient": false,
+          "note": "no discordant pairs: the two systems failed and succeeded on exactly the same items"
+        },
+        "paired_bootstrap_difference": {
+          "point": 0.0,
+          "lower": 0.0,
+          "upper": 0.0,
+          "n": 290,
+          "method": "paired_bootstrap_difference",
+          "confidence": 0.95,
+          "sufficient": true,
+          "note": "n=290"
+        }
+      },
+      "granularity_B_to_C": {
+        "step": "document -> span (same quantifier)",
+        "n": 290,
+        "rate_before": 0.4276,
+        "rate_after": 0.3172,
+        "absolute_gap_pp": 11.03,
+        "relative_gap": 0.2581,
+        "discordant_lost": 32,
+        "discordant_gained": 0,
+        "mcnemar": {
+          "statistic": 32.0,
+          "p_value": 4.656612873077393e-10,
+          "effect": 1.0,
+          "n": 32,
+          "method": "mcnemar_exact",
+          "sufficient": true,
+          "note": "32 discordant pairs"
+        },
+        "paired_bootstrap_difference": {
+          "point": 0.1103448275862069,
+          "lower": 0.07586206896551724,
+          "upper": 0.1482758620689655,
+          "n": 290,
+          "method": "paired_bootstrap_difference",
+          "confidence": 0.95,
+          "sufficient": true,
+          "note": "n=290"
+        }
+      },
+      "total_A_to_C": {
+        "step": "conventional -> span-level",
+        "n": 290,
+        "rate_before": 0.4276,
+        "rate_after": 0.3172,
+        "absolute_gap_pp": 11.03,
+        "relative_gap": 0.2581,
+        "discordant_lost": 32,
+        "discordant_gained": 0,
+        "mcnemar": {
+          "statistic": 32.0,
+          "p_value": 4.656612873077393e-10,
+          "effect": 1.0,
+          "n": 32,
+          "method": "mcnemar_exact",
+          "sufficient": true,
+          "note": "32 discordant pairs"
+        },
+        "paired_bootstrap_difference": {
+          "point": 0.1103448275862069,
+          "lower": 0.07586206896551724,
+          "upper": 0.1482758620689655,
+          "n": 290,
+          "method": "paired_bootstrap_difference",
+          "confidence": 0.95,
+          "sufficient": true,
+          "note": "n=290"
+        }
+      }
+    },
+    "attribution": {
+      "document_level": {
+        "generation": 126,
+        "retrieval": 166,
+        "none": 8
+      },
+      "evidence_level": {
+        "retrieval": 198,
+        "generation": 84,
+        "abstention": 10,
+        "none": 8
+      }
+    },
+    "interpretation": "A->B isolates the quantifier: whether a metric requires every document a multi-hop question needs, or accepts any one of them. B->C isolates granularity: whether retrieving the document is treated as retrieving the evidence. On a single-hop dataset A and B coincide by definition, so the whole gap is granularity. On a dataset whose documents are only one or two chunks long the granularity step is necessarily small, because retrieving the document nearly guarantees retrieving the span."
+  },
+  "provenance": {
+    "timestamp_utc": "2026-08-31T15:51:40+00:00",
+    "git": {
+      "commit": "a705858ef42eb916c64529441644181dc7053bfd",
+      "branch": "research/stages-1-4",
+      "dirty": true
+    },
+    "python": "3.12.7",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "packages": {
+      "chromadb": "1.5.8",
+      "numpy": "2.4.4",
+      "openai": "2.33.0",
+      "anthropic": "0.97.0",
+      "sentence-transformers": "5.4.1",
+      "tiktoken": "0.12.0",
+      "pydantic": "2.13.3",
+      "fastapi": "0.136.1"
+    },
+    "note": "Methodology decomposition. Scored from stored records; no model was called."
+  }
+}
