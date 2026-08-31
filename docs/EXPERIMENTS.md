@@ -33,169 +33,112 @@ evidence measurements**, which are what the headline result is about.
 
 ---
 
-## Result 1 — Document-level retrieval metrics substantially overstate success
+## Correction to an earlier framing
 
-The central measurement. For each question, two definitions of "retrieval
-succeeded" are applied to the *same* retrieval output:
+An earlier version of this document reported a single number per dataset: the
+gap between the conventional document-level retrieval metric and the
+span-level one. On HotpotQA that comparison changed **two** things at once —
+the granularity (document to span) and the quantifier (any relevant document
+to every required document) — and the resulting 48.7 pp was presented as a
+granularity result.
 
-- **Document-level** (conventional): did any retrieved chunk come from a
-  relevant document?
-- **Evidence-level**: did a retrieved chunk actually contain the labelled
-  supporting span, by character-offset overlap?
+It is not. Decomposing it shows the HotpotQA gap is **entirely** the
+quantifier and **exactly zero** granularity. The corrected analysis below
+separates the two, which changes the interpretation of one headline number and
+leaves the other two unchanged. The measurements themselves did not change;
+only their attribution to a mechanism did.
 
-### Three datasets, three evidence structures
+| | old framing | corrected |
+|---|---|---|
+| QASPER 16.6 pp | "granularity" | granularity 16.6, quantifier 0.0 — **unchanged** |
+| NQ 26.7 pp | "granularity" | granularity 26.7, quantifier 0.0 — **unchanged** |
+| HotpotQA 48.7 pp | "granularity" | **quantifier 48.7, granularity 0.0** — reattributed |
 
-| | QASPER dev | NQ validation | HotpotQA distractor |
+---
+
+## Result 1 — Two distinct blind spots, each isolated
+
+Three definitions of "retrieval succeeded", applied to the same stored records:
+
+- **A — document-level, ANY.** Did any retrieved chunk come from any relevant
+  document? This is the conventional metric.
+- **B — document-level, quantified.** Under `all_required`, must every gold
+  document be retrieved. Identical to A on single-hop data by definition.
+- **C — span-level, quantified.** Did a retrieved chunk actually contain the
+  gold span?
+
+A→B isolates the **quantifier**; B→C isolates the **granularity**.
+
+| | QASPER dev | NQ validation | HotpotQA |
 |---|---|---|---|
-| n paired | **290** | **300** | **150** |
-| Evidence structure | paragraph | span | **2-hop, all required** |
-| Document-level success | 0.441 | **0.997** | **0.993** |
-| Evidence-level success | 0.276 | 0.730 | 0.507 |
-| **Gap** | **16.6 pp** | **26.7 pp** | **48.7 pp** |
-| Discordant: doc yes, evidence no | 48 | 80 | 73 |
-| Discordant: evidence yes, doc no | **0** | **0** | **0** |
-| Exact McNemar *p* | 7.1 × 10⁻¹⁵ | 1.7 × 10⁻²⁴ | 2.1 × 10⁻²² |
-| Paired bootstrap CI on the gap | [0.124, 0.207] | [0.217, 0.317] | [0.407, 0.567] |
-| n sufficient by project convention | **yes** | **yes** | **yes** |
+| n | 290 | 300 | 150 |
+| evidence mode | any_sufficient | any_sufficient | all_required |
+| median chunks per gold document | 19 | 31 | **2** |
+| A document, ANY | 0.441 | 0.997 | 0.993 |
+| B document, quantified | 0.441 | 0.997 | **0.507** |
+| C span, quantified | 0.276 | 0.730 | 0.507 |
+| **quantifier A→B** | 0.0 pp | 0.0 pp | **48.7 pp** (p=2.1e-22) |
+| **granularity B→C** | **16.6 pp** (p=7.1e-15) | **26.7 pp** (p=1.7e-24) | 0.0 pp |
+| discordant (granularity) | 48 / 0 | 80 / 0 | 0 / 0 |
 
-Wilson intervals do not overlap in any of the three:
-QASPER [0.385, 0.499] vs [0.228, 0.330];
-NQ [0.981, 0.999] vs [0.677, 0.777];
-HotpotQA [0.963, 0.999] vs [0.427, 0.586].
-Every paired-bootstrap interval on the gap excludes zero.
+Two separate failures of conventional retrieval metrics, each demonstrated on
+the data where it actually bites:
 
-The effect replicates across three corpora with different document types and
-three different evidence granularities, and the discordance is **entirely
-one-directional in all three**. That direction is forced by the construction —
-evidence-level coverage implies document-level coverage, never the reverse — so
-its appearance in the data is a consistency check on the implementation as much
-as a result.
+1. **Granularity blindness** — on long documents, retrieving the document is
+   not retrieving the evidence. 16.6 and 26.7 pp.
+2. **Quantifier blindness** — on multi-hop questions, retrieving *a* relevant
+   document is counted as success when the question needs *all* of them.
+   48.7 pp.
 
-### The multi-hop case is the sharpest
-
-HotpotQA questions each require evidence from **two** documents
-(`evidence_mode = all_required`). Document-level retrieval reports 0.993 — it
-sees essentially no retrieval failures at all. Evidence-level measurement finds:
-
-| Evidence status | count |
-|---|---|
-| complete (both documents) | 76 |
-| **partial (one of two)** | **73** |
-| none | 1 |
-
-**Half the dataset received exactly one of the two documents it needed.** A
-document-level metric counts every one of those as a retrieval success, because
-*a* relevant document was retrieved. Under `all_required` they are retrieval
-failures, and the generator could not have answered them however good it was.
-
-Partial evidence is therefore not a theoretical edge case introduced for
-completeness — on a real multi-hop corpus it is the single largest category.
-
-### Why the gap is smaller on QASPER at n=300 than at n=60
-
-The QASPER gap moved from 31.0 pp (n=58) to 16.6 pp (n=290), because
-document-level success itself fell from 0.707 to 0.441 as the corpus grew from
-22 to 111 papers and retrieval got harder. Evidence-level success fell too
-(0.397 → 0.276). The *gap* narrowed; the *direction and significance*
-strengthened. Quoting a single gap figure as a constant would be wrong: it is a
-property of a corpus and a retrieval configuration.
-
-## Result 2 — Failure attribution changes materially
-
-Same runs, same rows; only the attribution rule differs. Document-level
-attribution can only reason "the document was retrieved, so what went wrong
-must be generation".
-
-**QASPER dev, n = 300**
-
-| Attributed to | Document-level | Evidence-level |
-|---|---|---|
-| retrieval | 162 | **210** |
-| generation | 131 | 74 |
-| abstention | — | 10 |
-| none | 7 | 6 |
-
-**NQ validation, n = 300**
-
-| Attributed to | Document-level | Evidence-level |
-|---|---|---|
-| retrieval | **1** | **81** |
-| generation | 217 | 154 |
-| none | 82 | 65 |
-
-**HotpotQA multi-hop, n = 150**
-
-| Attributed to | Document-level | Evidence-level |
-|---|---|---|
-| retrieval | **1** | **74** |
-| generation | 111 | 49 |
-| none | 38 | 27 |
-
-The HotpotQA row is the clearest statement of the problem. A document-level
-reading attributes a single failure out of 150 to retrieval and charges 111 to
-generation. Evidence-aware attribution charges 74 to retrieval, because in
-those rows one of the two required documents never reached the generator.
-
-This is the practical consequence of Result 1. An engineer acting on the
-document-level report would tune prompts; the evidence-level report says the
-retriever is the binding constraint.
+Neither is visible to the other's dataset, which is why one number per dataset
+was the wrong summary.
 
 ---
 
-## Result 5 — The NQ result is insensitive to a loader defect found afterwards
+## Result 2 — The granularity effect scales with chunks per document, as predicted
 
-The NQ parquet loader was initially reading `yes_no_answer` as a string, but the
-HuggingFace distribution encodes it as a ClassLabel index, so every yes/no
-question was silently dropped. The first NQ run therefore contained none.
+The mechanism makes a falsifiable prediction: a document that occupies one
+chunk cannot show a granularity gap, and the gap should grow as a document
+spans more chunks. Varying chunk size on QASPER (same corpus, same questions,
+same retriever, n=290 throughout):
 
-The run was repeated with the fix. 17 yes/no questions entered the sample
-(`no_short_answer_text` skips fell from 90 to 71), and the measurement did not
-move:
-
-| | before fix | after fix |
-|---|---|---|
-| Document-level success | 0.9967 | 0.9967 |
-| Evidence-level success | 0.730 | 0.730 |
-| Gap | 26.67 pp | 26.67 pp |
-| Discordant (doc yes / evidence no) | 80 | 80 |
-| McNemar *p* | 1.65e-24 | 1.65e-24 |
-| Question types | factoid 242, list 58 | factoid 229, list 54, **yes_no 17** |
-
-The reported NQ figures are from the corrected run. That the numbers are
-identical to three decimals is a useful robustness observation rather than a
-coincidence: the defect changed which questions were sampled, not how retrieval
-was measured.
-
----
-
-## Result 4 — The gap is not an artifact of the overlap threshold
-
-Evidence alignment has exactly one free parameter: `min_overlap_chars`, how
-many characters a chunk must share with a gold span before it counts as
-carrying it. The reported runs use 1, the most permissive value possible. A
-reviewer should ask whether the gap is manufactured by that choice.
-
-It is not, and the direction is the opposite of the convenient one. Re-scoring
-the same stored records at stricter thresholds (no model calls):
-
-| min_overlap_chars | QASPER gap | NQ gap | HotpotQA gap |
+| chunk size | median chunks per gold document | granularity gap | McNemar *p* |
 |---|---|---|---|
-| **1 (reported)** | **16.6 pp** | **26.7 pp** | **48.7 pp** |
-| 50 | 16.6 pp | 28.3 pp | 49.3 pp |
-| 200 | 19.3 pp | 36.3 pp | 96.0 pp |
+| 128 | 43 | **18.6 pp** | 1.1e-16 |
+| 256 (reported) | 19 | **16.6 pp** | 7.1e-15 |
+| 512 | 9 | **11.0 pp** | 4.7e-10 |
+| HotpotQA paragraphs | 2 | **0.0 pp** | — |
 
-The most permissive setting produces the **smallest** gap in every dataset, so
-every reported figure is a conservative lower bound. Any stricter definition of
-"the chunk contained the evidence" widens the discrepancy.
+Monotonic across a fourfold range of chunk sizes and across datasets, exactly
+as the mechanism predicts. This answers the obvious reviewer objection
+directly: the gap **is** sensitive to chunk size, in a predictable and
+explained way, and it does not disappear at any realistic setting — at 512
+tokens it is still 11 pp with *p* = 4.7e-10.
 
-The HotpotQA value at 200 characters is degenerate rather than informative:
-gold spans there are single sentences, often shorter than 200 characters, so
-the requirement cannot be met and evidence-level success collapses to 0.033.
-It is included for completeness, not as a result.
+It also bounds the claim honestly. The gap is a property of *corpus structure
+relative to chunk size*, not a universal constant. Systems that retrieve
+paragraph-sized documents have no granularity problem; systems that retrieve
+long documents have a large one.
 
 ---
 
-## Result 3 — Dataset properties measured, not assumed
+## Result 3 — Failure attribution changes materially
+
+Same runs, same rows; only the attribution rule differs.
+
+| Attributed to | QASPER doc / evidence | NQ doc / evidence | HotpotQA doc / evidence |
+|---|---|---|---|
+| retrieval | 162 / **210** | 1 / **81** | 1 / **74** |
+| generation | 131 / 74 | 219 / 155 | 111 / 49 |
+| abstention | — / 10 | — / — | — / — |
+| none | 7 / 6 | 80 / 64 | 38 / 27 |
+
+On NQ and HotpotQA a document-level reading attributes a single failure out of
+300 and 150 respectively to retrieval. An engineer acting on that report would
+tune prompts; the evidence-aware report says the retriever is the binding
+constraint.
+
+## Result 4 — Dataset properties measured, not assumed
 
 | | QASPER dev | NQ validation | HotpotQA |
 |---|---|---|---|
@@ -229,30 +172,97 @@ than reported as a retrieval failure no retriever could have avoided.
 
 ---
 
+## Result 5 — The gap is not an artifact of the overlap threshold
+
+Evidence alignment has one free parameter: `min_overlap_chars`, how many
+characters a chunk must share with a gold span to count as carrying it. The
+reported runs use 1, the most permissive value. Re-scoring the same stored
+records at stricter thresholds (no model calls):
+
+| min_overlap_chars | QASPER | NQ | HotpotQA |
+|---|---|---|---|
+| **1 (reported)** | **16.6 pp** | **26.7 pp** | **48.7 pp** |
+| 50 | 16.6 pp | 28.3 pp | 49.3 pp |
+| 200 | 19.3 pp | 36.3 pp | 96.0 pp * |
+
+The most permissive setting gives the **smallest** gap in every dataset, so all
+reported figures are conservative lower bounds. (* the HotpotQA figure at 200
+characters is degenerate — gold spans there are single sentences often shorter
+than 200 characters — and is shown for completeness, not used as a result.)
+
+---
+
+## Result 6 — The NQ result is insensitive to a loader defect found afterwards
+
+The NQ parquet loader initially read `yes_no_answer` as a string, but the
+HuggingFace distribution encodes it as a ClassLabel index, so every yes/no
+question was silently dropped. The run was repeated with the fix. 17 yes/no
+questions entered the sample and the measurement did not move:
+
+| | before fix | after fix |
+|---|---|---|
+| Document-level | 0.9967 | 0.9967 |
+| Span-level | 0.730 | 0.730 |
+| Gap | 26.67 pp | 26.67 pp |
+| McNemar *p* | 1.65e-24 | 1.65e-24 |
+| Question types | factoid 242, list 58 | factoid 229, list 54, **yes_no 17** |
+
+Reported NQ figures come from the corrected run. That they are identical to
+three decimals is a robustness observation, not a coincidence: the defect
+changed which questions were sampled, not how retrieval was measured.
+
+---
+
 ## Reproducing
 
+One command runs every experiment in this document and regenerates the summary
+table. **No API key is required** — the embedder runs locally and the generator
+is a deterministic extractive control, so the retrieval and evidence
+measurements that the findings rest on reproduce offline.
+
 ```bash
-# See docs/DATASETS.md for the raw-data download commands and checksums.
-python scripts/run_experiment.py --dataset qasper \
-    --raw data/raw/qasper-dev-v0.3.json --split dev \
-    --limit 60 --top-k 5 --embedder minilm \
-    --out reports/experiments/pilot_qasper --tag pilot_qasper
-
-python scripts/run_experiment.py --dataset nq \
-    --raw data/raw/nq-validation-0.parquet --split validation \
-    --limit 60 --top-k 5 --embedder minilm \
-    --out reports/experiments/pilot_nq --tag pilot_nq
-
-# The paired methodology comparison (no model calls)
-python scripts/run_ablation.py \
-    --records reports/experiments/pilot_qasper/inference.jsonl \
-    --out reports/experiments/ablation_qasper.json --tag "QASPER dev pilot"
+pip install -r requirements.txt
+# fetch the three corpora as documented in docs/DATASETS.md, then:
+python scripts/reproduce_study.py --all
 ```
 
-Each report carries a `provenance` block with the git commit, the raw file's
-SHA-256, the split, chunking and retrieval configuration, embedder and
-generator identity, taxonomy version and threshold fingerprint, and package
-versions.
+It prints exactly this table, which is the study:
+
+```
+experiment           chunks/doc   A doc  B quant  C span   quant    gran
+qasper_dev_300               19   0.441    0.441   0.276    0.0p   16.6p
+nq_val_300_fixed             31   0.997    0.997   0.730    0.0p   26.7p
+hotpot_150                    2   0.993    0.507   0.507   48.7p    0.0p
+qasper_c128                  43   0.445    0.445   0.259    0.0p   18.6p
+qasper_c512                   9   0.428    0.428   0.317    0.0p   11.0p
+```
+
+`--headline-only` skips the chunk-size sweep; `--skip-existing` reuses
+completed runs. Individual stages remain available:
+
+```bash
+# one experiment
+python scripts/run_experiment.py --dataset qasper     --raw data/raw/qasper-dev-v0.3.json --split dev --limit 300     --top-k 5 --chunk-size 256 --embedder minilm     --out reports/experiments/qasper_dev_300 --tag qasper_dev_300
+
+# the decomposition, from stored records, no model calls
+python scripts/run_ablation.py     --records reports/experiments/qasper_dev_300/inference.jsonl     --out reports/experiments/decomp_qasper_dev_300.json --tag qasper_dev_300
+
+# re-score under different taxonomy thresholds, no model calls
+python scripts/reclassify.py --records reports/experiments/qasper_dev_300/inference.jsonl     --out reports/sweep --sweep-faithfulness 0.3,0.6,0.9
+
+# build the human-annotation package (emits empty labels for a person to fill)
+python scripts/build_annotation_package.py     --records reports/experiments/qasper_dev_300/inference.jsonl     --out reports/annotation/qasper
+```
+
+Every run writes `summary.json`, `rows.jsonl`, `report.md` and
+`inference.jsonl`, each carrying a provenance block: git commit, raw-file
+SHA-256, split, sample size, chunking and retrieval configuration, embedder and
+generator identity, taxonomy version and threshold fingerprint, package
+versions and timestamp. Curated summaries are tracked in `results/`.
+
+**Inspecting failure cases.** `reports/experiments/<tag>/report.md` lists every
+failing row with its gold answer, the system answer, the rule that fired and
+the evidence status. `rows.jsonl` carries the same per row, machine-readable.
 
 ---
 
