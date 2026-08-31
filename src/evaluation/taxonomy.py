@@ -174,8 +174,26 @@ def extract_features(
     retrieved_doc_ids: list[str],
     relevant_doc_ids: list[str],
     faithfulness_score: float | None,
+    evidence_complete: bool | None = None,
 ) -> DecisionFeatures:
-    """Compute the decision features for one row. No LLM calls."""
+    """Compute the decision features for one row. No LLM calls.
+
+    `retrieval_hit` decides whether rule R4 fires, and therefore whether a row
+    is charged to retrieval or falls through to the answer-quality rules.
+
+    By default it means *a relevant document was retrieved*, which is the
+    document-level notion the v2 taxonomy shipped with and which is kept so
+    published v2 distributions stay reproducible. That default has a known
+    consequence: a row whose document was retrieved but whose evidence never
+    was passes R4 and is then labelled by answer quality, i.e. as a generation
+    failure. Measured on the reported runs that affects 15% of QASPER rows,
+    22% of NQ and 41% of HotpotQA.
+
+    Passing `evidence_complete` overrides it with the evidence-level notion —
+    *the gold span actually reached the generator* — which is what
+    `evidence.attribute_stage` uses. Callers that want the taxonomy and the
+    attribution to agree should pass it.
+    """
     relevant_set = set(relevant_doc_ids)
     retrieved_set = set(retrieved_doc_ids)
     matched = relevant_set & retrieved_set
@@ -186,7 +204,7 @@ def extract_features(
         is_answerable=bool(relevant_doc_ids),
         num_retrieved=len(retrieved_doc_ids),
         num_relevant_retrieved=len(matched),
-        retrieval_hit=bool(matched),
+        retrieval_hit=bool(matched) if evidence_complete is None else bool(evidence_complete),
         abstained=is_refusal(answer),
         faithfulness=faithfulness_score,
         answer_f1=f1,
@@ -344,13 +362,18 @@ def classify_v2(
     relevant_doc_ids: list[str],
     faithfulness_score: float | None,
     config: TaxonomyConfig | None = None,
+    evidence_complete: bool | None = None,
 ) -> DiagnosisV2:
-    """Extract features and classify in one call."""
+    """Extract features and classify in one call.
+
+    See `extract_features` for what `evidence_complete` changes.
+    """
     features = extract_features(
         answer=answer,
         reference_answer=reference_answer,
         retrieved_doc_ids=retrieved_doc_ids,
         relevant_doc_ids=relevant_doc_ids,
         faithfulness_score=faithfulness_score,
+        evidence_complete=evidence_complete,
     )
     return classify_features(features, config)

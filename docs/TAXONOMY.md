@@ -166,6 +166,41 @@ Maps each failure mode to `retrieval`, `generation` or `none`. This is a
 kind belongs by definition, not that fixing that stage would have prevented
 this row. The report says so in its own `attribution.note` field.
 
+### 1b. The R4 gate, and an inconsistency it caused
+
+Rule R4 (`wrong_retrieval`) fires on the `retrieval_hit` feature. In
+`failure_mode_v2` that feature means **a relevant document was retrieved**.
+A row whose document arrived but whose gold span never did therefore *passes*
+R4 and falls through to the answer-quality rules, where it is labelled
+`incorrect_answer` — a generation failure.
+
+That is the exact error the evidence layer exists to prevent, and it was
+present in the taxonomy labels while `attribution_stage` reported the opposite
+for the same rows. Measured:
+
+| | rows relabelled generation → retrieval | share |
+|---|---|---|
+| QASPER n=300 | 46 | 15% |
+| NQ n=300 | 66 | 22% |
+| HotpotQA n=150 | 62 | 41% |
+
+`failure_mode_evidence` re-runs the identical rules with `retrieval_hit`
+meaning **the gold span reached the generator**. The effect on the
+distribution is large:
+
+| | `failure_mode_v2` | `failure_mode_evidence` |
+|---|---|---|
+| QASPER `wrong_retrieval` | 162 | **210** |
+| QASPER `incorrect_answer` | 88 | **51** |
+| NQ `wrong_retrieval` | **1** | **81** |
+| NQ `incorrect_answer` | 174 | **120** |
+| HotpotQA `wrong_retrieval` | **1** | **74** |
+| HotpotQA `incorrect_answer` | 102 | **45** |
+
+Both are emitted on every row. `failure_mode_v2` is frozen so previously
+published v2 distributions stay reproducible; `failure_mode_evidence` is the
+one that agrees with `attribution_stage` and the one new analysis should use.
+
 ### 2. Evidence-based attribution (`evidence.attribute_stage`)
 
 Introduced with W2 and used whenever gold evidence spans are available. Instead
