@@ -154,7 +154,7 @@ report contains all three, clearly separated.
 |---|---|
 | `src/data/schema.py` | Unified `QuestionRecord`: span evidence, seven-valued answerability, evidence mode, provenance |
 | `src/data/identity.py` | Content-hash ids, stable across processes |
-| `src/data/loaders/` | NQ (parquet), QASPER, HotpotQA → unified schema |
+| `src/data/loaders/` | NQ (parquet), QASPER, HotpotQA, 2WikiMultihopQA → unified schema |
 | `src/data/corpus.py` | The bridge: `Document` → chunker → vector store, with offset verification |
 | `src/data/licensing.py` | Licence terms as executable composition rules |
 | `src/evaluation/evidence.py` | Span/chunk overlap alignment and the attribution hierarchy |
@@ -163,6 +163,33 @@ report contains all three, clearly separated.
 | `src/evaluation/correctness.py` | Normalised EM/F1, key-fact recall, abstention rates |
 | `src/evaluation/statistics.py` | Wilson, bootstrap, exact McNemar, permutation; sufficiency flags |
 | `src/evaluation/provenance.py` | Git, environment, package and configuration capture |
+| `src/rag/embedders.py` | The embedding models the sweep compares, with prefixes, dimensions and licences |
+| `src/rag/local_llm.py` | Real language models for the generation study — local open weights or a hosted API |
+
+## Two abstractions the robustness experiments needed
+
+**`embed_query` beside `embed`.** The provider interface originally had one
+method, which silently assumed embedding is symmetric. It is not: E5 and BGE are
+trained with distinct query and passage roles and lose measurable retrieval
+quality if a query is encoded as a passage. Adding `embed_query`, defaulting to
+`embed`, let the asymmetric models into the sweep without touching any existing
+provider. The alternative — calling them without their prefixes — would have
+produced a robustness table reporting weaker models rather than different ones,
+and the conclusion would have been about our plumbing.
+
+**The embedder registry is data, not an `if` chain.** A robustness claim is only
+as good as the record of what was actually compared, so each entry carries the
+exact repository id, dimension, licence, prefixes and family. `build_embedder`
+fails loudly on an unknown name; the service's `get_embeddings()` keeps its
+fallback chain, because a service should degrade gracefully when a model is
+unavailable and an experiment must not.
+
+**Generators are named, never inferred.** `build_generator` accepts `mock`, a
+local open-weight model, or `openai:MODEL` / `anthropic:MODEL`, and raises when
+a hosted key is missing rather than substituting something else. A generation
+experiment that quietly changed generator would be worse than one that did not
+run. Models load lazily, so importing the module — which the test suite does —
+never triggers a download.
 
 ## Design decisions worth defending
 

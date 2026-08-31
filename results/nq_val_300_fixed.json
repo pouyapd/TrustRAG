@@ -1,6 +1,6 @@
 {
   "total": 300,
-  "precision_at_k_mean": 0.885,
+  "precision_at_k_mean": 0.884,
   "recall_at_k_mean": 0.997,
   "mrr_mean": 0.969,
   "token_overlap_mean": 0.067,
@@ -32,10 +32,10 @@
     "n_unanswerable": 0,
     "doc_recall_at_k_mean": 0.997,
     "doc_precision_at_k_mean": 0.833,
-    "chunk_precision_at_k_mean": 0.885,
-    "chunk_recall_at_k_mean": 0.223,
+    "chunk_precision_at_k_mean": 0.884,
+    "chunk_recall_at_k_mean": 0.222,
     "hit_rate_at_k_mean": 0.997,
-    "ndcg_at_k_mean": 0.913,
+    "ndcg_at_k_mean": 0.912,
     "reciprocal_rank_mean": 0.969,
     "first_relevant_rank_mean": 1.09,
     "note": "Computed over answerable questions only; unanswerable questions have no defined retrieval target and are excluded rather than scored as 0."
@@ -190,7 +190,7 @@
     "Inference is deterministic in the offline configuration, so repeated runs have zero variance. Intervals here describe sampling uncertainty over questions (n=300), not run-to-run variability."
   ],
   "experiment": {
-    "tag": "nq_val_n300_fixed",
+    "tag": "nq_val_300_fixed",
     "dataset": "nq",
     "split": "validation",
     "n_questions": 300,
@@ -222,11 +222,11 @@
     "source_url": "https://huggingface.co/datasets/google-research-datasets/natural_questions"
   },
   "provenance": {
-    "timestamp_utc": "2026-08-31T15:00:07+00:00",
+    "timestamp_utc": "2026-08-31T18:14:24+00:00",
     "git": {
-      "commit": "d9b4e89ccaa014e88a533ce958b0d39ba9fb91e7",
-      "branch": "research/stages-1-4",
-      "dirty": false
+      "commit": "66a0d92a8e1ed6a7973557f39b4e63e699634b45",
+      "branch": "main",
+      "dirty": true
     },
     "python": "3.12.7",
     "platform": "Windows-11-10.0.26200-SP0",
