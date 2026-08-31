@@ -23,6 +23,10 @@ structlog>=24.4.0
 
 # Evaluation
 numpy>=1.26.4
+# Reads the HuggingFace parquet distributions of Natural Questions and
+# HotpotQA. Required by src/data/loaders/*_parquet.py; without it those
+# loaders cannot run and the reported experiments cannot be reproduced.
+pyarrow>=15.0.0
 pandas>=2.2.3
 scikit-learn>=1.5.2
 
