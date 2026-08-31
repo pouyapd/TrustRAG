@@ -142,6 +142,33 @@ retriever is the binding constraint.
 
 ---
 
+## Result 4 — The gap is not an artifact of the overlap threshold
+
+Evidence alignment has exactly one free parameter: `min_overlap_chars`, how
+many characters a chunk must share with a gold span before it counts as
+carrying it. The reported runs use 1, the most permissive value possible. A
+reviewer should ask whether the gap is manufactured by that choice.
+
+It is not, and the direction is the opposite of the convenient one. Re-scoring
+the same stored records at stricter thresholds (no model calls):
+
+| min_overlap_chars | QASPER gap | NQ gap | HotpotQA gap |
+|---|---|---|---|
+| **1 (reported)** | **16.6 pp** | **26.7 pp** | **48.7 pp** |
+| 50 | 16.6 pp | 28.3 pp | 49.3 pp |
+| 200 | 19.3 pp | 36.3 pp | 96.0 pp |
+
+The most permissive setting produces the **smallest** gap in every dataset, so
+every reported figure is a conservative lower bound. Any stricter definition of
+"the chunk contained the evidence" widens the discrepancy.
+
+The HotpotQA value at 200 characters is degenerate rather than informative:
+gold spans there are single sentences, often shorter than 200 characters, so
+the requirement cannot be met and evidence-level success collapses to 0.033.
+It is included for completeness, not as a result.
+
+---
+
 ## Result 3 — Dataset properties measured, not assumed
 
 | | QASPER dev | NQ validation | HotpotQA |
