@@ -128,13 +128,17 @@ Real corpora, real MiniLM embeddings, real retrieval. Two definitions of
 
 | | QASPER dev | NQ validation | HotpotQA (2-hop) |
 |---|---|---|---|
-| n paired | 290 | 60 | 150 |
-| Document-level success | 0.441 | **1.000** | **0.993** |
-| Evidence-level success | 0.276 | 0.817 | 0.507 |
-| **Gap** | **16.6 pp** | **18.3 pp** | **48.7 pp** |
-| Discordant (doc yes / evidence no) | 48 | 11 | 73 |
+| n paired | 290 | 300 | 150 |
+| Document-level success | 0.441 | **0.997** | **0.993** |
+| Evidence-level success | 0.276 | 0.730 | 0.507 |
+| **Gap** | **16.6 pp** | **26.7 pp** | **48.7 pp** |
+| Discordant (doc yes / evidence no) | 48 | 80 | 73 |
 | Discordant (evidence yes / doc no) | **0** | **0** | **0** |
-| Exact McNemar *p* | 7.1e-15 | 9.8e-4 | 2.1e-22 |
+| Exact McNemar *p* | 7.1e-15 | 1.7e-24 | 2.1e-22 |
+
+All three reach the project's n≥30 sufficiency threshold, Wilson intervals are
+non-overlapping in all three, and every paired-bootstrap interval on the gap
+excludes zero.
 
 The effect replicates across three corpora with three different evidence
 structures, and the discordance is one-directional in all three.
@@ -186,7 +190,8 @@ Read these before quoting anything above.
   top-k and embedder. Its direction cannot reverse; its magnitude is not a
   constant.
 - **Contamination is mitigated, not eliminated.** NQ comes from Wikipedia.
-- **Sample sizes are modest** (n≈60 per dataset in the reported comparison).
+- **Sample sizes are moderate** (n = 290 / 300 / 150). Adequate for the paired
+  comparison reported; not a benchmark-scale study.
 
 ---
 
