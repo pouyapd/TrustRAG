@@ -1,49 +1,49 @@
 {
   "total": 300,
-  "precision_at_k_mean": 0.883,
+  "precision_at_k_mean": 0.885,
   "recall_at_k_mean": 0.997,
-  "mrr_mean": 0.971,
-  "token_overlap_mean": 0.073,
-  "faithfulness_mean": 0.963,
-  "failure_rate": 0.95,
+  "mrr_mean": 0.969,
+  "token_overlap_mean": 0.067,
+  "faithfulness_mean": 0.962,
+  "failure_rate": 0.953,
   "failure_modes": {
-    "ok": 15,
-    "partial_answer": 274,
+    "ok": 14,
+    "partial_answer": 275,
     "hallucination": 10,
     "wrong_retrieval": 1
   },
-  "failure_rate_v2": 0.74,
+  "failure_rate_v2": 0.75,
   "failure_modes_v2": {
-    "ok": 78,
-    "incorrect_answer": 170,
-    "partial_answer": 41,
+    "ok": 75,
+    "incorrect_answer": 174,
+    "partial_answer": 40,
     "hallucination": 10,
     "wrong_retrieval": 1
   },
   "attribution": {
     "retrieval": 1,
-    "generation": 221,
-    "total_failures": 222,
-    "retrieval_share": 0.005,
+    "generation": 224,
+    "total_failures": 225,
+    "retrieval_share": 0.004,
     "note": "Stage attribution is a declared mapping from failure mode to pipeline stage (see taxonomy.STAGE_ATTRIBUTION), not an inferred causal claim. A controlled oracle-context ablation is required for causal attribution."
   },
   "retrieval_corrected": {
     "n_answerable": 300,
     "n_unanswerable": 0,
     "doc_recall_at_k_mean": 0.997,
-    "doc_precision_at_k_mean": 0.834,
-    "chunk_precision_at_k_mean": 0.883,
-    "chunk_recall_at_k_mean": 0.218,
+    "doc_precision_at_k_mean": 0.833,
+    "chunk_precision_at_k_mean": 0.885,
+    "chunk_recall_at_k_mean": 0.223,
     "hit_rate_at_k_mean": 0.997,
-    "ndcg_at_k_mean": 0.912,
-    "reciprocal_rank_mean": 0.971,
-    "first_relevant_rank_mean": 1.077,
+    "ndcg_at_k_mean": 0.913,
+    "reciprocal_rank_mean": 0.969,
+    "first_relevant_rank_mean": 1.09,
     "note": "Computed over answerable questions only; unanswerable questions have no defined retrieval target and are excluded rather than scored as 0."
   },
   "answer_corrected": {
     "exact_match_mean": 0.0,
-    "f1_normalized_mean": 0.068,
-    "key_fact_recall_mean": 0.36
+    "f1_normalized_mean": 0.063,
+    "key_fact_recall_mean": 0.367
   },
   "abstention": {
     "n_answerable": 300,
@@ -60,22 +60,22 @@
     },
     "evidence_complete_rate": 0.73,
     "evidence_recall_mean": 0.73,
-    "evidence_precision_mean": 0.191,
-    "first_evidence_rank_mean": 1.927,
-    "answer_grounded_rate": 0.22,
+    "evidence_precision_mean": 0.194,
+    "first_evidence_rank_mean": 1.945,
+    "answer_grounded_rate": 0.217,
     "attribution_stages": {
-      "none": 66,
+      "none": 65,
       "retrieval": 81,
-      "generation": 153
+      "generation": 154
     },
     "rows_with_degraded_alignment": 0,
     "note": "Evidence metrics are computed from exact character-offset overlap between gold spans and retrieved chunks. Rows without gold evidence are excluded. answer_grounded counts answers that are both correct and supported by evidence actually present in the retrieved context."
   },
   "confidence_intervals": {
     "failure_rate": {
-      "point": 0.95,
-      "lower": 0.9191529665272558,
-      "upper": 0.9694683593706526,
+      "point": 0.9533333333333334,
+      "lower": 0.923202639772079,
+      "upper": 0.9720010663176659,
       "n": 300,
       "method": "wilson",
       "confidence": 0.95,
@@ -83,9 +83,9 @@
       "note": "n=300"
     },
     "failure_rate_v2": {
-      "point": 0.74,
-      "lower": 0.6875519770721528,
-      "upper": 0.7863793967400652,
+      "point": 0.75,
+      "lower": 0.6980484035459826,
+      "upper": 0.7956301108417443,
       "n": 300,
       "method": "wilson",
       "confidence": 0.95,
@@ -93,9 +93,9 @@
       "note": "n=300"
     },
     "token_overlap_mean": {
-      "point": 0.07275071877616092,
-      "lower": 0.060859606529681136,
-      "upper": 0.08659073430533835,
+      "point": 0.06719010344905141,
+      "lower": 0.055170014980158145,
+      "upper": 0.07973357206192042,
       "n": 300,
       "method": "bootstrap_percentile",
       "confidence": 0.95,
@@ -103,9 +103,9 @@
       "note": "n=300"
     },
     "answer_f1_normalized_mean": {
-      "point": 0.06788948324637452,
-      "lower": 0.05581454343908288,
-      "upper": 0.0816048416587261,
+      "point": 0.06285274882557554,
+      "lower": 0.05105334090070746,
+      "upper": 0.07600676294475461,
       "n": 300,
       "method": "bootstrap_percentile",
       "confidence": 0.95,
@@ -124,9 +124,9 @@
         "note": "n=300"
       },
       "incorrect_answer": {
-        "point": 0.5666666666666667,
-        "lower": 0.5100989219821965,
-        "upper": 0.6215486818545306,
+        "point": 0.58,
+        "lower": 0.5234831499847111,
+        "upper": 0.6344939746193615,
         "n": 300,
         "method": "wilson",
         "confidence": 0.95,
@@ -134,9 +134,9 @@
         "note": "n=300"
       },
       "ok": {
-        "point": 0.26,
-        "lower": 0.21362060325993487,
-        "upper": 0.3124480229278472,
+        "point": 0.25,
+        "lower": 0.20436988915825566,
+        "upper": 0.3019515964540173,
         "n": 300,
         "method": "wilson",
         "confidence": 0.95,
@@ -144,9 +144,9 @@
         "note": "n=300"
       },
       "partial_answer": {
-        "point": 0.13666666666666666,
-        "lower": 0.10236514609208625,
-        "upper": 0.1801554129977505,
+        "point": 0.13333333333333333,
+        "lower": 0.09946641683411198,
+        "upper": 0.1764717620638884,
         "n": 300,
         "method": "wilson",
         "confidence": 0.95,
@@ -175,9 +175,9 @@
       "note": "n=300"
     },
     "faithfulness_mean": {
-      "point": 0.9634666666666666,
-      "lower": 0.9499333333333334,
-      "upper": 0.9758008333333333,
+      "point": 0.9621999999999999,
+      "lower": 0.9482000000000002,
+      "upper": 0.9746666666666668,
       "n": 300,
       "method": "bootstrap_percentile",
       "confidence": 0.95,
@@ -190,21 +190,21 @@
     "Inference is deterministic in the offline configuration, so repeated runs have zero variance. Intervals here describe sampling uncertainty over questions (n=300), not run-to-run variability."
   ],
   "experiment": {
-    "tag": "nq_val_n300",
+    "tag": "nq_val_n300_fixed",
     "dataset": "nq",
     "split": "validation",
     "n_questions": 300,
     "n_documents": 297,
     "loader_skipped": {
-      "no_long_answer_page_scoped_null": 153,
-      "no_short_answer_text": 90
+      "no_long_answer_page_scoped_null": 146,
+      "no_short_answer_text": 71
     },
     "corpus": {
       "n_documents": 297,
-      "n_chunks": 12245,
+      "n_chunks": 12358,
       "chunk_size": 256,
       "chunk_overlap": 32,
-      "total_characters": 11042917,
+      "total_characters": 11160507,
       "offset_mismatches": 0
     },
     "retrieval": {
@@ -222,9 +222,9 @@
     "source_url": "https://huggingface.co/datasets/google-research-datasets/natural_questions"
   },
   "provenance": {
-    "timestamp_utc": "2026-08-30T21:34:57+00:00",
+    "timestamp_utc": "2026-08-31T15:00:07+00:00",
     "git": {
-      "commit": "e881914907a8885d43a66abc68a8e20c45e0f9d4",
+      "commit": "d9b4e89ccaa014e88a533ce958b0d39ba9fb91e7",
       "branch": "research/stages-1-4",
       "dirty": false
     },
