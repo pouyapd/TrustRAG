@@ -306,7 +306,18 @@ recovered. The sample is deliberately *not* representative.
 ### 2. Annotate
 
 Two annotators, working independently, following
-[ANNOTATION_GUIDELINES.md](ANNOTATION_GUIDELINES.md). The guidelines define
+[ANNOTATION_GUIDELINES.md](ANNOTATION_GUIDELINES.md), each using the local
+annotation tool:
+
+```bash
+python scripts/annotate.py --annotator a     # one per annotator
+python scripts/annotate.py --annotator a --validate
+```
+
+The tool enforces the blinding rather than relying on the annotator to respect
+it: it never opens `proposed_labels_key.jsonl`, and the page is built from an
+allowlist of fields, so a proposed label cannot reach the screen even if the
+package were regenerated with extra keys. The guidelines define
 every category in terms of what is visible on the page — question, reference
 answer, retrieved context, system answer — and deliberately **not** in the terms
 the classifier uses. That distinction is the whole point: if an annotator

@@ -154,9 +154,33 @@ the units where the system's tuned thresholds are doing the work.
   independent; agreement produced by conversation measures nothing.
 - **Do not look at `proposed_labels_key.jsonl`.** It contains the system's
   answers and is in the package only for the scoring step afterwards.
-- Your sheet is at `annotator_<your id>/annotation_sheet.jsonl`. Save your
-  completed file next to it as `completed.jsonl`, keeping `annotation_id`
-  unchanged — that field is what aligns the two sets.
+- **Use the annotation tool** rather than editing JSONL by hand:
+
+  ```bash
+  python scripts/annotate.py --annotator a     # or --annotator b
+  ```
+
+  It opens a local page at `http://127.0.0.1:8900/`, shows one unit at a time,
+  and writes `annotator_<id>/completed.jsonl` after every change, so closing the
+  window loses nothing — rerun the same command to pick up where you stopped.
+  Keys: `1`–`9` choose a label, `h`/`m`/`l` set confidence, `←`/`→` move between
+  units, `Enter` jumps to the next unlabelled one. The progress grid at the top
+  shows which units are done.
+
+  The tool cannot show you the system's proposed label: it never opens
+  `proposed_labels_key.jsonl` and builds the page from an explicit allowlist of
+  fields. It also never picks a label for you — an unlabelled unit stays
+  unlabelled until you choose.
+
+- When you have finished, check your file before handing it over:
+
+  ```bash
+  python scripts/annotate.py --annotator a --validate
+  ```
+
+  This confirms all 200 units are present and labelled, that no id is duplicated
+  or missing, that every label and confidence is valid, and that the sheet you
+  worked from was not modified.
 - Expect roughly 1–2 minutes per unit. Take breaks; fatigue shows up as drift
   toward whichever label is easiest.
 
