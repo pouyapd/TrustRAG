@@ -56,24 +56,118 @@ from src.evaluation.taxonomy import FailureModeV2, TaxonomyConfig
 DEFAULT_SEED = 20260826
 
 
+def span_length(start: int | None, end: int | None) -> int | None:
+    """Characters the recorded range covers, or None when offsets are absent."""
+    if start is None or end is None:
+        return None
+    return end - start
+
+
+def is_complete(text: str, start: int | None, end: int | None) -> bool | None:
+    """Whether `text` is the whole span its offsets claim.
+
+    None means unverifiable: without offsets there is nothing to compare the
+    text against, and silently calling that "complete" is how the previous
+    truncation went unnoticed for a whole annotation round.
+    """
+    length = span_length(start, end)
+    return None if length is None else len(text) == length
+
+
+def describe_chunk(chunk) -> dict:
+    """One retrieved chunk, complete.
+
+    The text stored here is the entire chunk the retriever returned and the
+    generator was shown — never an excerpt. An annotator answering step 2 of
+    the guidelines ("did the evidence reach the system?") is judging what the
+    system received, so showing them a prefix of it makes the answer to that
+    question unknowable: evidence past the cut looks identical to evidence that
+    was never retrieved. `n_chars` and `text_complete` are recorded so the
+    claim is checkable rather than asserted.
+    """
+    return {
+        "rank": chunk.rank,
+        "chunk_id": chunk.chunk_id,
+        "doc_id": chunk.doc_id,
+        "source": chunk.source,
+        "char_range": [chunk.start_char, chunk.end_char],
+        "n_chars": len(chunk.text),
+        "text_complete": is_complete(chunk.text, chunk.start_char, chunk.end_char),
+        "text": chunk.text,
+    }
+
+
+def describe_span(span: dict) -> dict:
+    """One gold supporting span, complete, on the same terms as a chunk."""
+    text = str(span.get("text", ""))
+    start, end = span["start_char"], span["end_char"]
+    return {
+        "doc_id": span["doc_id"],
+        "char_range": [start, end],
+        "n_chars": len(text),
+        "text_complete": is_complete(text, start, end),
+        "text": text,
+    }
+
+
+def truncation_problems(units: list[dict]) -> list[str]:
+    """Every place a unit shows less text than its offsets promise.
+
+    Called before the sheet is written. A package that cannot show the whole
+    retrieved chunk is not a weaker package, it is an invalid instrument for
+    step 2, so this aborts the build instead of warning.
+    """
+    problems = []
+    for unit in units:
+        for chunk in unit["retrieved_context"]:
+            length = span_length(*chunk["char_range"])
+            if length is not None and chunk["n_chars"] < length:
+                problems.append(
+                    f"{unit['annotation_id']} rank {chunk['rank']}: "
+                    f"{chunk['n_chars']} chars stored for a {length}-char range"
+                )
+        for span in unit["gold_evidence"]:
+            length = span_length(*span["char_range"])
+            if length is not None and span["n_chars"] < length:
+                problems.append(
+                    f"{unit['annotation_id']} gold {span['doc_id']}: "
+                    f"{span['n_chars']} chars stored for a {length}-char range"
+                )
+    return problems
+
+
+def context_integrity(units: list[dict]) -> dict:
+    """Counts that let a reader verify the no-truncation claim from the sheet.
+
+    `unverifiable` is reported separately from `complete` on purpose: a chunk
+    without offsets cannot be shown to be whole, and rolling the two together
+    would turn missing evidence into a clean bill of health.
+    """
+    chunks = [c for u in units for c in u["retrieved_context"]]
+    spans = [g for u in units for g in u["gold_evidence"]]
+    def tally(items):
+        return {
+            "n": len(items),
+            "complete": sum(1 for i in items if i["text_complete"] is True),
+            "truncated": sum(1 for i in items if i["text_complete"] is False),
+            "unverifiable_no_offsets": sum(
+                1 for i in items if i["text_complete"] is None
+            ),
+            "max_chars": max((i["n_chars"] for i in items), default=0),
+        }
+    return {"retrieved_chunks": tally(chunks), "gold_spans": tally(spans)}
+
+
 def build_unit(record, row, index: int) -> dict:
     """One annotation unit: everything needed to judge, nothing that anchors.
 
     The annotator sees the question, the reference answers, whether the corpus
-    is supposed to be able to answer it, the retrieved context in rank order,
-    and the system's answer. They do not see the proposed failure mode, the
-    metric values, or the decision features.
+    is supposed to be able to answer it, the retrieved context in rank order —
+    each chunk complete, exactly as retrieved — and the system's answer. They
+    do not see the proposed failure mode, the metric values, or the decision
+    features.
     """
-    evidence_preview = []
-    for chunk in record.retrieved:
-        evidence_preview.append(
-            {
-                "rank": chunk.rank,
-                "doc_id": chunk.doc_id,
-                "char_range": [chunk.start_char, chunk.end_char],
-                "text": chunk.text[:600],
-            }
-        )
+    evidence = [describe_chunk(chunk) for chunk in record.retrieved]
 
     gold_spans = (record.metadata or {}).get("supporting_spans") or []
     return {
@@ -81,15 +175,8 @@ def build_unit(record, row, index: int) -> dict:
         "question": record.question,
         "reference_answers": row.reference_answers or [record.reference_answer],
         "corpus_can_answer": bool(record.relevant_doc_ids),
-        "gold_evidence": [
-            {
-                "doc_id": s["doc_id"],
-                "char_range": [s["start_char"], s["end_char"]],
-                "text": str(s.get("text", ""))[:600],
-            }
-            for s in gold_spans
-        ],
-        "retrieved_context": evidence_preview,
+        "gold_evidence": [describe_span(s) for s in gold_spans],
+        "retrieved_context": evidence,
         "system_answer": record.predicted_answer,
         # To be completed by a human. Left empty on purpose.
         "human_label": "",
@@ -241,6 +328,17 @@ def main() -> int:
             }
         )
 
+    problems = truncation_problems(units)
+    if problems:
+        print(
+            f"refusing to write: {len(problems)} retrieved chunk(s) or gold span(s) "
+            "hold less text than their char_range covers",
+            file=sys.stderr,
+        )
+        for problem in problems[:10]:
+            print(f"  {problem}", file=sys.stderr)
+        return 1
+
     (out_dir / "annotation_sheet.jsonl").write_text(
         "\n".join(json.dumps(u, ensure_ascii=False) for u in units) + "\n", encoding="utf-8"
     )
@@ -271,6 +369,12 @@ def main() -> int:
         "seed": args.seed,
         "sampling_weights": weights,
         "guidelines": "docs/ANNOTATION_GUIDELINES.md",
+        "retrieved_context_policy": (
+            "Every retrieved chunk is stored complete, exactly as the retriever "
+            "returned it and the generator saw it. No excerpting. Each chunk "
+            "carries n_chars and text_complete so the claim can be checked."
+        ),
+        "context_integrity": context_integrity(units),
         "scoring_command": (
             "python scripts/score_annotations.py --package <this dir> "
             "--annotator a=<path> --annotator b=<path>"

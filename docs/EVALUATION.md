@@ -173,7 +173,11 @@ generalisation. Reported intervals describe sampling uncertainty over questions.
   measurements are unaffected, because retrieval is real. No generation-side
   conclusion should be drawn from these runs.
 - **Whether the taxonomy agrees with humans.** The annotation package exists
-  (`scripts/build_annotation_package.py`); no labels have been collected.
+  (`scripts/build_annotation_package.py`) and 200 units have been labelled
+  against the guidelines, but by a language-model annotator, not a person; 22
+  units in the earlier package carry human labels. The taxonomy is therefore
+  scored against an independent reading of the same units, not against human
+  judgement. See `docs/paper/limitations.md` §1.
 - **Faithfulness.** The pipeline still scores its own output with the same model
   that produced it. With the extractive control this is arithmetically circular
   and faithfulness is constant at 1.0, which the report states in its own

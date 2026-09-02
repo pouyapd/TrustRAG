@@ -249,8 +249,13 @@ diagnostic instrument and not yet a validated one.
    proposal. This is the single largest gap.
 
    The full validation protocol now exists — package, guidelines and scoring —
-   and is described below. **No labels have been collected.** Nothing in this
-   repository fills them in, and the scorer refuses to run on empty sheets
+   and is described below, and it has been run: 200 units of the full-context
+   package are labelled and the taxonomy is scored against them
+   (`docs/paper/results.md`). **Those 200 labels were produced by a
+   language-model annotator following the guidelines, not by a person**; 22
+   units in the earlier package carry human labels. So the gap is narrower than
+   it was but not closed: what exists is agreement with an independent reading,
+   not with human judgement. The scorer still refuses to run on empty sheets
    rather than emitting a plausible-looking table from no data.
 
 3. **Key-fact recall is lexical.** It cannot recognise a correct paraphrase

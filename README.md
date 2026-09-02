@@ -3,7 +3,7 @@
 [![CI](https://github.com/pouyapd/TrustRAG/actions/workflows/ci.yml/badge.svg)](https://github.com/pouyapd/TrustRAG/actions/workflows/ci.yml)
 ![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
-![Tests](https://img.shields.io/badge/tests-412%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-466%20passing-brightgreen)
 ![Coverage](https://img.shields.io/badge/coverage-80%25-green)
 
 **A containerized RAG service (FastAPI + ChromaDB) with an evaluation layer that
@@ -20,6 +20,12 @@ for **1** failure out of 300; the evidence-level reading blames it for **81**.
 
 Everything below runs offline, with no API key.
 
+![TrustRAG pipeline and evaluation layer, with annotation context integrity and taxonomy-vs-reference F1](docs/figures/pipeline_evaluation.png)
+
+*Generated from the repository's own result files by
+`scripts/make_pipeline_figure.py` — the numbers in the lower panels are read
+from `reports/annotation/qasper_dev_300_full_context/`.*
+
 ---
 
 ## Project at a glance
@@ -34,10 +40,11 @@ Everything below runs offline, with no API key.
 | **Observability** | Prometheus (6 metrics) + `structlog` structured JSON logging |
 | **Packaging** | Docker + docker-compose; CPU-only image, 9.53 GB → **2.99 GB** |
 | **CI** | GitHub Actions — 3 jobs: tests, evaluation regression, Docker build |
-| **Testing** | **412 tests, 80% line coverage**, `ruff` clean, nothing excluded |
+| **Testing** | **466 tests, 80% line coverage**, `ruff` clean, nothing excluded |
 | **Codebase** | ~6,500 lines `src/`, ~2,900 lines `tests/`, 38 modules |
 | **Offline mode** | Full evaluation with no API key and no network |
 | **Datasets** | Natural Questions, QASPER, HotpotQA, 2WikiMultihopQA (loaders committed, corpora not) |
+| **Annotation** | 200-unit blinded package, full retrieved context (1000/1000 chunks complete); 22 human-labelled units, model-generated reference set, provenance per file |
 
 > **Branch note.** `main` carries the finalized state. The work was developed on
 > **`research/stages-1-4`**, preserved at the same commit for provenance.
@@ -84,7 +91,7 @@ git clone https://github.com/pouyapd/TrustRAG.git && cd TrustRAG
 pip install -r requirements.txt
 
 python scripts/run_offline_eval.py      # end-to-end evaluation, ~30s
-pytest tests/ -q                        # 412 tests
+pytest tests/ -q                        # 466 tests
 ```
 
 Run it as a service:
@@ -445,6 +452,137 @@ own output.
 
 ---
 
+## Validating the taxonomy: annotation, provenance and context integrity
+
+The taxonomy assigns every row a cause. Nothing in the pipeline proves those
+assignments are right, so the labels are checked against an independent
+annotation of the same units — with the boundary between *human* and
+*model-generated* labels recorded explicitly, because a taxonomy that grades its
+own homework measures nothing.
+
+### The protocol
+
+`scripts/build_annotation_package.py` emits a blinded package: 200 units
+stratified so every proposed failure mode is represented, 25% of the budget
+reserved for rows within 0.1 of a deciding threshold, per-annotator shuffles, and
+the system's proposed label withheld in a separate key file. `scripts/annotate.py`
+serves a local, offline annotation interface, writes after every change, and
+cannot read the withheld key — the page is built from an explicit field
+allowlist. Categories are defined in [docs/ANNOTATION_GUIDELINES.md](docs/ANNOTATION_GUIDELINES.md)
+in terms of what is visible on the page, deliberately *not* in the language of
+the rules being tested.
+
+### Full retrieved context — a bug that made step 2 unanswerable
+
+The first package stored `chunk.text[:600]` for each retrieved chunk while
+recording the chunk's full `char_range`. Annotators were therefore answering the
+central question — *did the supporting passage reach the generator?* — from a
+prefix of what the generator actually saw. Evidence past the cut was
+indistinguishable from evidence never retrieved.
+
+The builder now stores each retrieved chunk complete, records `n_chars` and
+`text_complete` per chunk, and **refuses to write a package** in which any chunk
+holds less text than its `char_range` covers. `scripts/audit_annotation_truncation.py`
+reconstructs the old package against the source records and reports what was
+hidden:
+
+| | |
+|---|---|
+| Retrieved chunks audited | 1000 |
+| Cut at the 600-character display limit | 941 |
+| Recovered from source records | 941 |
+| Complete after the rebuild | **1000 / 1000** |
+| Unreconstructable | 0 |
+| Characters visible to the annotator | 588,671 → **1,163,638** |
+
+Roughly half the retrieved evidence had been invisible. `--validate` now reports
+context completeness on every run, and `tests/test_annotation_package_no_truncation.py`
+fails if a fixed slice is reintroduced into the builder.
+
+### What has been labelled, and by whom
+
+| Label set | Units | Produced by |
+|---|---|---|
+| `qasper_dev_300/annotator_a` — human subset | 22 | **Human** (project owner, via the annotation interface) |
+| `qasper_dev_300/annotator_a` — remainder | 178 | Model |
+| `qasper_dev_300/annotator_b` | 200 | Model |
+| `qasper_dev_300_full_context/annotator_a` — **current reference set** | 200 | Model, on full retrieved context |
+
+Every one of those files ships a `PROVENANCE.md` stating its origin. **The
+200-unit reference set is a model-generated pass, not a human annotation pass**,
+and is described that way everywhere it is used.
+
+Agreement figures, all read from the reports those commands write (`reports/` is
+gitignored, so they are produced locally rather than shipped with a clone):
+
+- **Two independent passes over the truncated package** — Cohen's kappa
+  **0.8365**, 92.5% raw agreement, 15 disagreements adjudicated against the
+  guidelines (`final_agreement_report.json`).
+- **Full-context reference set vs the 22 genuinely human labels** — 20/22
+  identical (90.9%, kappa 0.74). With n=22 this is directional, not a validation.
+- **Full-context reference set vs the earlier passes** — kappa 0.777 (A),
+  0.810 (B), 0.871 (adjudicated).
+
+Restoring the full context moved 13 of 200 labels, **10 of them from
+`wrong_retrieval` to `incorrect_answer`** — units where evidence hidden past the
+600-character cut turned out to have reached the generator. No label moved the
+other way, which is the direction the bug predicts.
+
+### The taxonomy scored against that reference set
+
+`scripts/score_against_reference.py` scores the system's proposed labels over all
+200 units — not only the subset two passes agreed on — and writes
+`final_evaluation.json`:
+
+**accuracy 0.7400 · macro F1 0.6223 · n = 200**
+
+| Category | Support | Predicted | Precision | Recall | F1 |
+|---|---|---|---|---|---|
+| `answered_when_unanswerable` | 9 | 9 | 1.000 | 1.000 | 1.000 |
+| `wrong_retrieval` | 130 | 100 | 1.000 | 0.769 | 0.870 |
+| `incorrect_answer` | 42 | 57 | 0.561 | 0.762 | 0.646 |
+| `ok` | 16 | 8 | 0.750 | 0.375 | 0.500 |
+| `partial_answer` | 3 | 18 | 0.056 | 0.333 | 0.095 |
+| `hallucination` | 0 | 8 | 0.000 | — | — |
+
+The system never *wrongly* assigns `wrong_retrieval` (precision 1.000) but misses
+23% of it: 30 units the reference calls a retrieval failure are charged to
+generation instead — 22 `incorrect_answer`, 5 `partial_answer`, 2
+`hallucination`, 1 `ok`. It also emits `hallucination` 8 times where the
+reference uses it never, and over-predicts `partial_answer` 18× against a support
+of 3. Those are the concrete places the thresholds need work, and they are
+visible only because the reference set exists.
+
+### Changing one gate, scored against the same reference set
+
+The same stored run also carries `failure_mode_evidence`, which gates the
+retrieval rule on whether a chunk covering the gold span arrived rather than on
+whether a chunk from a relevant document arrived. Both variants are scored
+against the same 200 reference labels:
+
+| Variant | Accuracy | Macro F1 | Cohen's kappa |
+|---|---|---|---|
+| Document-gated (`failure_mode_v2`) | 0.740 | 0.622 | 0.573 |
+| **Evidence-gated (`failure_mode_evidence`)** | **0.805** | **0.630** | **0.631** |
+
+Paired over the same units: 139 both correct, 22 only evidence-gated, 9 only
+document-gated, 30 neither. Exact McNemar on the 31 discordant pairs,
+**p = 0.029**. The gain is concentrated in `wrong_retrieval` recall
+(0.769 → 0.938) and costs precision there (1.000 → 0.917). Of the 30 units the
+document-gated variant misattributes, 22 have `evidence_status = none` — the
+pipeline had already recorded that nothing usable arrived.
+
+Reproduce with `scripts/score_against_reference.py --rows … --records …`; it
+re-reads stored labels and costs no model calls.
+
+**What this is not.** With one reference pass and 22 human labels, this is a
+consistency check on the taxonomy, not a human validation of it. A second
+independent human pass is what would turn it into one. The paper-facing write-up of
+this result — with every number sourced, and the gaps named rather than filled —
+is in [docs/paper/](docs/paper/).
+
+---
+
 ## Limitations
 
 Read these before quoting anything above.
@@ -457,12 +595,16 @@ Read these before quoting anything above.
   hallucination rate, no faithfulness benchmark and no model comparison is
   claimed.** Retrieval and evidence results are unaffected — retrieval is real
   and is held fixed while the generator changes.
-- **The taxonomy is not validated against humans.** Its thresholds were tuned by
-  inspection on a 20-question fixture, which is development data. The full
-  protocol — stratified blinded package, written guidelines, kappa and
-  per-category scoring — now exists and is tested. **Zero labels have been
-  collected.** The headline retrieval result does not depend on those
-  thresholds; every generation-side label does.
+- **The taxonomy is not yet validated against a full human reference set.** Its
+  thresholds were tuned by inspection on a 20-question fixture, which is
+  development data. The annotation protocol — stratified blinded package,
+  written guidelines, kappa and per-category scoring — exists, is tested, and
+  has now been run over 200 units. **But only 22 of those units carry human
+  labels; the other 178, and the 200-unit full-context reference set the
+  taxonomy is currently scored against, were labelled by a model.** Every
+  provenance file under `reports/annotation/` states which is which, and nothing
+  in this README calls a model pass a human pass. The headline retrieval result
+  does not depend on the taxonomy thresholds; every generation-side label does.
 - **The magnitude depends heavily on retrieval depth.** Embedder and k are now
   swept and both matter. On Natural Questions the granularity gap falls from
   57.3 pp at k=1 to 7.7 pp at k=20; on QASPER it barely moves (20.3 → 14.5 pp);
@@ -559,18 +701,45 @@ python scripts/run_ablation.py \
     --records reports/experiments/qasper/inference.jsonl \
     --out reports/experiments/ablation_qasper.json
 
-# Human-annotation package: 200 stratified, blinded units, two annotator sheets.
-# Emits empty labels for a person to fill in. Nothing here writes a label.
+# Annotation package: 200 stratified, blinded units, two annotator sheets, every
+# retrieved chunk stored complete. Emits empty labels; nothing here writes one.
+# The build aborts if any chunk holds less text than its char_range covers.
 python scripts/build_annotation_package.py \
     --records reports/experiments/qasper_dev_300/inference.jsonl \
-    --out reports/annotation/qasper_dev_300 --n-units 200
+    --out reports/annotation/qasper_dev_300_full_context --n-units 200
 
-# Score completed annotations: Cohen's kappa, confusion matrix, per-category F1.
+# Annotate locally. Serves one unit at a time, writes after every change, and
+# cannot read the withheld proposed-labels key.
+python scripts/annotate.py --annotator a \
+    --package reports/annotation/qasper_dev_300_full_context
+python scripts/annotate.py --annotator a \
+    --package reports/annotation/qasper_dev_300_full_context --validate
+
+# Audit an existing package for display truncation against the source records.
+python scripts/audit_annotation_truncation.py \
+    --records reports/experiments/qasper_dev_300/inference.jsonl \
+    --old-package reports/annotation/qasper_dev_300 \
+    --new-package reports/annotation/qasper_dev_300_full_context \
+    --out reports/annotation/qasper_dev_300_full_context/TRUNCATION_AUDIT.json
+
+# Two annotators against each other: Cohen's kappa, confusion matrix, adjudication.
 # Refuses to run on empty sheets rather than inventing a table.
 python scripts/score_annotations.py \
     --package reports/annotation/qasper_dev_300 \
     --annotator a=.../annotator_a/completed.jsonl \
     --annotator b=.../annotator_b/completed.jsonl
+
+# The taxonomy against one reference set, over all units rather than the agreed
+# subset, plus agreement with any other completed passes.
+python scripts/score_against_reference.py \
+    --package reports/annotation/qasper_dev_300_full_context \
+    --reference .../qasper_dev_300_full_context/annotator_a/completed.jsonl \
+    --compare adjudicated=.../qasper_dev_300/final_adjudicated_labels.jsonl
+
+# Regenerate the README pipeline/evaluation figure from those result files
+python scripts/make_pipeline_figure.py \
+    --package reports/annotation/qasper_dev_300_full_context \
+    --out docs/figures/pipeline_evaluation.png
 
 # Figures, and the documentation's result tables regenerated from result files
 pip install -r requirements-research.txt
@@ -587,7 +756,7 @@ python scripts/run_llm_experiment.py \
 pytest tests/ -v --cov=src
 ```
 
-**412 tests, 80% line coverage**, ruff clean. Nothing is excluded from the
+**466 tests, 80% line coverage**, ruff clean. Nothing is excluded from the
 coverage report. The suite includes unit tests, property-style invariants (span
 coverage implies document coverage, for every record), end-to-end integration
 tests that carry a question from a real dataset file through chunking, a real
@@ -608,6 +777,7 @@ defect found during the work.
 | [docs/TAXONOMY.md](docs/TAXONOMY.md) | The nine failure categories, decision rules, and the human-validation protocol |
 | [docs/ANNOTATION_GUIDELINES.md](docs/ANNOTATION_GUIDELINES.md) | What annotators are asked to do, and how the categories are defined independently of the rules |
 | [docs/SAMPLE_EVALUATION.md](docs/SAMPLE_EVALUATION.md) | The bundled smoke-test fixture, annotated |
+| [docs/paper/](docs/paper/) | Paper-facing write-up: outline, setup, results, tables, figures, limitations, reproducibility |
 
 ---
 

@@ -109,6 +109,32 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def text_completeness(item: dict) -> str:
+    """Is this chunk/span the whole text its char_range claims?
+
+    Returns "complete", "truncated", or "unverifiable". The sheet may state it
+    outright via `text_complete`; older sheets do not, so the offsets are used
+    as the fallback. Chunks without offsets are "unverifiable" rather than
+    "complete" — an unmeasurable chunk is not a clean one.
+    """
+    stated = item.get("text_complete")
+    if isinstance(stated, bool):
+        return "complete" if stated else "truncated"
+    span = item.get("char_range") or [None, None]
+    if span[0] is None or span[1] is None:
+        return "unverifiable"
+    return "complete" if len(str(item.get("text", ""))) == span[1] - span[0] else "truncated"
+
+
+def context_completeness(sheet: list[dict]) -> dict[str, int]:
+    """Tally of complete / truncated / unverifiable retrieved chunks in a sheet."""
+    tally = {"complete": 0, "truncated": 0, "unverifiable": 0}
+    for unit in sheet:
+        for chunk in unit.get("retrieved_context") or []:
+            tally[text_completeness(chunk)] += 1
+    return tally
+
+
 def visible_unit(unit: dict) -> dict:
     """One unit, reduced to the fields an annotator is allowed to see."""
     return {field: unit.get(field) for field in VISIBLE_FIELDS}
@@ -320,7 +346,17 @@ PAGE = r"""<!doctype html>
   .chunk { border:1px solid var(--line); border-radius:8px; padding:9px 11px;
            margin-bottom:8px; background:#fcfcfd; }
   .chunk .meta { font-size:11.5px; color:var(--muted); margin-bottom:5px;
-                 font-family:ui-monospace,Consolas,monospace; }
+                 font-family:ui-monospace,Consolas,monospace; cursor:pointer;
+                 list-style:none; }
+  .chunk .meta::-webkit-details-marker { display:none; }
+  .chunk .meta::before { content:'▾ '; }
+  details.chunk:not([open]) .meta::before { content:'▸ '; }
+  .chunk .ptext { white-space:pre-wrap; margin-top:6px; }
+  .tag { font-size:10.5px; letter-spacing:.05em; padding:1px 6px; border-radius:4px;
+         border:1px solid var(--line); font-family:ui-monospace,Consolas,monospace; }
+  .tag.full { color:var(--good); border-color:#bfe0cd; background:#f1f9f4; }
+  .tag.trunc { color:#b23b3b; border-color:#e6c2c2; background:#fdf2f2; }
+  .tag.unk { color:var(--warn); border-color:#f0dcc0; background:#fdf7ef; }
   .gold { border-left:3px solid var(--good); background:#f6fbf8; }
   .answer { white-space:pre-wrap; background:#fbfaf7; border:1px solid #eee3cf;
             border-radius:8px; padding:10px 12px; }
@@ -437,6 +473,36 @@ function buildGrid(){
 function cur(){ return S.units[i]; }
 function ann(){ return S.annotations[cur().annotation_id] || null; }
 
+// Is the stored text the whole span its char_range claims? The sheet says so
+// outright when it was built by the current builder; older sheets are measured
+// against their offsets instead. Never guess "complete" when it cannot be
+// checked — an unmeasurable chunk is exactly the case that went unnoticed once.
+function completeness(o){
+  if (typeof o.text_complete === 'boolean') return o.text_complete ? 'complete' : 'truncated';
+  const r = o.char_range;
+  if (!r || r[0]===null || r[1]===null || r[0]===undefined || r[1]===undefined) return 'unverifiable';
+  return (o.text||'').length === r[1]-r[0] ? 'complete' : 'truncated';
+}
+// One passage, whole. Long chunks are collapsible, never clipped: the text in
+// the page is always the entire chunk, so nothing an annotator needs for step 2
+// can be hidden behind an ellipsis.
+function passage(o, title, extra){
+  const r = o.char_range || [null,null];
+  const len = (o.text||'').length;
+  const state = completeness(o);
+  const tag = state==='complete'
+    ? '<span class="tag full">FULL</span>'
+    : state==='truncated'
+      ? `<span class="tag trunc">TRUNCATED — ${len} of ${r[1]-r[0]} chars shown</span>`
+      : '<span class="tag unk">LENGTH UNVERIFIED</span>';
+  const range = `chars [${r[0]===null||r[0]===undefined?'?':r[0]}, `
+              + `${r[1]===null||r[1]===undefined?'?':r[1]})`;
+  const long = len > 1400;
+  return `<details class="chunk ${extra}"${long?'':' open'}>`
+       + `<summary class="meta">${title} — ${tag} · ${range} · ${len} chars`
+       + `${long?' · click to show the full text':''}</summary>`
+       + `<div class="ptext">${esc(o.text)}</div></details>`;
+}
 function render(){
   const u = cur(), a = ann();
   $('pos').textContent = `unit ${i+1} of ${S.units.length}`;
@@ -454,13 +520,11 @@ function render(){
   $('refs').innerHTML = (u.reference_answers||[]).map(r=>`<li>${esc(r)}</li>`).join('')
     || '<li class="hint">none</li>';
   $('gold').innerHTML = (u.gold_evidence||[]).map(g=>
-    `<div class="chunk gold"><div class="meta">${esc(g.doc_id)} chars `
-    + `[${g.char_range?g.char_range[0]:'?'}, ${g.char_range?g.char_range[1]:'?'})</div>`
-    + `${esc(g.text)}</div>`).join('') || '<p class="hint">none recorded</p>';
+    passage(g, `Gold evidence — ${esc(g.doc_id)}`, 'gold')).join('')
+    || '<p class="hint">none recorded</p>';
   $('ctx').innerHTML = (u.retrieved_context||[]).map(c=>
-    `<div class="chunk"><div class="meta">rank ${c.rank} · ${esc(c.doc_id)} · chars `
-    + `[${c.char_range?c.char_range[0]:'?'}, ${c.char_range?c.char_range[1]:'?'})</div>`
-    + `${esc(c.text)}</div>`).join('') || '<p class="hint">nothing retrieved</p>';
+    passage(c, `Retrieved context — Rank ${c.rank} — ${esc(c.doc_id)}`, '')).join('')
+    || '<p class="hint">nothing retrieved</p>';
   $('ans').textContent = u.system_answer || '(empty)';
 
   $('labels').querySelectorAll('button').forEach(b=>
@@ -525,16 +589,21 @@ boot();
 """
 
 
-def validate(package: Path, annotator: str) -> int:
-    """Check the finished file. Returns 0 only if every check passes."""
+def validate(package: Path, annotator: str, filename: str = "completed.jsonl") -> int:
+    """Check the finished file. Returns 0 only if every check passes.
+
+    `filename` names the file inside the annotator directory, so a pass kept
+    under a different name can be checked without disturbing completed.jsonl.
+    """
     directory = package / f"annotator_{annotator}"
     sheet_path = directory / "annotation_sheet.jsonl"
-    output_path = directory / "completed.jsonl"
+    output_path = directory / filename
     integrity_path = directory / ".sheet_integrity.json"
     master_path = package / "annotation_sheet.jsonl"
 
     problems: list[str] = []
     notes: list[str] = []
+    warnings: list[str] = []
 
     if not output_path.exists():
         print(f"FAIL  no completed file at {output_path}")
@@ -647,10 +716,31 @@ def validate(package: Path, annotator: str) -> int:
     else:
         notes.append("completed rows preserve the original unit content")
 
+    # --- the annotator must have seen the whole retrieved chunk -------------
+    # A warning, not a failure: a package built before this check existed is
+    # still scorable, and its labels are still the labels that were given. What
+    # is not acceptable is leaving the reader to guess, so the count is stated
+    # every time. Step 2 of the guidelines asks whether the evidence reached the
+    # system; a prefix of a chunk cannot answer that.
+    context = context_completeness(sheet)
+    if context["truncated"] or context["unverifiable"]:
+        warnings.append(
+            f"{context['truncated']} retrieved chunk(s) hold less text than their "
+            f"char_range covers and {context['unverifiable']} cannot be checked "
+            f"(complete: {context['complete']}). Step-2 judgements on those units "
+            "rest on an excerpt; rebuild the package with the current builder."
+        )
+    else:
+        notes.append(
+            f"retrieved context is complete for all {context['complete']} chunk(s)"
+        )
+
     # --- report -------------------------------------------------------------
     print(f"validating {output_path}")
     for note in notes:
         print(f"  ok    {note}")
+    for warning in warnings:
+        print(f"  WARN  {warning}")
     for problem in problems:
         print(f"  FAIL  {problem}")
     if problems:
@@ -680,6 +770,8 @@ def main() -> int:
     parser.add_argument("--port", type=int, default=8900)
     parser.add_argument("--validate", action="store_true",
                         help="check the completed file instead of serving the interface")
+    parser.add_argument("--file", default="completed.jsonl",
+                        help="file inside the annotator directory to validate")
     parser.add_argument("--no-browser", action="store_true",
                         help="do not open a browser window")
     args = parser.parse_args()
@@ -692,7 +784,7 @@ def main() -> int:
         return 1
 
     if args.validate:
-        return validate(package, args.annotator)
+        return validate(package, args.annotator, args.file)
 
     try:
         session = Session(package, args.annotator)
