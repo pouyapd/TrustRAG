@@ -66,8 +66,8 @@ measuring what the model already memorized.
 3. **A 9-category versioned failure taxonomy** with hashable thresholds, the
    fired rule recorded per row, and two retrieval gates computed side by side.
 4. **A measured comparison of those two gates** against the 200-unit reference
-   annotation package: evidence-gating agrees significantly better
-   (0.805 vs 0.740 accuracy, exact McNemar p = 0.0294).
+   annotation: evidence-gating agrees significantly better (0.805 vs 0.740
+   accuracy, 0.631 vs 0.573 kappa, exact McNemar p = 0.0294).
 5. **An annotation protocol, and a measurement-integrity finding from it** — a
    600-character display truncation that made the central annotation question
    unanswerable, quantified, fixed and regression-tested.
@@ -181,11 +181,10 @@ Attribution moves accordingly, on every corpus:
 
 The taxonomy assigns every row a cause, and nothing in the pipeline proves those
 assignments are right. So both variants of the retrieval gate are scored against
-the reference labels of the same 200-unit annotation package, assigned from the
-full retrieved context and blind to the system's proposed labels:
-`failure_mode_v2` fires its retrieval rule when no chunk from a relevant
-*document* arrived; `failure_mode_evidence` fires it when no chunk covering the
-*gold span* arrived.
+the 200-unit reference annotation — the same units, labelled from the full
+retrieved context and blind to the system's proposed labels. `failure_mode_v2`
+fires its retrieval rule when no chunk from a relevant *document* arrived;
+`failure_mode_evidence` fires it when no chunk covering the *gold span* arrived.
 
 | Variant | Accuracy | Macro F1 | Cohen's kappa |
 |---|---|---|---|
@@ -218,13 +217,13 @@ support are the concrete places the thresholds need work — visible only becaus
 the reference set exists. Thresholds were never re-tuned against it, so the
 reported accuracy is a floor.
 
-**Provenance, stated plainly.** The labels scored above are those of the
-200-unit reference annotation package currently used for this evaluation; the
-final human annotation of all 200 units is being completed separately and its
-agreement statistics are not yet incorporated here. Every annotation file ships a
-`PROVENANCE.md` recording its origin, and
-[docs/paper/limitations.md](docs/paper/limitations.md) states what this costs the
-claim.
+**How the reference set was built.** Each of the 200 units was labelled one at a
+time against [docs/ANNOTATION_GUIDELINES.md](docs/ANNOTATION_GUIDELINES.md), from
+the question, the gold evidence and every retrieved chunk in full, with the
+proposed-labels key withheld — an independent reading of the same evidence, not a
+re-run of the taxonomy. Every annotation file ships a `PROVENANCE.md` naming its
+annotator and method; [docs/paper/limitations.md](docs/paper/limitations.md)
+states what that costs the claim.
 
 ### 3. Annotation integrity: a truncation defect that invalidated the central question
 
@@ -524,11 +523,12 @@ Read these before quoting anything above. The full list, including what is
 missing before a paper can be written, is in
 [docs/paper/limitations.md](docs/paper/limitations.md).
 
-- **The final human annotation is not yet incorporated.** The taxonomy scores
-  above are computed against the current 200-unit reference annotation package.
-  The full human annotation of those 200 units, and the agreement statistics that
-  will follow from it, are still outstanding, so no inter-annotator statistic is
-  reported for the full-context package.
+- **The reference set is an independent annotation pass, not human adjudication.**
+  The 200 labels were produced by a language-model annotator working through the
+  written guidelines on the full retrieved context, blind to the system's labels,
+  so what is measured is agreement between two independent readings of the same
+  evidence. Each package's `PROVENANCE.md` records exactly how its labels were
+  produced.
 - **The annotated run uses an extractive control, not a language model.**
   `hallucination`, `refusal_when_answerable` and `ok_abstained` therefore have
   zero support in the reference set by construction, and cannot be validated on
