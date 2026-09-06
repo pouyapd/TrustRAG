@@ -1,0 +1,71 @@
+{
+  "dataset": "hotpotqa",
+  "split": "validation",
+  "retriever": "BM25 (Okapi, k1=1.5, b=0.75), implemented in this script",
+  "n_answerable": 150,
+  "top_k": 5,
+  "chunking": {
+    "size": 256,
+    "overlap": 32
+  },
+  "corpus": {
+    "documents": 1491,
+    "chunks": 1571,
+    "offset_mismatches": 0
+  },
+  "conditions": {
+    "A_document_any": 0.9267,
+    "B_document_quantified": 0.42,
+    "C_span_quantified": 0.42
+  },
+  "confidence_intervals": {
+    "A_document_any": {
+      "point": 0.9266666666666666,
+      "lower": 0.8734642066329596,
+      "upper": 0.9585611848396149,
+      "n": 150,
+      "method": "wilson",
+      "confidence": 0.95,
+      "sufficient": true,
+      "note": "n=150"
+    },
+    "B_document_quantified": {
+      "point": 0.42,
+      "lower": 0.3439800445299174,
+      "upper": 0.5000151945689748,
+      "n": 150,
+      "method": "wilson",
+      "confidence": 0.95,
+      "sufficient": true,
+      "note": "n=150"
+    },
+    "C_span_quantified": {
+      "point": 0.42,
+      "lower": 0.3439800445299174,
+      "upper": 0.5000151945689748,
+      "n": 150,
+      "method": "wilson",
+      "confidence": 0.95,
+      "sufficient": true,
+      "note": "n=150"
+    }
+  },
+  "gaps_pp": {
+    "quantifier_A_to_B": 50.7,
+    "granularity_B_to_C": 0.0
+  },
+  "paired_vs_dense": {
+    "n": 150,
+    "only_bm25_span_hit": 23,
+    "only_dense_span_hit": 36,
+    "test": {
+      "statistic": -13.0,
+      "p_value": 0.11747735024505848,
+      "effect": -0.22033898305084745,
+      "n": 59,
+      "method": "mcnemar_exact",
+      "sufficient": true,
+      "note": "59 discordant pairs"
+    }
+  }
+}
