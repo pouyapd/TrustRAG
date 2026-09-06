@@ -140,6 +140,10 @@ def visible_unit(unit: dict) -> dict:
     return {field: unit.get(field) for field in VISIBLE_FIELDS}
 
 
+class LockedAnnotation(Exception):
+    """Raised when a write would overwrite a protected existing annotation."""
+
+
 class Session:
     """Holds the sheet and the annotations, and owns every write to disk."""
 
@@ -150,6 +154,7 @@ class Session:
         self.sheet_path = self.dir / "annotation_sheet.jsonl"
         self.output_path = self.dir / "completed.jsonl"
         self.integrity_path = self.dir / ".sheet_integrity.json"
+        self.locked_path = self.dir / ".locked_ids.json"
         self._lock = threading.Lock()
 
         if not self.sheet_path.exists():
@@ -163,6 +168,7 @@ class Session:
 
         self._record_integrity()
         self.annotations = self._load_existing()
+        self.locked = self._load_locked()
 
     def _record_integrity(self) -> None:
         """Remember the sheet's checksum the first time we see it.
@@ -203,7 +209,38 @@ class Session:
             }
         return annotations
 
-    def save(self, unit_id: str, label: str, confidence: str, notes: str) -> dict:
+    def _load_locked(self) -> set[str]:
+        """Ids carried in from an earlier pass, protected from a stray keystroke.
+
+        A locked unit can be read and navigated to like any other; it just
+        cannot be overwritten unless the caller says so explicitly. Missing
+        file means nothing is locked, which is the state of a fresh package.
+        """
+        if not self.locked_path.exists():
+            return set()
+        try:
+            stored = json.loads(self.locked_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            return set()
+        ids = stored.get("annotation_ids", []) if isinstance(stored, dict) else stored
+        return {i for i in ids if i in self.by_id and i in self.annotations}
+
+    def _write_locked(self) -> None:
+        self.locked_path.write_text(
+            json.dumps(
+                {
+                    "note": "Annotations protected from accidental overwrite. "
+                            "Editing one through the interface requires an explicit "
+                            "unlock and removes it from this list.",
+                    "annotation_ids": sorted(self.locked),
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
+
+    def save(self, unit_id: str, label: str, confidence: str, notes: str,
+             unlock: bool = False) -> dict:
         """Record one annotation and flush the whole file to disk."""
         if unit_id not in self.by_id:
             raise KeyError(f"unknown annotation_id {unit_id!r}")
@@ -215,6 +252,14 @@ class Session:
             raise ValueError(f"{confidence!r} is not one of {ALLOWED_CONFIDENCE}")
 
         with self._lock:
+            if unit_id in self.locked:
+                if not unlock:
+                    raise LockedAnnotation(
+                        f"{unit_id} carries an existing annotation and is locked. "
+                        "Unlock it first if you really mean to change it."
+                    )
+                self.locked.discard(unit_id)
+                self._write_locked()
             if label:
                 self.annotations[unit_id] = {
                     "human_label": label,
@@ -226,7 +271,8 @@ class Session:
                 self.annotations.pop(unit_id, None)
             self._flush()
         return {"annotation_id": unit_id, "saved": bool(label),
-                "n_done": len(self.annotations), "n_total": len(self.units)}
+                "n_done": len(self.annotations), "n_total": len(self.units),
+                "locked": sorted(self.locked)}
 
     def _flush(self) -> None:
         """Write every unit, atomically.
@@ -262,6 +308,7 @@ class Session:
             "allowed_confidence": ALLOWED_CONFIDENCE,
             "units": [visible_unit(self.by_id[i]) for i in self.order],
             "annotations": self.annotations,
+            "locked": sorted(self.locked),
             "output_path": str(self.output_path),
         }
 
@@ -303,7 +350,11 @@ class Handler(BaseHTTPRequestHandler):
                 payload.get("human_label", ""),
                 payload.get("human_confidence", ""),
                 payload.get("human_notes", ""),
+                unlock=bool(payload.get("unlock")),
             )
+        except LockedAnnotation as exc:
+            self._json(409, {"error": str(exc), "locked": True})
+            return
         except (KeyError, ValueError, json.JSONDecodeError) as exc:
             self._json(400, {"error": str(exc)})
             return
@@ -381,6 +432,12 @@ PAGE = r"""<!doctype html>
             color:var(--muted); background:#fff; cursor:pointer; }
   .grid a.done { background:#e7f5ec; border-color:#bfe0cd; color:var(--good); }
   .grid a.cur { outline:2px solid var(--accent); outline-offset:1px; }
+  .grid a.locked { background:#eef1f6; border-color:#c3ccda; color:#5b6270; }
+  .pill.prog { font-variant-numeric:tabular-nums; font-weight:650; }
+  .locked-banner { display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+                   background:#eef1f6; border:1px solid #c3ccda; border-radius:8px;
+                   padding:9px 11px; margin-bottom:10px; font-size:12.5px; }
+  .locked-banner b { color:var(--ink); }
   .warn { color:var(--warn); font-size:12.5px; }
   .hint { color:var(--muted); font-size:12.5px; }
   .unans { background:#fdf7ef; border-color:#f0dcc0; }
@@ -389,6 +446,7 @@ PAGE = r"""<!doctype html>
 <body>
 <header>
   <h1>TrustRAG annotation — annotator <span id="who"></span></h1>
+  <span class="pill prog" id="prog"></span>
   <span class="pill" id="pos"></span>
   <span class="pill done" id="done"></span>
   <span class="pill todo" id="todo"></span>
@@ -416,6 +474,10 @@ PAGE = r"""<!doctype html>
   <div class="card">
     <h2>Your label <span class="hint">— exactly one, per docs/ANNOTATION_GUIDELINES.md</span></h2>
     <div id="labels"></div>
+    <div class="locked-banner" id="lockedBanner" style="display:none">
+      <span>🔒 <b>Existing annotation.</b> Carried in from an earlier pass and
+        protected, so a stray keystroke cannot change it. Read it freely.</span>
+      <button id="unlock">Unlock to edit this one</button></div>
     <p class="warn" id="labelWarn" style="display:none">
       No label chosen yet. Nothing is saved until you pick one.</p>
   </div>
@@ -428,12 +490,14 @@ PAGE = r"""<!doctype html>
      confidence · <kbd>←</kbd>/<kbd>→</kbd> move · <kbd>Enter</kbd> next unlabelled.</p>
 </main>
 <script>
-let S=null, i=0, KEYMAP=[];
+let S=null, i=0, KEYMAP=[], LOCKED=new Set();
+const isLocked = id => LOCKED.has(id);
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 
 async function boot(){
   S = await (await fetch('/api/state')).json();
+  LOCKED = new Set(S.locked || []);
   $('who').textContent = S.annotator.toUpperCase();
   $('out').textContent = S.output_path;
   buildLabels(); buildConf(); buildGrid();
@@ -507,6 +571,7 @@ function render(){
   const u = cur(), a = ann();
   $('pos').textContent = `unit ${i+1} of ${S.units.length}`;
   const done = Object.keys(S.annotations).length;
+  $('prog').textContent = `${done} / ${S.units.length}`;
   $('done').textContent = `${done} labelled`;
   $('todo').textContent = `${S.units.length-done} remaining`;
   $('aid').textContent = u.annotation_id;
@@ -532,19 +597,30 @@ function render(){
   $('conf').querySelectorAll('button').forEach(b=>
     b.classList.toggle('sel', !!a && a.human_confidence===b.dataset.c));
   $('notes').value = a ? a.human_notes : '';
+  const locked = isLocked(u.annotation_id);
+  $('lockedBanner').style.display = locked ? 'flex' : 'none';
+  $('notes').readOnly = locked;
   $('labelWarn').style.display = a ? 'none' : 'block';
   $('prev').disabled = i===0; $('next').disabled = i===S.units.length-1;
   $('grid').querySelectorAll('a').forEach((el,n)=>{
     el.classList.toggle('done', !!S.annotations[S.units[n].annotation_id]);
+    el.classList.toggle('locked', isLocked(S.units[n].annotation_id));
     el.classList.toggle('cur', n===i);
   });
 }
-async function save(label, conf, notes){
-  const body = {annotation_id: cur().annotation_id, human_label: label,
-                human_confidence: conf, human_notes: notes};
+async function save(label, conf, notes, unlock){
+  const id = cur().annotation_id;
+  if(isLocked(id) && !unlock){
+    alert('This unit is locked because it already carries an annotation. '
+        + 'Use the "Unlock to edit this one" button if you really mean to change it.');
+    return;
+  }
+  const body = {annotation_id: id, human_label: label,
+                human_confidence: conf, human_notes: notes, unlock: !!unlock};
   const r = await fetch('/api/save', {method:'POST',
     headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
   if(!r.ok){ alert('Not saved: ' + (await r.json()).error); return; }
+  LOCKED.delete(id);
   if(label) S.annotations[cur().annotation_id] = {human_label:label,
       human_confidence:conf, human_notes:notes};
   else delete S.annotations[cur().annotation_id];
@@ -564,6 +640,12 @@ $('notes').addEventListener('blur', ()=>{
   if(a && a.human_notes !== $('notes').value)
     save(a.human_label, a.human_confidence, $('notes').value);
 });
+$('unlock').onclick=()=>{
+  const a = ann(); if(!a) return;
+  if(!confirm('Unlock ' + cur().annotation_id + ' so it can be edited? '
+            + 'Its current label stays until you change it.')) return;
+  save(a.human_label, a.human_confidence, a.human_notes, true);
+};
 $('prev').onclick=()=>{ if(i>0){i--; render(); window.scrollTo(0,0);} };
 $('next').onclick=()=>{ if(i<S.units.length-1){i++; render(); window.scrollTo(0,0);} };
 $('nextTodo').onclick=()=>{

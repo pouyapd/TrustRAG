@@ -18,6 +18,7 @@ Every test runs against a temporary copy of a package. The real
 a synthetic label landing in the real file would silently contaminate the study.
 """
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -28,8 +29,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from scripts.annotate import (  # noqa: E402
     ALLOWED_CONFIDENCE,
     ALLOWED_LABELS,
+    PAGE,
     WITHHELD_FILENAME,
     BlindingError,
+    LockedAnnotation,
     Session,
     guard_path,
     read_jsonl,
@@ -382,3 +385,90 @@ class TestLabelLayout:
         from scripts.annotate import LABEL_GROUPS
 
         assert sum(len(labels) for _, labels in LABEL_GROUPS) <= 9
+
+
+class TestLockedAnnotations:
+    """Labels carried in from an earlier pass must survive a stray keystroke."""
+
+    def _seeded(self, package):
+        """A session whose first unit is already labelled, and locked."""
+        session = Session(package, "a")
+        session.save("unit_0000", "ok", "high", "carried in")
+        (package / "annotator_a" / ".locked_ids.json").write_text(
+            json.dumps({"annotation_ids": ["unit_0000"]}), encoding="utf-8"
+        )
+        return Session(package, "a")
+
+    def test_locked_ids_are_loaded_from_disk(self, package):
+        assert self._seeded(package).locked == {"unit_0000"}
+
+    def test_a_locked_unit_refuses_a_plain_write(self, package):
+        session = self._seeded(package)
+        with pytest.raises(LockedAnnotation):
+            session.save("unit_0000", "hallucination", "low", "misclick")
+        assert session.annotations["unit_0000"]["human_label"] == "ok"
+
+    def test_the_label_on_disk_is_unchanged_after_a_refused_write(self, package):
+        session = self._seeded(package)
+        with pytest.raises(LockedAnnotation):
+            session.save("unit_0000", "hallucination", "low", "misclick")
+        rows = {r["annotation_id"]: r for r in read_jsonl(session.output_path)}
+        assert rows["unit_0000"]["human_label"] == "ok"
+        assert rows["unit_0000"]["human_notes"] == "carried in"
+
+    def test_an_explicit_unlock_lets_the_edit_through(self, package):
+        session = self._seeded(package)
+        session.save("unit_0000", "incorrect_answer", "medium", "reviewed", unlock=True)
+        assert session.annotations["unit_0000"]["human_label"] == "incorrect_answer"
+
+    def test_unlocking_is_recorded_so_it_does_not_relock(self, package):
+        session = self._seeded(package)
+        session.save("unit_0000", "incorrect_answer", "medium", "reviewed", unlock=True)
+        assert Session(package, "a").locked == set()
+
+    def test_unlocked_units_are_unaffected(self, package):
+        session = self._seeded(package)
+        session.save("unit_0001", "wrong_retrieval", "high", "new work")
+        assert session.annotations["unit_0001"]["human_label"] == "wrong_retrieval"
+
+    def test_progress_counts_the_carried_labels(self, package):
+        session = self._seeded(package)
+        result = session.save("unit_0001", "ok", "high", "")
+        assert (result["n_done"], result["n_total"]) == (2, 5)
+
+    def test_the_served_state_tells_the_page_what_is_locked(self, package):
+        assert self._seeded(package).state()["locked"] == ["unit_0000"]
+
+    def test_a_session_resumes_where_it_left_off(self, package):
+        """Closing and reopening must not lose or duplicate work."""
+        session = self._seeded(package)
+        session.save("unit_0001", "ok", "high", "")
+        session.save("unit_0002", "partial_answer", "low", "")
+        reopened = Session(package, "a")
+        assert len(reopened.annotations) == 3
+        assert reopened.annotations["unit_0002"]["human_label"] == "partial_answer"
+
+
+class TestPageScriptIsParseable:
+    """A string literal broken across lines is a SyntaxError that silently
+    discards the whole <script> block, leaving a page that loads but does
+    nothing. It happened once; this catches it without a browser."""
+
+    def _script(self) -> str:
+        return PAGE.split("<script>", 1)[1].split("</script>", 1)[0]
+
+    def test_no_line_leaves_a_string_literal_open(self):
+        offenders = []
+        for number, line in enumerate(self._script().split("\n"), start=1):
+            if line.lstrip().startswith("//"):
+                continue
+            code = re.sub(r"\.", "", line)
+            for quote in ("'", '"', "`"):
+                if code.count(quote) % 2:
+                    offenders.append((number, quote, line.strip()[:60]))
+        assert offenders == []
+
+    def test_the_script_block_is_present_and_calls_boot(self):
+        script = self._script()
+        assert "async function boot()" in script
+        assert script.rstrip().endswith("boot();")
