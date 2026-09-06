@@ -20,11 +20,11 @@ can its own gold standard be trusted?**
 
 ![Both retrieval gates scored against the final human-reviewed labels](results/figures/human_validation.png)
 
-**Three verified findings.**
+**Three findings — including one we withdrew.**
 
 | | Result |
 |---|---|
-| **The definition can invert a system comparison** | On QASPER, BM25 retrieves relevant *documents* more often than a dense retriever (0.528 vs 0.441) and gold *spans* less often (0.183 vs 0.276; paired 52 vs 25, *p* = 0.003). The two metrics recommend different retrievers. |
+| **A result we reported and then withdrew** | We claimed the document/span choice inverts the BM25-vs-dense ranking. It does not — the finding was an evidence-mode bug in our own baseline. Corrected, BM25 leads at *both* granularities on QASPER (0.528/0.321 vs 0.441/0.276) and dense leads at both on NQ and HotpotQA, across 5 depths and 3 chunk sizes. Reported in full in [§5.1](docs/paper/paper.md). |
 | **Evidence-gating agrees better with humans — for retrieval attribution only** | Against 200 human-reviewed labels: accuracy **0.700 vs 0.600**, κ **0.437 vs 0.375**, paired **22 vs 2**, exact McNemar *p* < 0.0001. But only the retrieval classes are reliable: `wrong_retrieval` F1 0.907 against `ok` recall 0.094. |
 | **The span-based gold standard is incomplete** | On units the span rule calls retrieval failures, two independent proxies agree the answer is present in the retrieved text in **7.5%** of cases, and disagree on a further **65%** that no automated signal resolves. |
 
@@ -98,14 +98,21 @@ Taxonomy: [docs/TAXONOMY.md](docs/TAXONOMY.md)
 
 ![A/B/C decomposition across corpora](results/figures/abc_decomposition.png)
 
-### The definition can invert a retriever comparison
+### A withdrawn result: no retriever-ranking inversion
 
 ![Dense vs BM25 under both definitions](results/figures/bm25_vs_dense.png)
 
-Same chunks, same questions, same depth. On QASPER a document-level evaluation
-recommends BM25 and a span-level evaluation recommends the dense retriever,
-significantly. Observed on one of three corpora — the claim is that inversion is
-*possible*, not that it is general.
+An earlier version of this README claimed the document/span choice reverses the
+BM25-vs-dense comparison. **It was an artefact of our own bug**: QASPER declares
+`any_sufficient` evidence mode, the BM25 baseline hard-coded `all_required`, and 51% of
+QASPER questions carry more than one span — so BM25's span coverage was under-reported
+(0.183 instead of 0.321) against a dense pipeline using the correct mode.
+
+Corrected, **no inversion occurs on any corpus**: BM25 leads at both granularities on
+QASPER (paired 40 vs 27, p = 0.142, n.s.), dense leads at both on NQ (53 vs 27,
+p = 0.0049) and HotpotQA. Stable across k = 1…20 and chunk sizes 128/256/512.
+Conditional on reaching a gold document, the two retrievers localise the span equally
+well (60.8% vs 62.5%), which is why an inversion was implausible.
 
 ### Oracle-evidence control (a replication)
 

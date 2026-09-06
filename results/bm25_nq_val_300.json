@@ -3,6 +3,9 @@
   "split": "validation",
   "retriever": "BM25 (Okapi, k1=1.5, b=0.75), implemented in this script",
   "n_answerable": 300,
+  "evidence_modes": {
+    "any_sufficient": 300
+  },
   "top_k": 5,
   "chunking": {
     "size": 256,

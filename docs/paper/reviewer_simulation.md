@@ -1,3 +1,11 @@
+> **Post-hoc note (added after the audit that followed this simulation).** Reviewer A's
+> and Reviewer B's concerns about the retriever-ranking inversion were, if anything,
+> understated. A later audit found the inversion was an artefact of an evidence-mode
+> defect in our own BM25 baseline and **withdrew it entirely** (see `paper.md` §5.1).
+> Every mention of the inversion below as a "strength" or "concrete finding" is
+> superseded. The simulation is kept unedited as a record of what the reviews said
+> before the defect was found.
+
 # Reviewer simulation
 
 Three adversarial reads of `paper.md`, written to find grounds for rejection rather
@@ -15,8 +23,9 @@ gold standard.
 
 **Strengths.** The honesty is unusual and genuinely useful: the authors replicate a
 published result and say so, quantify the limits of their own instrument, and report a
-human validation that contradicts their earlier automated numbers. The
-retriever-ranking inversion is a concrete, actionable finding. The two-gate design
+human validation that contradicts their earlier automated numbers. ~~The
+retriever-ranking inversion is a concrete, actionable finding.~~ *(withdrawn — see note
+above)* The two-gate design
 (identical run, one boolean changed) is clean and cheap.
 
 **Major concerns.**
@@ -50,7 +59,9 @@ workshop or short paper, on the strength of the negative results.
 lexical baseline, and reports an inversion in system ranking.
 
 **Strengths.** The BM25 comparison is the right control and was run properly: same
-chunks, same depth, same questions, paired test. The A/B/C decomposition cleanly
+chunks, same depth, same questions, paired test. *(It was not run properly: the
+evidence mode differed between baseline and system. The audit caught it; this reviewer
+did not.)* The A/B/C decomposition cleanly
 separates the multi-hop quantifier effect from the long-document granularity effect,
 and the orthogonality across corpora is convincing.
 
