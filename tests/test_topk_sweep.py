@@ -173,21 +173,32 @@ class TestWhyTheSweepRetrievesNatively:
         return store
 
     def test_near_ties_can_reorder_with_requested_depth(self, tmp_path):
-        """A corpus of near-identical vectors: the prefix property fails here."""
+        """A corpus of near-identical vectors: the prefix property fails here.
+
+        Whether any single index exhibits the reordering is itself approximate --
+        HNSW graph construction is randomised, so one build may happen to agree with
+        itself at every depth. Several independent indices are built and the property
+        is asserted over their union; a single build made this test flaky.
+        """
         n = 40
-        store = self._store(
-            tmp_path, [" ".join(["alpha"] * (i + 1) + ["beta"] * (n - i)) for i in range(n)]
-        )
         disagreements = 0
-        for query in ("alpha", "beta", "alpha beta"):
-            deep = [r.chunk_id for r in store.search(query, top_k=20)]
-            for k in (1, 3, 5, 10):
-                if [r.chunk_id for r in store.search(query, top_k=k)] != deep[:k]:
-                    disagreements += 1
-        store.reset()
+        for build in range(5):
+            store = self._store(
+                tmp_path / f"build_{build}",
+                [" ".join(["alpha"] * (i + 1) + ["beta"] * (n - i)) for i in range(n)],
+            )
+            for query in ("alpha", "beta", "alpha beta"):
+                deep = [r.chunk_id for r in store.search(query, top_k=20)]
+                for k in (1, 3, 5, 10):
+                    if [r.chunk_id for r in store.search(query, top_k=k)] != deep[:k]:
+                        disagreements += 1
+            store.reset()
+            if disagreements:
+                break
         assert disagreements > 0, (
             "expected the approximate index to disagree with its own deeper ranking "
-            "on a near-tied corpus; if this now holds, truncation could be revisited"
+            "on a near-tied corpus, over 5 independent builds; if this now holds, "
+            "truncation could be revisited"
         )
 
     def test_scores_are_non_increasing_within_one_query(self, tmp_path):
