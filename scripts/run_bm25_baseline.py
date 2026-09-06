@@ -67,18 +67,26 @@ class BM25:
         return sorted(range(self.n), key=lambda i: scores[i], reverse=True)[:k]
 
 
-def covered(spans, chunks) -> bool:
-    """Every gold span overlapped by some retrieved chunk from the same document."""
+def covered(spans, chunks, mode: str) -> bool:
+    """Gold-span coverage under the question's own evidence mode.
+
+    `any_sufficient` (single-hop corpora) needs one covered span; `all_required`
+    (multi-hop) needs every one. Applying the wrong mode here silently changes what
+    is measured -- an earlier version of this script hard-coded `all_required` and
+    therefore under-reported span coverage on QASPER and NQ, where 51% of questions
+    carry more than one span.
+    """
+    hits = []
     for span in spans:
-        hit = False
-        for c in chunks:
-            if c.doc_id == span.doc_id and min(span.end_char, c.end_char) - max(
-                    span.start_char, c.start_char) > 0:
-                hit = True
-                break
-        if not hit:
-            return False
-    return True
+        hit = any(
+            c.doc_id == span.doc_id
+            and min(span.end_char, c.end_char) - max(span.start_char, c.start_char) > 0
+            for c in chunks
+        )
+        hits.append(hit)
+    if not hits:
+        return False
+    return all(hits) if mode == "all_required" else any(hits)
 
 
 def main() -> int:
@@ -113,16 +121,19 @@ def main() -> int:
     answerable = [q for q in loaded.questions if q.is_answerable]
     a_hits = b_hits = c_hits = 0
     per_question = {}
+    modes = []
     for n, q in enumerate(answerable, 1):
         picked = [chunks[i] for i in index.top_k(tokenize(q.question), args.top_k)]
         relevant = set(q.relevant_doc_ids)
         retrieved_docs = {c.doc_id for c in picked}
         a = bool(relevant & retrieved_docs)
         b = relevant.issubset(retrieved_docs)
-        c = covered(q.supporting_spans, picked)
+        mode = str(getattr(q, "evidence_mode", "") or "any_sufficient")
+        c = covered(q.supporting_spans, picked, mode)
         a_hits += a
         b_hits += b
         c_hits += c
+        modes.append(mode)
         per_question[q.question_id] = {"A": a, "B": b, "C": c}
         if n % 50 == 0:
             print(f"  {n}/{len(answerable)}")
@@ -133,6 +144,7 @@ def main() -> int:
         "split": args.split,
         "retriever": "BM25 (Okapi, k1=1.5, b=0.75), implemented in this script",
         "n_answerable": n,
+        "evidence_modes": dict(Counter(modes)),
         "top_k": args.top_k,
         "chunking": {"size": args.chunk_size, "overlap": args.chunk_overlap},
         "corpus": {"documents": stats.n_documents, "chunks": stats.n_chunks,

@@ -7,9 +7,10 @@ indicative rather than verified for the current cycle.
 
 ## What we are placing
 
-A measurement-validity study, not a new method. Its assets are a retriever-ranking
-inversion, a human-validated attribution comparison, an honest replication, and two
-negative results about the instrument itself. Its liabilities are that the core
+A measurement-validity study, not a new method. Its assets are a human-validated
+attribution comparison, an honest replication, and three negative results about the
+instrument itself — including the withdrawal of a retriever-ranking inversion we had
+reported and then found to be our own measurement artefact. Its liabilities are that the core
 premise is prior art, the human study has one annotator and no inter-annotator
 agreement, and the retrieval baselines are two (dense + BM25) with no reranker or
 hybrid.
@@ -37,9 +38,10 @@ the measurement breaks" is a feature rather than a weakness. To be credible ther
 add: a second annotator, a reranker or hybrid baseline, and the entailment
 adjudication of the 87 unresolved gold-span units.
 
-**Realistic — ECIR short paper or ACL/EMNLP Findings.** The retriever-ranking
-inversion plus the gold-span under-coverage analysis is enough for a 4–6 page
-contribution as it stands. This is where the work is publishable *today*, with the
+**Realistic — ECIR short paper or ACL/EMNLP Findings.** The human-validated gate
+comparison plus the gold-span under-coverage analysis is enough for a 4–6 page
+contribution as it stands, though the withdrawal of the inversion removes what had
+been the most eye-catching result. This is where the work is publishable *today*, with the
 limitations section intact.
 
 **Safe — a trustworthy-NLP or evaluation workshop.** Accepts the current empirical

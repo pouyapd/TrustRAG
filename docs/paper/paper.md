@@ -15,10 +15,11 @@ evidence evaluation actually buy, what does it cost, and how far can its own gol
 standard be trusted? Using four public QA corpora, a dense and a lexical retriever,
 a nine-category failure taxonomy computed under two interchangeable retrieval gates,
 and a 200-unit human annotation study with a second review pass, we report three
-results. First, the choice of definition can invert a system comparison: on QASPER,
-BM25 retrieves relevant documents more often than a dense retriever (0.528 vs 0.441)
-and gold spans less often (0.183 vs 0.276; paired, 52 vs 25, p = 0.003), so the two
-metrics recommend different retrievers. Second, gating failure attribution on
+results. First, a retriever-ranking inversion we initially reported does not exist: it
+was an artefact of an evidence-mode defect in our own BM25 baseline, and with the
+defect fixed BM25 leads the dense retriever at *both* granularities on QASPER
+(0.528/0.321 vs 0.441/0.276), with no significant inversion on any corpus, retrieval
+depth or chunk size we tested. Second, gating failure attribution on
 span-level evidence agrees with human judgement better than gating on document-level
 retrieval (accuracy 0.700 vs 0.600, κ 0.437 vs 0.375; paired 22 vs 2,
 p < 0.0001), but only the retrieval-side categories are reliable — generation-side
@@ -45,8 +46,9 @@ from it, and we report where the span-level alternative itself breaks down.
 
 **Contributions.**
 
-1. A demonstration that the document/span choice can **reverse a retriever
-   comparison**, not merely change a number (§5.1).
+1. A negative result: the document/span choice does **not** reverse retriever
+   comparisons in any configuration we tested, contradicting our own earlier
+   report and correcting it (§5.1).
 2. A human-validated measurement of how the choice of retrieval gate re-assigns
    failures across a taxonomy, with an explicit account of which categories the
    validation covers and which it does not (§7).
@@ -129,21 +131,44 @@ control; §6 uses Qwen2.5-0.5B-Instruct.
 The two effects are near-orthogonal: each is null on the corpus where the other
 dominates.
 
-### 5.1 The definition can invert a retriever comparison
+### 5.1 A retriever-ranking inversion that turned out not to exist
 
-Same chunks, same questions, same depth, BM25 against the dense retriever:
+An earlier version of this work reported that the document/span choice reverses the
+BM25-versus-dense comparison on QASPER, and made that the headline contribution. **It
+was an artefact of a defect in our own BM25 baseline**, found during a later audit and
+corrected here.
+
+The defect: QASPER and Natural Questions declare `any_sufficient` evidence mode — one
+covered gold span suffices — but the BM25 script hard-coded `all_required`, demanding
+every span. On QASPER 51% of questions carry more than one span, so BM25's span
+coverage was systematically under-reported (0.183 instead of 0.321) while the dense
+pipeline used the correct mode. The comparison was not like-for-like.
+
+With the evidence mode applied consistently:
 
 | Corpus | A dense | A BM25 | C dense | C BM25 | paired at span level |
 |---|---:|---:|---:|---:|---|
-| QASPER dev | 0.441 | **0.528** | **0.276** | 0.183 | dense 52 vs BM25 25, p = 0.0028 |
+| QASPER dev | 0.441 | **0.528** | 0.276 | **0.321** | BM25 40 vs dense 27, p = 0.142 (n.s.) |
 | Natural Questions | **0.997** | 0.977 | **0.730** | 0.643 | dense 53 vs BM25 27, p = 0.0049 |
 | HotpotQA | **0.993** | 0.927 | **0.507** | 0.420 | dense 36 vs BM25 23, p = 0.118 (n.s.) |
 
-**On QASPER the ranking inverts.** A document-level evaluation recommends BM25; a
-span-level evaluation recommends the dense retriever, significantly. This is the
-result we consider most useful: it converts "the metrics differ" into "the metrics
-disagree about which system to deploy". It occurs on one of three corpora, so the
-claim is that inversion is *possible* and was observed, not that it is general.
+**No inversion occurs on any corpus.** On QASPER BM25 leads at both granularities; on
+NQ and HotpotQA the dense retriever leads at both. We further checked five retrieval
+depths (k = 1, 3, 5, 10, 20) and three chunk sizes (128/256/512) on QASPER: the
+ordering is stable in all eight configurations, with BM25 ahead at both levels every
+time.
+
+A within-document diagnostic explains why an inversion was implausible to begin with.
+Conditional on reaching a gold document, BM25 covers the span 60.8% of the time
+(93/153) and the dense retriever 62.5% (80/128) — statistically indistinguishable
+localisation. The retrievers differ in how often they reach the right document, not in
+where they land inside it, so the two granularities rank them the same way.
+
+We report this at length because the erroneous version was published to the repository
+and because the failure mode is instructive: an evidence-mode mismatch between a
+baseline and the system it is compared against is invisible in aggregate numbers and
+changes the headline conclusion. The regression guard is now in the script's own
+docstring and the evidence-mode distribution is recorded in every output file.
 
 ## 6. Oracle-evidence control (replication)
 

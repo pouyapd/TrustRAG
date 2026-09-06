@@ -69,12 +69,12 @@ Stated conservatively. None of these is claimed as novel without the caveat atta
    span", and showing the two gaps are close to orthogonal — each near-null on the
    corpus where the other dominates. I did not find this decomposition stated as
    such. It is a modest analytical contribution, not a discovery.
-2. **A retriever-ranking inversion.** On QASPER, BM25 beats dense retrieval at
-   document level (A = 0.528 vs 0.441) and loses to it at span level
-   (C = 0.183 vs 0.276; paired, 52 vs 25, p = 0.0028). The choice of definition
-   changes which retriever you would select. Prior work quantifies the *gap*; I did
-   not find a demonstration that it **reverses a system comparison**. This is the
-   strongest surviving contribution.
+2. ~~**A retriever-ranking inversion.**~~ **Withdrawn.** This was reported as the
+   strongest surviving contribution and was wrong: an evidence-mode mismatch in the
+   BM25 baseline under-reported its span coverage. Corrected, BM25 leads at both
+   granularities on QASPER and the dense retriever leads at both on NQ and HotpotQA,
+   across five depths and three chunk sizes. See `paper.md` §5.1. The negative result
+   is retained and reported; it is not a contribution.
 3. **Attribution shift measured through a taxonomy and checked against human
    labels.** Prior work shows retrieval is under-credited; TrustRAG measures how the
    choice of gate re-assigns blame across failure categories, and validates that

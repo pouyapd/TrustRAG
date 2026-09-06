@@ -6,7 +6,7 @@
   "evidence_modes": {
     "any_sufficient": 290
   },
-  "top_k": 5,
+  "top_k": 3,
   "chunking": {
     "size": 256,
     "overlap": 32
@@ -17,15 +17,15 @@
     "offset_mismatches": 0
   },
   "conditions": {
-    "A_document_any": 0.5276,
-    "B_document_quantified": 0.5276,
-    "C_span_quantified": 0.3207
+    "A_document_any": 0.4966,
+    "B_document_quantified": 0.4966,
+    "C_span_quantified": 0.2483
   },
   "confidence_intervals": {
     "A_document_any": {
-      "point": 0.5275862068965518,
-      "lower": 0.47014237734389297,
-      "upper": 0.5843087544474294,
+      "point": 0.496551724137931,
+      "lower": 0.43942901915568017,
+      "upper": 0.5537645893704045,
       "n": 290,
       "method": "wilson",
       "confidence": 0.95,
@@ -33,9 +33,9 @@
       "note": "n=290"
     },
     "B_document_quantified": {
-      "point": 0.5275862068965518,
-      "lower": 0.47014237734389297,
-      "upper": 0.5843087544474294,
+      "point": 0.496551724137931,
+      "lower": 0.43942901915568017,
+      "upper": 0.5537645893704045,
       "n": 290,
       "method": "wilson",
       "confidence": 0.95,
@@ -43,9 +43,9 @@
       "note": "n=290"
     },
     "C_span_quantified": {
-      "point": 0.32068965517241377,
-      "lower": 0.2696159325146303,
-      "upper": 0.37645171084177514,
+      "point": 0.2482758620689655,
+      "lower": 0.20206163472007177,
+      "upper": 0.3010717876841129,
       "n": 290,
       "method": "wilson",
       "confidence": 0.95,
@@ -55,20 +55,6 @@
   },
   "gaps_pp": {
     "quantifier_A_to_B": 0.0,
-    "granularity_B_to_C": 20.7
-  },
-  "paired_vs_dense": {
-    "n": 290,
-    "only_bm25_span_hit": 40,
-    "only_dense_span_hit": 27,
-    "test": {
-      "statistic": 13.0,
-      "p_value": 0.14207137942637568,
-      "effect": 0.19402985074626866,
-      "n": 67,
-      "method": "mcnemar_exact",
-      "sufficient": true,
-      "note": "67 discordant pairs"
-    }
+    "granularity_B_to_C": 24.8
   }
 }
