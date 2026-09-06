@@ -24,7 +24,6 @@ import hashlib
 import json
 import random
 import textwrap
-from collections import Counter
 from datetime import UTC, datetime
 from pathlib import Path
 
