@@ -130,6 +130,11 @@ therefore a comparison between a coarse rule (document-level) and a rule that is
 sharper but biased in a known direction. It is not a comparison against a clean
 oracle.
 
+> **Superseded (2026-09-07).** A stratified human adjudication of 60 of the 87
+> unresolved units now estimates under-coverage at **0.119, 95% CI [0.096, 0.142]**,
+> defensibly 4–12% under sensitivity analysis. See `paper.md` §8. The lexical figure
+> below is retained as the record of what the proxy alone suggested.
+
 Token presence is not entailment, so 23.3% is an **upper bound** on how often the
 span rule is wrong, not a correction factor. A tighter estimate needs entailment
 annotation over those 133 units, which is human work that has not been done.

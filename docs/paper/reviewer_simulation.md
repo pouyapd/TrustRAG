@@ -75,8 +75,9 @@ and the orthogonality across corpora is convincing.
    **[FIXED]** — §5.1 now says explicitly that inversion is "possible and was
    observed, not general", and the table shows the two corpora where it does not occur.
 3. *Gold-span coverage as a retrieval metric is only as good as the annotation, and
-   QASPER's is sparse.* **[FIXED]** — this became §8, a whole section, with the
-   under-coverage bounded at 7.5–23%.
+   QASPER's is sparse.* **[FIXED]** — this became §8, a whole section; since this review, human
+   adjudication of 60 sampled units replaced the range with an estimate of
+   0.119 [0.096, 0.142].
 4. *k = 5 is shallow for a modern system.* **[ACCEPTED]** — a depth sweep exists
    (k = 1…20) and is cited; the human study is still k = 5 only.
 
@@ -109,8 +110,9 @@ checked, and this is done correctly. Sample sizes are stated everywhere.
 3. *The 7.5%–23% under-coverage range comes from two uncalibrated proxies with
    arbitrary thresholds (0.8 lexical, 0.60 cosine).* The range is not a confidence
    interval and should not read like one.
-   **[FIXED]** — §8 states the thresholds are conventions, gives the bucket counts
-   rather than a single figure, and says 65.4% is unresolved.
+   **[FIXED, and since resolved]** — 60 of the 87 unresolved units were adjudicated by
+   a human under a stratified design, giving 0.119 [0.096, 0.142] with a published
+   sensitivity analysis. This reviewer's objection is what prompted that study.
 4. *The oracle experiment lacks the sham control its own reference work used*, so
    context-length confounding is not excluded. **[ACCEPTED]** — stated; the
    complete-stratum comparison is offered as a weaker internal control.

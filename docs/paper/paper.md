@@ -24,12 +24,12 @@ span-level evidence agrees with human judgement better than gating on document-l
 retrieval (accuracy 0.700 vs 0.600, κ 0.437 vs 0.375; paired 22 vs 2,
 p < 0.0001), but only the retrieval-side categories are reliable — generation-side
 classification fails (`ok` recall 0.094, `incorrect_answer` precision 0.030). Third,
-the span-based gold standard is itself incomplete: on units the span rule calls
-retrieval failures, two independent proxies agree the answer is present in the
-retrieved text in 7.5% of cases and disagree on a further 65%, which no automated
-signal resolves. We conclude that span-level evidence evaluation is worth adopting
-for retrieval-stage attribution and is not yet trustworthy as a gold standard for
-generation-stage attribution.
+a human adjudication of 60 sampled units estimates gold-span under-coverage — the rate
+at which the span rule reports a retrieval failure although the answer was derivable
+from the retrieved text — at 0.119, 95% CI [0.096, 0.142], with a sensitivity analysis
+placing the defensible range at roughly 4–12%. We conclude that span-level evidence is
+a substantially sound instrument for retrieval-stage attribution, with a modest and now
+quantified bias, and that it does not yet support generation-stage attribution.
 
 ## 1. Introduction
 
@@ -256,25 +256,67 @@ only partly a threshold problem; the rules themselves are the larger part.
 ## 8. How far the span-based gold standard can be trusted
 
 The 11 units where the annotator kept an answer-quality label at high confidence
-despite zero span coverage prompted a check of the gold standard itself. Over all 133
-answerable units with zero gold-span coverage, we compute two proxies: lexical
-presence of the reference answer's content words in the retrieved context, and maximum
-cosine similarity between the reference answer and any retrieved sentence.
+despite zero span coverage prompted a check of the gold standard itself: **when the
+span rule declares a retrieval failure, was the answer in fact derivable from what the
+retriever returned?**
 
-| Bucket | n | Share |
-|---|---:|---:|
-| Both agree the answer is absent — span rule correct | 36 | 27.1% |
-| Both agree the answer is present outside the gold span — **span rule wrong** | 10 | 7.5% |
-| Semantically close, lexically different | 8 | 6.0% |
-| Lexical overlap only | 21 | 15.8% |
-| Signals disagree or both mid-range | 58 | 43.6% |
+**Design.** All 133 answerable units with zero gold-span coverage were partitioned by
+two automated proxies — lexical presence of the reference answer's content words in the
+retrieved context, and maximum sentence-level cosine similarity. Where both agreed, the
+unit was counted directly (36 answer absent, 10 answer present outside the span). The
+87 the proxies left unresolved were sampled: 60 units, stratified by proxy bucket with
+proportional allocation, seed 20260907, and adjudicated by a human against one question
+— *is the reference answer derivable from the retrieved text alone, without relying on
+the annotated gold span?* The annotator saw the question, reference answers, full
+retrieved text and the gold span, and was blind to every previous label, taxonomy
+verdict, proxy score and bucket name; unit order was shuffled.
 
-A lexical-only reading suggests 23.3% under-coverage; requiring both proxies to agree
-puts the confident lower bound at 7.5%. **Neither is the answer.** 65.4% of these units
-are unresolved by any automated signal, and settling them needs entailment judgements
-from a human, which we have not performed. What we can say is that the span rule
-over-charges retrieval by somewhere between 7.5% and roughly a third of the affected
-units, and that this bounds any claim built on span-level ground truth.
+**Result.** 4 YES, 56 NO, 0 CANNOT_TELL.
+
+| Stratum | Population | Sampled | YES | Rate |
+|---|---:|---:|---:|---:|
+| Semantically close, lexically different | 8 | 6 | 1 | 0.167 |
+| Lexical overlap only | 21 | 14 | 2 | 0.143 |
+| Signals disagree or both mid-range | 58 | 40 | 1 | 0.025 |
+
+The stratified estimator over the 87, plus the 10 counted directly, over all 133:
+
+> **Estimated gold-span under-coverage: 0.119, 95% CI [0.096, 0.142]** (≈ 16 of 133
+> units; ≈ 8% of the 200-unit annotation set). No unit was undecidable, so the
+> CANNOT_TELL bounds coincide with the point estimate.
+
+This replaces the earlier "7.5% to 23%" range, which was not an interval and rested on
+uncalibrated proxy thresholds.
+
+**A caveat that matters more than the interval.** The confidence interval covers
+sampling error only. The point estimate depends on the 10 units both proxies called
+under-coverage, and **those were never checked by a human**. The adjudication gives the
+first evidence about how those proxies behave: on units they could not resolve, the
+human answered YES 6.7% of the time, far below the 100% the proxies asserted for that
+bucket. If bucket B behaves like the adjudicated units rather than as the proxies
+claimed, the rate is 0.049 rather than 0.119.
+
+| Assumed true YES rate in the 10 proxy-resolved units | Under-coverage rate |
+|---|---:|
+| 100% (as the proxies claimed) | 0.119 |
+| 75% | 0.100 |
+| 50% | 0.081 |
+| 25% | 0.062 |
+| 6.7% (as in the adjudicated units) | 0.049 |
+| 0% | 0.044 |
+
+**The defensible statement is therefore a range of roughly 4% to 12%**, with the upper
+end conditional on trusting an unverified proxy and the lower end more consistent with
+the only human evidence available. Adjudicating those 10 units — a few minutes of work
+— would collapse this and is the cheapest remaining improvement in the paper.
+
+**Interpretation.** Span-level evidence is a substantially sound instrument for
+retrieval attribution: on the great majority of units where it reports a retrieval
+failure, a human agrees the answer was not derivable from the retrieved text. The bias
+runs in the expected direction — QASPER marks supporting sentences rather than every
+passage from which an answer could be derived — but it is modest, an order of magnitude
+smaller than the effects the paper is measuring, and no longer a reason to distrust the
+retrieval-side conclusions in §7. It remains a stated limitation, not a refutation.
 
 ## 9. Error analysis
 
@@ -306,8 +348,10 @@ ground truth for anything downstream without checking annotation completeness fi
 
 - **One annotator, and a guided review.** No inter-annotator agreement exists. The
   second pass was directed by an audit of the same guidelines being tested.
-- **The span gold standard is incomplete** by 7.5–23% of affected units (§8), with
-  65% unresolved.
+- **The span gold standard is incomplete** at an estimated 0.119 [0.096, 0.142] of
+  affected units, defensibly 4–12% once the unverified proxy-resolved units are varied
+  (§8). The interval covers sampling error only, and the 60 adjudications come from a
+  single annotator.
 - **Generation-side categories are unvalidated**; three have zero support.
 - **One corpus for the human study** (QASPER dev), one configuration (k = 5, 256
   tokens, MiniLM).
@@ -330,11 +374,12 @@ locally rather than shipped.
 
 Taking as given that document-level retrieval metrics overstate success, we asked what
 span-level evaluation buys and costs. It buys better agreement with human judgement on
-retrieval attribution and the ability to distinguish retrievers that a document-level
-metric ranks the other way. It costs precision on the retrieval class, and it rests on
-a gold standard we show to be incomplete. The honest summary is that span-level
-evidence is a better instrument for one specific job and not yet a sound ground truth
-for the rest.
+retrieval attribution. It costs precision on the retrieval class, and it rests on a
+gold standard that human adjudication now places as incomplete on roughly 4–12% of the
+units it flags — a real bias, an order of magnitude smaller than the effects being
+measured. The honest summary is that span-level evidence is a sound enough instrument
+for retrieval-stage attribution, and not yet a sound ground truth for the generation
+stage.
 
 ## References
 

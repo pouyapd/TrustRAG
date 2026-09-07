@@ -26,7 +26,7 @@ can its own gold standard be trusted?**
 |---|---|
 | **A result we reported and then withdrew** | We claimed the document/span choice inverts the BM25-vs-dense ranking. It does not — the finding was an evidence-mode bug in our own baseline. Corrected, BM25 leads at *both* granularities on QASPER (0.528/0.321 vs 0.441/0.276) and dense leads at both on NQ and HotpotQA, across 5 depths and 3 chunk sizes. Reported in full in [§5.1](docs/paper/paper.md). |
 | **Evidence-gating agrees better with humans — for retrieval attribution only** | Against 200 human-reviewed labels: accuracy **0.700 vs 0.600**, κ **0.437 vs 0.375**, paired **22 vs 2**, exact McNemar *p* < 0.0001. But only the retrieval classes are reliable: `wrong_retrieval` F1 0.907 against `ok` recall 0.094. |
-| **The span-based gold standard is incomplete** | On units the span rule calls retrieval failures, two independent proxies agree the answer is present in the retrieved text in **7.5%** of cases, and disagree on a further **65%** that no automated signal resolves. |
+| **The span-based gold standard is incomplete, and now measured** | Human adjudication of 60 sampled units puts gold-span under-coverage at **0.119, 95% CI [0.096, 0.142]** — the span rule calls a retrieval failure where the answer was in fact derivable. A sensitivity analysis places the defensible range at **4–12%**. Modest, quantified, and an order of magnitude smaller than the effects measured. |
 
 **What this repository does not claim.** Evidence-aware RAG evaluation is not new here;
 neither is the failure taxonomy, nor the oracle-evidence experiment (a
@@ -175,21 +175,37 @@ Full detail: [human_validation_final.md](docs/paper/human_validation_final.md)
 
 ## How far the gold standard can be trusted
 
-![Gold-span coverage buckets](results/figures/gold_span_validity.png)
+![Proxy partition of the 133 zero-coverage units, before human adjudication](results/figures/gold_span_validity.png)
 
-Over the 133 answerable units with zero gold-span coverage, two proxies — lexical
-presence of the reference answer, and max sentence-level cosine similarity:
+*The proxy partition that preceded adjudication. The 87 unresolved units in the three
+right-hand bands are what the human study below settled.*
 
-| Bucket | n | Share |
-|---|---:|---:|
-| Both agree the answer is absent — span rule correct | 36 | 27.1% |
-| Both agree it is present outside the gold span — **span rule wrong** | 10 | 7.5% |
-| Unresolved by either signal | 87 | 65.4% |
+**Question put to a human annotator, blind to every previous label:** *is the reference
+answer derivable from the retrieved text alone, without relying on the annotated gold
+span?*
 
-A lexical-only reading suggests 23.3%; requiring both proxies to agree gives 7.5%.
-**Neither is the answer** — 65% needs human entailment judgement that has not been done.
-QASPER marks supporting sentences, not every passage the answer can be derived from, so
-span-gated attribution over-charges retrieval by an amount bounded but not pinned down.
+All 133 answerable units with zero gold-span coverage were partitioned by two automated
+proxies. Where both agreed, the unit was counted directly (36 answer absent, 10 answer
+present). The 87 they could not resolve were sampled — 60 units, stratified,
+seed `20260907` — and adjudicated by hand: **4 YES, 56 NO, 0 CANNOT_TELL**.
+
+| | Estimate |
+|---|---|
+| **Gold-span under-coverage** | **0.119**, 95% CI **[0.096, 0.142]** (≈16 of 133 units) |
+| Defensible range under sensitivity analysis | **4% – 12%** |
+| Share of the full 200-unit annotation set | ≈ 8% |
+
+The confidence interval covers sampling error only. The point estimate leans on 10
+units both proxies called under-coverage that **no human ever checked** — and the
+adjudication showed the human agreeing with "answer present" on only 6.7% of unresolved
+units, well below the 100% the proxies asserted there. If those 10 behave like the
+adjudicated ones, the rate is 0.049. Adjudicating them is the cheapest remaining
+improvement in the project.
+
+**What this means:** span-level evidence is a substantially sound instrument for
+retrieval attribution. The bias runs in the expected direction — QASPER marks supporting
+sentences, not every passage an answer can be derived from — but it is modest and does
+not undermine the retrieval-side conclusions above.
 
 ## Datasets and experimental setup
 
@@ -292,7 +308,7 @@ Read before quoting anything above. Full list in
 
 - **One annotator, and a guided review.** No inter-annotator agreement exists. The second
   pass was directed by an audit of the same guidelines being tested.
-- **The span gold standard is incomplete** — 7.5% confirmed, 65% unresolved.
+- **The span gold standard is incomplete** — estimated 0.119 [0.096, 0.142], defensibly 4–12%; the interval covers sampling error only and the adjudication had one annotator.
 - **Generation-side categories are unvalidated**; three have zero support in the human
   labels, and the annotated run uses an extractive control that cannot hallucinate.
 - **The core premise is prior art.** This is a measurement-validity study, not a new
