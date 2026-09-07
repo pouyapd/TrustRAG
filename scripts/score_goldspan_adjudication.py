@@ -135,7 +135,34 @@ def main() -> int:
             "standard_error": round(se / total_units, 4),
         }
 
-    flat = [answers[i] for ids in strata.values() for i in ids]
+    # --- sensitivity to the census part ------------------------------------
+    # The 46 "resolved" units were settled by two uncalibrated proxies, not by a
+    # human. The 10 counted as under-coverage carry the point estimate, and the
+    # adjudication just gave us the first evidence about how those proxies behave:
+    # on units they could not resolve, the human agreed with "answer present" far
+    # less often than the proxies claimed for bucket B. That gap is a larger source
+    # of uncertainty than the sampling error, so it is reported rather than buried.
+    flat_all = [answers[i] for ids in strata.values() for i in ids]
+    decided = [a for a in flat_all if a != "CANNOT_TELL"]
+    human_yes_rate = (flat_all.count("YES") / len(decided)) if decided else 0.0
+    base_counts = {b: (v["population"], v["yes"] + v["no"], v["yes"])
+                   for b, v in per_stratum.items()}
+    est_unres, se_unres = stratified(base_counts)
+    half_unres = Z * se_unres / total_units
+    sensitivity = {}
+    for label, assumed in (("proxies_correct_100pct", 1.0), ("75pct", 0.75),
+                           ("50pct", 0.50), ("25pct", 0.25), ("proxies_wrong_0pct", 0.0),
+                           ("bucket_b_behaves_like_adjudicated_units", human_yes_rate)):
+        b = known_yes * assumed
+        rate = (b + est_unres) / total_units
+        sensitivity[label] = {
+            "assumed_yes_rate_in_bucket_B": round(assumed, 4),
+            "under_coverage_rate": round(rate, 4),
+            "ci95_sampling_error_only": [round(max(0.0, rate - half_unres), 4),
+                                         round(min(1.0, rate + half_unres), 4)],
+        }
+
+    flat = flat_all
     p, lo, hi = wilson(flat.count("YES"), len(flat) - flat.count("CANNOT_TELL")
                        if flat.count("CANNOT_TELL") < len(flat) else len(flat))
 
@@ -153,6 +180,13 @@ def main() -> int:
         "estimates": scenarios,
         "unstratified_check": {"sample_yes_rate_among_decidable": round(p, 4),
                                "wilson_ci95": [round(lo, 4), round(hi, 4)]},
+        "sensitivity_to_unverified_census_units": {
+            "what_varies": "the 10 units both proxies called under-coverage were never "
+                           "checked by a human; this varies their true rate",
+            "why_it_matters": "this uncertainty is larger than the sampling error and is "
+                              "not covered by the confidence intervals above",
+            "scenarios": sensitivity,
+        },
         "reporting_guidance":
             "Quote `cannot_tell_as_yes` and `cannot_tell_as_no` as bounds when the "
             "undecidable share exceeds ~10%; otherwise `decidable_only` with the "
@@ -166,6 +200,10 @@ def main() -> int:
     for name, s in scenarios.items():
         print(f"  {name:20} rate={s['under_coverage_rate']:.3f} "
               f"95% CI [{s['ci95'][0]:.3f}, {s['ci95'][1]:.3f}]")
+    print("")
+    print("  sensitivity to the 10 unverified proxy-resolved units:")
+    for label, sc in sensitivity.items():
+        print(f"    {label:42} rate={sc['under_coverage_rate']:.4f}")
     if args.out:
         Path(args.out).write_text(json.dumps(report, indent=2), encoding="utf-8")
         print(f"\nwrote {Path(args.out).as_posix()}")
