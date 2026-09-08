@@ -34,7 +34,7 @@ neither is the failure taxonomy, nor the oracle-evidence experiment (a
 against 32.8% published). See [literature_review.md](docs/paper/literature_review.md) for
 what is and is not novel.
 
-📄 **[Paper draft](docs/paper/paper.md)** · 🔬 **[Research overview PDF](docs/TrustRAG_Research_Overview.pdf)** · 📋 **[Reviewer simulation](docs/paper/reviewer_simulation.md)** · 🎯 **[Venue fit](docs/paper/venue_fit.md)**
+🔬 **[Research overview PDF](docs/TrustRAG_Research_Overview.pdf)** · 📋 **[Reviewer simulation](docs/paper/reviewer_simulation.md)** · 🎯 **[Venue fit](docs/paper/venue_fit.md)**
 
 ---
 
