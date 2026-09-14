@@ -36,3 +36,4 @@ reports/
 # Raw third-party corpora - never redistributed, fetched by scripts/fetch_datasets.py
 data/raw/
 data/build/
+manuscript_private/

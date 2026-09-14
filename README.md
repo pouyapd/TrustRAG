@@ -6,36 +6,72 @@
 ![Tests](https://img.shields.io/badge/tests-486%20passing-brightgreen)
 ![Coverage](https://img.shields.io/badge/coverage-80%25-green)
 
-**A measurement-validity study of span-level evidence evaluation for retrieval-augmented
-generation.** Document-level retrieval metrics ask *"did a chunk from the right document
-arrive?"*. Span-level evidence metrics ask *"did the passage that actually supports the
-answer arrive?"* That the first overstates retrieval success on long documents is
-[established prior work](docs/paper/literature_review.md). This repository asks the
-follow-up question: **what does span-level evaluation buy, what does it cost, and how far
-can its own gold standard be trusted?**
+**TrustRAG is a research codebase for evaluating retrieval-augmented generation at the level of
+evidence, not documents.** Chunks carry character offsets from the source document into the vector
+store and the stored run, so "did the passage that supports the answer arrive?" is decided by
+interval overlap after the fact. On top of that it holds a nine-category failure taxonomy with two
+interchangeable retrieval gates, blinded annotation tooling, and a within-document localisation
+study. That document-level retrieval metrics overstate success on long documents is
+[established prior work](docs/paper/literature_review.md); this repository measures what happens
+after the right document is reached, and what span-level evaluation buys and costs.
 
-> **Research question.** When RAG failure attribution is gated on span-level evidence
-> rather than document-level retrieval, does it agree better with human judgement — and
-> where does the span-based gold standard itself break down?
+> **Research questions.**
+> 1. Inside the document that holds the evidence, how often does a retriever rank the evidence
+>    chunk first, and does that depend on the model family, model size, or the corpus?
+> 2. When RAG failure attribution is gated on span-level evidence rather than document-level
+>    retrieval, does it agree better with human judgement — and how far can the span-based gold
+>    standard itself be trusted?
 
-![Both retrieval gates scored against the final human-reviewed labels](results/figures/human_validation.png)
+**What was tested.** Seven localisers (BM25, four dense bi-encoders, two cross-encoders, 22M–278M)
+ranking every chunk of the gold document on QASPER (290 questions) and Natural Questions (300),
+under one protocol with paired tests and an analytic chance level; a document/span retrieval
+decomposition on four corpora; a 200-unit human annotation study of the taxonomy with a guided
+second review; a 60-unit human adjudication of gold-span completeness; and a paired oracle-evidence
+replication with a 0.5B reader.
 
-**Three findings — including one we withdrew.**
+![Rank of the gold chunk inside its document, per model and corpus](results/localisation/rank_distribution.png)
+
+**Strongest current result.** Inside the right document, no retriever ranks the evidence first
+reliably, and capacity does not fix it consistently:
+
+| | QASPER | NQ |
+|---|---|---|
+| Chance hit@1 (random order of the document's chunks) | 0.157 | 0.116 |
+| hit@1, all seven models | 0.290 – 0.400 | 0.353 – 0.507 |
+| hit@5, all seven models | 0.755 – 0.855 | 0.690 – 0.837 |
+| Best single model | BGE-small 33M, 0.400 | bge-reranker-base 278M, 0.507 |
+| Worst neural model | bge-reranker-base 278M, 0.310 | MiniLM 22M, 0.387 |
+| Some model ranks the gold first | 0.769 | 0.780 |
+| Pairs significant after Holm (of 21) | 2 | 6 |
+
+The median rank is 2 on both corpora and a third to a half of gold chunks sit at ranks 2–5. BM25 is
+the weakest localiser on both, the 110M bi-encoder trails 33M models on both, and reach is
+independent of localisation. The cross-encoder result does *not* replicate: the 278M reranker is
+the best model on NQ and the worst neural model on QASPER, and its NQ lead over BGE-small is not
+significant (*p* = 0.19). Full study, raw rows, tests and the corpus contrast:
+[results/localisation/README.md](results/localisation/README.md).
+
+**Where to find things.** Results and analysis → [results/localisation/](results/localisation/README.md),
+[docs/EXPERIMENTS.md](docs/EXPERIMENTS.md), [docs/paper/](docs/paper/) · Reproduction → [Reproducibility](#reproducibility)
+and [docs/paper/reproducibility.md](docs/paper/reproducibility.md) · What is and is not claimed →
+[literature_review.md](docs/paper/literature_review.md), [Limitations](#limitations).
+
+**All findings, including one we withdrew.**
 
 | | Result |
 |---|---|
-| **A result we reported and then withdrew** | We claimed the document/span choice inverts the BM25-vs-dense ranking. It does not — the finding was an evidence-mode bug in our own baseline. Corrected, BM25 leads at *both* granularities on QASPER (0.528/0.321 vs 0.441/0.276) and dense leads at both on NQ and HotpotQA, across 5 depths and 3 chunk sizes. Reported in full [below](#a-withdrawn-result-no-retriever-ranking-inversion). |
+| **Inside the right document, no retriever ranks the evidence first reliably — and capacity does not fix it consistently** | Seven localisers rank the gold chunk first for **0.29–0.40** of QASPER questions and **0.35–0.51** of NQ questions, against top-5 rates of 0.69–0.86; the median rank is 2. The 278M reranker is the best model on NQ and the worst neural model on QASPER; the 110M bi-encoder trails 33M models on both. [Full study](results/localisation/README.md). |
 | **Evidence-gating agrees better with humans — for retrieval attribution only** | Against 200 human-reviewed labels: accuracy **0.700 vs 0.600**, κ **0.437 vs 0.375**, paired **22 vs 2**, exact McNemar *p* < 0.0001. But only the retrieval classes are reliable: `wrong_retrieval` F1 0.907 against `ok` recall 0.094. |
 | **The span-based gold standard is incomplete, and now measured** | Human adjudication of 60 sampled units puts gold-span under-coverage at **0.119, 95% CI [0.096, 0.142]** — the span rule calls a retrieval failure where the answer was in fact derivable. A sensitivity analysis places the defensible range at **4–12%**. Modest, quantified, and an order of magnitude smaller than the effects measured. |
-| **Inside the right document, no retriever ranks the evidence first reliably — and capacity does not fix it consistently** | Seven localisers (BM25, four dense bi-encoders, two cross-encoders, 22M–278M) rank the gold chunk first for **0.29–0.40** of QASPER questions and **0.35–0.51** of NQ questions, against top-5 rates of 0.69–0.86; the median rank is 2. The 278M reranker is the best model on NQ and the worst neural model on QASPER; the 110M bi-encoder trails 33M models on both. [Full study](results/localisation/README.md). |
+| **A result we reported and then withdrew** | We claimed the document/span choice inverts the BM25-vs-dense ranking. It does not — the finding was an evidence-mode bug in our own baseline. Corrected, BM25 leads at *both* granularities on QASPER (0.528/0.321 vs 0.441/0.276) and dense leads at both on NQ and HotpotQA, across 5 depths and 3 chunk sizes. Reported in full [below](#a-withdrawn-result-no-retriever-ranking-inversion). |
 
 **What this repository does not claim.** Evidence-aware RAG evaluation is not new here;
 neither is the failure taxonomy, nor the oracle-evidence experiment (a
 [replication](#oracle-evidence-control-a-replication) — 32.1% repair
 against 32.8% published). See [literature_review.md](docs/paper/literature_review.md) for
-what is and is not novel.
+what is and is not novel. The manuscript is kept private and is not published.
 
-🔬 **[Research overview PDF](docs/TrustRAG_Research_Overview.pdf)** · 📋 **[Reviewer simulation](docs/paper/reviewer_simulation.md)** · 🎯 **[Venue fit](docs/paper/venue_fit.md)**
+📋 **[Reviewer simulation](docs/paper/reviewer_simulation.md)** · 🎯 **[Venue fit](docs/paper/venue_fit.md)** · 🧪 **[Full experiment log](docs/EXPERIMENTS.md)**
 
 ---
 
@@ -120,22 +156,13 @@ from it (3.2 vs 2.7).
 
 ### Inside the right document: who finds the passage?
 
-![Rank of the gold chunk inside its document, per model and corpus](results/localisation/rank_distribution.png)
-
 The granularity gap says retrievers reach the right document and miss the passage. This
 study asks whose fault that is. For every question, *all* chunks of the gold document are
 ranked against the question by each of seven localisers, so no other document competes,
 and the rank of the first gold-overlapping chunk is recorded against an analytic chance
 level. Same chunking, same evidence definition, same statistics on both corpora.
 
-| | QASPER (290 q, 20 chunks/doc) | NQ (300 q, 42 chunks/doc) |
-|---|---|---|
-| Chance hit@1 | 0.157 | 0.116 |
-| hit@1 across all seven models | 0.290 – 0.400 | 0.353 – 0.507 |
-| hit@5 across all seven models | 0.755 – 0.855 | 0.690 – 0.837 |
-| Best single model | BGE-small 33M, 0.400 | bge-reranker-base 278M, 0.507 |
-| Worst neural model | bge-reranker-base 278M, 0.310 | MiniLM 22M, 0.387 |
-| Some model ranks the gold first | 0.769 | 0.780 |
+The headline table is at the top of this README; the full tables are in [results/localisation/README.md](results/localisation/README.md).
 
 **What replicates.** Every model places the evidence near the top of its document but
 rarely first — median rank 2, a third to a half of gold chunks at ranks 2–5 — and the
@@ -182,6 +209,8 @@ a document-level metric, the model got none right, and supplying the actual span
 (32.8% repair over 11,105 failures) at n=150 with one reader and no sham control.
 
 ## Human validation
+
+![Both retrieval gates scored against the final human-reviewed labels](results/figures/human_validation.png)
 
 **Provenance matters here, so it is stated precisely.**
 
@@ -281,7 +310,7 @@ python scripts/reproduce_study.py --all     # every retrieval experiment, no API
 ```
 
 Every table and figure maps to a command and an output file in
-**[docs/paper/REPRODUCIBILITY.md](docs/paper/REPRODUCIBILITY.md)**. Reports embed git
+**[docs/paper/reproducibility.md](docs/paper/reproducibility.md)**. Reports embed git
 commit, raw-file SHA-256, configuration, threshold fingerprint and package versions.
 
 Two honest limits: `reports/` is gitignored, so the annotation artifacts behind the human
@@ -295,7 +324,7 @@ search moves fine-grained aggregates by ≤0.001 between independently built ind
 git clone https://github.com/pouyapd/TrustRAG.git && cd TrustRAG
 pip install -r requirements.txt
 python scripts/run_offline_eval.py      # end-to-end evaluation, ~30s, no key
-pytest tests/ -q                        # 477 tests
+pytest tests/ -q                        # 486 tests
 ```
 
 <details>
@@ -343,7 +372,7 @@ python scripts/make_figures.py --all && python scripts/make_paper_figures.py --a
 ## Tests
 
 ```bash
-pytest tests/ -v --cov=src      # 477 tests, 80% line coverage, ruff clean
+pytest tests/ -v --cov=src      # 486 tests, 80% line coverage, ruff clean
 ```
 
 Unit tests, property-style invariants (span coverage implies document coverage, for every
@@ -366,8 +395,8 @@ Read before quoting anything above. Full list in
   labels, and the annotated run uses an extractive control that cannot hallucinate.
 - **The core premise is prior art.** This is a measurement-validity study, not a new
   evaluation paradigm.
-- **Two retrievers** (dense + BM25); no reranker, hybrid or late-interaction baseline.
-- **One corpus and one configuration** for the human study; small generators (0.5B, 0.36B).
+- **Retrieval breadth.** The decomposition uses two retrievers (dense + BM25); the localisation study adds four bi-encoders and two cross-encoders but one reranker per size class, on two corpora, with model revisions unpinned.
+- **One corpus and one configuration** for the human study; small generators (0.5B, 0.36B). Gold-span under-coverage is measured on QASPER only, not on NQ.
 - **Targeted, not systematic, literature review.**
 - **Not a deployed system** — containerised and CI-tested, never run at production scale.
 
