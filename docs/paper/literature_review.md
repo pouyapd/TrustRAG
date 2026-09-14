@@ -73,7 +73,7 @@ Stated conservatively. None of these is claimed as novel without the caveat atta
    strongest surviving contribution and was wrong: an evidence-mode mismatch in the
    BM25 baseline under-reported its span coverage. Corrected, BM25 leads at both
    granularities on QASPER and the dense retriever leads at both on NQ and HotpotQA,
-   across five depths and three chunk sizes. See `paper.md` §5.1. The negative result
+   across five depths and three chunk sizes. See the README's withdrawn-result section. The negative result
    is retained and reported; it is not a contribution.
 3. **Attribution shift measured through a taxonomy and checked against human
    labels.** Prior work shows retrieval is under-credited; TrustRAG measures how the
@@ -103,11 +103,13 @@ The defensible framing is narrower and more honest: **a measurement-validity stu
 evidence-level RAG evaluation.** The question becomes not *should we evaluate at span
 level* (answered, yes) but *what does span-level evaluation actually buy, what does it
 cost, and how far can its own gold standard be trusted*. On that question this project
-has something prior work does not: a retriever-ranking inversion, a human-validated
-attribution comparison, and a quantified account of where the span-based gold standard
-itself breaks down.
+has something prior work does not: a human-validated attribution comparison, a
+quantified account of where the span-based gold standard itself breaks down, and — added
+after this review — a within-document localisation study across seven localisers on two
+corpora (`results/localisation/README.md`). The retriever-ranking inversion that
+originally headed this list was withdrawn (§3, item 2).
 
-That framing is adopted in `docs/paper/paper.md`. It supports a solid workshop or
+That framing is adopted in the manuscript (kept private). It supports a solid workshop or
 short-paper contribution, and it does not support a claim of novelty at a top-tier
 venue. See `docs/paper/venue_fit.md`.
 

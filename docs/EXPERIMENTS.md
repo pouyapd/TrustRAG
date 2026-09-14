@@ -593,6 +593,62 @@ self-judged faithfulness is not evidence.
 
 ---
 
+## Result 12 — Inside the reached document, no localiser is reliable at rank 1, and capacity does not fix it consistently
+
+Results 1–8 establish that retrievers reach the right document and miss the passage.
+This result asks whether that is a property of the retriever. For every answerable
+question, *all* chunks of the gold document are ranked against the question by seven
+localisers — BM25, four dense bi-encoders (22M–110M), two cross-encoders (22M, 278M) —
+and the rank of the first gold-overlapping chunk is recorded against an analytic chance
+level. Ranking is restricted to the gold document, so reach cannot interfere. Same
+chunking (256/32), same evidence definition and same statistics on QASPER and NQ; nothing
+tuned per corpus. Full tables, pairwise tests (exact McNemar, Holm-adjusted), rank
+correlations, union analysis, the corpus contrast and the provenance block are in
+[`results/localisation/README.md`](../results/localisation/README.md).
+
+| | QASPER (290 q, 20 chunks/doc) | NQ (300 q, 42 chunks/doc) |
+|---|---|---|
+| chance hit@1 | 0.157 | 0.116 |
+| hit@1, seven models | 0.290 – 0.400 | 0.353 – 0.507 |
+| hit@5, seven models | 0.755 – 0.855 | 0.690 – 0.837 |
+| median rank | 2 | 2 |
+| best model | BGE-small 33M (0.400) | bge-reranker-base 278M (0.507) |
+| worst neural model | bge-reranker-base 278M (0.310) | MiniLM 22M (0.387) |
+| some model ranks gold first | 0.769 | 0.780 |
+
+**Replicates on both corpora.** The evidence is near the top of its document but rarely
+first (a third to a half of gold chunks at ranks 2–5); the misses are only partly shared
+across models (union 0.77–0.78 against 0.40–0.51 for the best single model); BM25 is the
+weakest localiser and the only one whose deficit survives Holm correction on both corpora,
+succeeding at 0.84–0.89 when the gold chunk is the lexically most question-like chunk and
+at 0.04–0.06 otherwise; the 110M bi-encoder trails the 33M ones; reach and localisation
+are independent (Fisher *p* = 0.31–0.63 on QASPER, where reach varies).
+
+**Does not replicate.** Cross-encoder capacity helps on NQ (the 278M reranker is the
+best model, +4 to +12 pp over the bi-encoders) and not on QASPER (the same reranker is
+the worst neural model, indistinguishable from BM25). The corpus contrast
+(`results/localisation/corpus_contrast.json`) is consistent with document homogeneity
+(intra-document cosine 0.58 vs 0.46), question–evidence lexical distance (evidence shares
+no content word with the question in 8.3% vs 2.0% of questions) and training
+distribution (NQ-style web QA is in the documented training data of every neural model
+tested; scientific-paper QA in none), but none of these is established as the cause.
+
+**Claim.** Across QASPER and NQ, increasing retriever or reranker capacity does not
+produce a consistent improvement in rank-1 evidence localisation. The localisation term
+is closed only by admitting more of the reached document (top-1 0.31–0.39 → top-5
+0.77–0.85 → top-10 0.95 on QASPER), at the price of reach, and no fixed document-first
+allocation beats flat top-*k* at equal budget (`results/localisation/admission_*.json`).
+Chunk size raises raw localisation only by shrinking the candidate set — the lift over
+chance *falls* from 128 to 512 tokens — so localisation should be reported
+chance-normalised.
+
+**Falsifiers that were checked.** A model family that breaks the rank-1 ceiling on both
+corpora (none did); localisation differing between reached and unreached documents (it
+does not); a fixed document-first policy beating flat retrieval at equal budget (it does
+not).
+
+---
+
 ## Reproducing
 
 One command runs every experiment in this document and regenerates the summary

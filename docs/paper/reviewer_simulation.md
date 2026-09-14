@@ -1,14 +1,14 @@
 > **Post-hoc note (added after the audit that followed this simulation).** Reviewer A's
 > and Reviewer B's concerns about the retriever-ranking inversion were, if anything,
 > understated. A later audit found the inversion was an artefact of an evidence-mode
-> defect in our own BM25 baseline and **withdrew it entirely** (see `paper.md` §5.1).
+> defect in our own BM25 baseline and **withdrew it entirely** (see the README's withdrawn-result section).
 > Every mention of the inversion below as a "strength" or "concrete finding" is
 > superseded. The simulation is kept unedited as a record of what the reviews said
 > before the defect was found.
 
 # Reviewer simulation
 
-Three adversarial reads of `paper.md`, written to find grounds for rejection rather
+Three adversarial reads of the manuscript (kept private), written to find grounds for rejection rather
 than to praise. Each concern is marked **[FIXED]** where the paper was changed in
 response, **[ACCEPTED]** where the criticism stands and is now stated as a limitation,
 or **[BLOCKED]** where fixing it needs resources not available.
@@ -56,7 +56,7 @@ workshop or short paper, on the strength of the negative results.
 ## Reviewer B — Information retrieval
 
 **Summary.** Compares retrieval evaluation at document and span granularity, adds a
-lexical baseline, and reports an inversion in system ranking.
+lexical baseline, and reports an inversion in system ranking *(since withdrawn — see the note at the top)*.
 
 **Strengths.** The BM25 comparison is the right control and was run properly: same
 chunks, same depth, same questions, paired test. *(It was not run properly: the

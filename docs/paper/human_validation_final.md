@@ -132,7 +132,8 @@ oracle.
 
 > **Superseded (2026-09-07).** A stratified human adjudication of 60 of the 87
 > unresolved units now estimates under-coverage at **0.119, 95% CI [0.096, 0.142]**,
-> defensibly 4–12% under sensitivity analysis. See `paper.md` §8. The lexical figure
+> defensibly 4–12% under sensitivity analysis (README, "How far the gold standard can be trusted";
+> `reports/annotation/goldspan_adjudication/estimate.json`). The lexical figure
 > below is retained as the record of what the proxy alone suggested.
 
 Token presence is not entailment, so 23.3% is an **upper bound** on how often the

@@ -3,7 +3,7 @@
 [![CI](https://github.com/pouyapd/TrustRAG/actions/workflows/ci.yml/badge.svg)](https://github.com/pouyapd/TrustRAG/actions/workflows/ci.yml)
 ![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
-![Tests](https://img.shields.io/badge/tests-477%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-486%20passing-brightgreen)
 ![Coverage](https://img.shields.io/badge/coverage-80%25-green)
 
 **A measurement-validity study of span-level evidence evaluation for retrieval-augmented
@@ -24,13 +24,14 @@ can its own gold standard be trusted?**
 
 | | Result |
 |---|---|
-| **A result we reported and then withdrew** | We claimed the document/span choice inverts the BM25-vs-dense ranking. It does not — the finding was an evidence-mode bug in our own baseline. Corrected, BM25 leads at *both* granularities on QASPER (0.528/0.321 vs 0.441/0.276) and dense leads at both on NQ and HotpotQA, across 5 depths and 3 chunk sizes. Reported in full in [§5.1](docs/paper/paper.md). |
+| **A result we reported and then withdrew** | We claimed the document/span choice inverts the BM25-vs-dense ranking. It does not — the finding was an evidence-mode bug in our own baseline. Corrected, BM25 leads at *both* granularities on QASPER (0.528/0.321 vs 0.441/0.276) and dense leads at both on NQ and HotpotQA, across 5 depths and 3 chunk sizes. Reported in full [below](#a-withdrawn-result-no-retriever-ranking-inversion). |
 | **Evidence-gating agrees better with humans — for retrieval attribution only** | Against 200 human-reviewed labels: accuracy **0.700 vs 0.600**, κ **0.437 vs 0.375**, paired **22 vs 2**, exact McNemar *p* < 0.0001. But only the retrieval classes are reliable: `wrong_retrieval` F1 0.907 against `ok` recall 0.094. |
 | **The span-based gold standard is incomplete, and now measured** | Human adjudication of 60 sampled units puts gold-span under-coverage at **0.119, 95% CI [0.096, 0.142]** — the span rule calls a retrieval failure where the answer was in fact derivable. A sensitivity analysis places the defensible range at **4–12%**. Modest, quantified, and an order of magnitude smaller than the effects measured. |
+| **Inside the right document, no retriever ranks the evidence first reliably — and capacity does not fix it consistently** | Seven localisers (BM25, four dense bi-encoders, two cross-encoders, 22M–278M) rank the gold chunk first for **0.29–0.40** of QASPER questions and **0.35–0.51** of NQ questions, against top-5 rates of 0.69–0.86; the median rank is 2. The 278M reranker is the best model on NQ and the worst neural model on QASPER; the 110M bi-encoder trails 33M models on both. [Full study](results/localisation/README.md). |
 
 **What this repository does not claim.** Evidence-aware RAG evaluation is not new here;
 neither is the failure taxonomy, nor the oracle-evidence experiment (a
-[replication](docs/paper/paper.md#6-oracle-evidence-control-replication) — 32.1% repair
+[replication](#oracle-evidence-control-a-replication) — 32.1% repair
 against 32.8% published). See [literature_review.md](docs/paper/literature_review.md) for
 what is and is not novel.
 
@@ -111,8 +112,55 @@ QASPER questions carry more than one span — so BM25's span coverage was under-
 Corrected, **no inversion occurs on any corpus**: BM25 leads at both granularities on
 QASPER (paired 40 vs 27, p = 0.142, n.s.), dense leads at both on NQ (53 vs 27,
 p = 0.0049) and HotpotQA. Stable across k = 1…20 and chunk sizes 128/256/512.
-Conditional on reaching a gold document, the two retrievers localise the span equally
-well (60.8% vs 62.5%), which is why an inversion was implausible.
+Conditional on reaching a gold document at k = 5, the two retrievers cover the span at
+similar rates (60.8% vs 62.5%) — which is why an inversion was implausible. The section
+below shows that this similarity is a coincidence of the top-k cut, not equal ranking
+skill: BM25 ranks worse inside the document and compensates by admitting more chunks
+from it (3.2 vs 2.7).
+
+### Inside the right document: who finds the passage?
+
+![Rank of the gold chunk inside its document, per model and corpus](results/localisation/rank_distribution.png)
+
+The granularity gap says retrievers reach the right document and miss the passage. This
+study asks whose fault that is. For every question, *all* chunks of the gold document are
+ranked against the question by each of seven localisers, so no other document competes,
+and the rank of the first gold-overlapping chunk is recorded against an analytic chance
+level. Same chunking, same evidence definition, same statistics on both corpora.
+
+| | QASPER (290 q, 20 chunks/doc) | NQ (300 q, 42 chunks/doc) |
+|---|---|---|
+| Chance hit@1 | 0.157 | 0.116 |
+| hit@1 across all seven models | 0.290 – 0.400 | 0.353 – 0.507 |
+| hit@5 across all seven models | 0.755 – 0.855 | 0.690 – 0.837 |
+| Best single model | BGE-small 33M, 0.400 | bge-reranker-base 278M, 0.507 |
+| Worst neural model | bge-reranker-base 278M, 0.310 | MiniLM 22M, 0.387 |
+| Some model ranks the gold first | 0.769 | 0.780 |
+
+**What replicates.** Every model places the evidence near the top of its document but
+rarely first — median rank 2, a third to a half of gold chunks at ranks 2–5 — and the
+misses are only partly shared (union of seven 0.77–0.78 vs best single 0.40–0.51). BM25 is
+the weakest localiser on both corpora and the only one whose deficit survives Holm
+correction on both; it succeeds at 0.84–0.89 when the gold chunk is the lexically most
+question-like chunk of its document and at 0.04–0.06 otherwise. The 110M bi-encoder trails
+the 33M ones on both corpora. Reach and localisation are statistically independent
+(Fisher *p* = 0.31–0.63, QASPER).
+
+**What does not.** Cross-encoder capacity helps on Wikipedia and not on scientific papers:
+the 278M reranker is the best model on NQ (+4 to +12 pp over the bi-encoders) and the
+worst neural model on QASPER (below every bi-encoder, indistinguishable from BM25). The
+corpora differ in ways consistent with this — QASPER papers are far more topically
+homogeneous chunk-to-chunk (mean intra-document cosine 0.58 vs 0.46), their evidence is
+lexically hidden from the question four times as often, and NQ-style web QA is in the
+documented training data of every neural model tested while scientific-paper QA is in
+none — but this is a hypothesis, not a finding.
+
+**The claim that survives both corpora:** increasing retriever or reranker capacity does
+not produce a consistent improvement in rank-1 evidence localisation, and the localisation
+term is closed only by admitting more of the reached document (top-1 chunk 0.31–0.39 →
+top-5 0.77–0.85 → top-10 0.95 on QASPER), at the price of reach; no fixed document-first
+allocation beats flat top-*k* at equal budget. Full tables, pairwise tests, correlations,
+the corpus contrast and limitations: [results/localisation/README.md](results/localisation/README.md).
 
 ### Oracle-evidence control (a replication)
 
@@ -162,7 +210,7 @@ Per class, evidence-gated: `wrong_retrieval` F1 **0.907** (support 136),
 (32), `incorrect_answer` 0.059 (1).
 
 > **Retrieval-side attribution is validated. Generation-side classification is not.** A
-> [held-out threshold ablation](docs/paper/paper.md#71-threshold-ablation) (144
+> [held-out threshold ablation](docs/paper/results.md) (144
 > configurations, 50/50 split) improves the evidence gate from 0.730 to 0.750 accuracy
 > and does not rescue the generation classes — the rules, not the thresholds, are the
 > larger problem.
@@ -281,6 +329,11 @@ python scripts/build_final_human_dataset.py --original ... --review ... --out ..
 python scripts/audit_gold_span_semantic.py --package ... --out ...
 python scripts/threshold_ablation.py --package ... --labels ... --out ...
 
+# within-document localisation study (commands and runtimes in results/localisation/README.md)
+python scripts/localisation_probe.py --dataset qasper --raw ... --embedders minilm,mpnet,bge,e5 --out ...
+python scripts/localisation_extra.py --dataset qasper --raw ... --cross-encoder BAAI/bge-reranker-base --out ...
+python scripts/localisation_report.py --dataset qasper --probe ... --extra ... --reranker ... --out ...
+
 # figures
 pip install -r requirements-research.txt
 python scripts/make_figures.py --all && python scripts/make_paper_figures.py --all
@@ -304,7 +357,7 @@ CI runs lint, tests, an evaluation regression and a Docker build on every push.
 ## Limitations
 
 Read before quoting anything above. Full list in
-[docs/paper/paper.md#11-limitations](docs/paper/paper.md#11-limitations).
+[docs/paper/limitations.md](docs/paper/limitations.md).
 
 - **One annotator, and a guided review.** No inter-annotator agreement exists. The second
   pass was directed by an audit of the same guidelines being tested.
@@ -322,12 +375,12 @@ Read before quoting anything above. Full list in
 
 | Document | Contents |
 |---|---|
-| [docs/paper/paper.md](docs/paper/paper.md) | Full paper draft |
+| [results/localisation/README.md](results/localisation/README.md) | Within-document evidence localisation study, QASPER and NQ |
 | [docs/paper/literature_review.md](docs/paper/literature_review.md) | Novelty audit and comparison table |
 | [docs/paper/human_validation_final.md](docs/paper/human_validation_final.md) | The complete human study |
 | [docs/paper/reviewer_simulation.md](docs/paper/reviewer_simulation.md) | Three adversarial reviews and the fixes |
 | [docs/paper/venue_fit.md](docs/paper/venue_fit.md) | Where this can realistically be submitted |
-| [docs/paper/REPRODUCIBILITY.md](docs/paper/REPRODUCIBILITY.md) | Command → output map |
+| [docs/paper/reproducibility.md](docs/paper/reproducibility.md) | Command → output map |
 | [docs/EXPERIMENTS.md](docs/EXPERIMENTS.md) | Full protocol and threats to validity |
 | [docs/TAXONOMY.md](docs/TAXONOMY.md) · [docs/EVALUATION.md](docs/EVALUATION.md) | Categories, rules, metric definitions |
 | [docs/ANNOTATION_GUIDELINES.md](docs/ANNOTATION_GUIDELINES.md) | What annotators are asked to judge |
@@ -335,7 +388,7 @@ Read before quoting anything above. Full list in
 
 ## Citation
 
-A paper draft is in `docs/paper/paper.md`; it is **not published**. Cite the repository:
+The manuscript is kept private and is **not published**. Cite the repository:
 
 ```bibtex
 @software{bathaeipourmand_trustrag_2026,

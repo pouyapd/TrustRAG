@@ -1,0 +1,30 @@
+{
+ "qasper": {
+  "n_questions": 290,
+  "intra_document_mean_cosine": 0.5778,
+  "query_gold_margin_mean": -0.024,
+  "query_gold_margin_share_positive": 0.3759,
+  "query_gold_margin_share_within_0.02": 0.1793,
+  "lexical_overlap_gold_mean": 0.5333,
+  "lexical_overlap_best_other_mean": 0.6687,
+  "share_gold_strictly_most_lexical": 0.1069,
+  "share_gold_zero_lexical_overlap": 0.0828,
+  "question_length_words_median": 7.0,
+  "gold_span_chars_median": 611.0,
+  "spans_per_question_mean": 2.09
+ },
+ "nq": {
+  "n_questions": 299,
+  "intra_document_mean_cosine": 0.4625,
+  "query_gold_margin_mean": -0.0348,
+  "query_gold_margin_share_positive": 0.3846,
+  "query_gold_margin_share_within_0.02": 0.194,
+  "lexical_overlap_gold_mean": 0.6424,
+  "lexical_overlap_best_other_mean": 0.7338,
+  "share_gold_strictly_most_lexical": 0.1538,
+  "share_gold_zero_lexical_overlap": 0.0201,
+  "question_length_words_median": 9.0,
+  "gold_span_chars_median": 565.0,
+  "spans_per_question_mean": 1.0
+ }
+}

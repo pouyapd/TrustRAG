@@ -1,0 +1,24 @@
+
+=== nq : 300 questions, 297 docs, 12358 chunks; mean chunks/gold-doc 41.77, mean gold chunks/doc 2.83 ===
+
+retriever                   A      C    C|A  adm|A  prec|A |   wMRR   wH@1   wH@3   wH@5  lift@1
+random                    nan    nan    nan    nan     nan |  0.255  0.116  0.277  0.391    1.00
+bm25                    0.977  0.643  0.659   4.18   0.201 |  0.507  0.353  0.617  0.690    3.05
+minilm                  0.997  0.730  0.732   4.44   0.219 |  0.557  0.387  0.650  0.773    3.34
+
+spread across retrievers (max-min):  reach A 2.0 pp | C|A 7.4 pp | within-doc hit@1 3.3 pp | within-doc MRR 0.050
+
+paired vs bm25 (within-doc hit@1 McNemar p; RR sign-test p; global A McNemar; global C McNemar):
+  minilm               wH@1 minilm-only  51 bm25-only  41 p=0.348; RR wins 127/85 p=0.005 | A 7/1 p=0.0703 | C 53/27 p=0.00487
+
+prediction of C|A from within-document hit@j at j = chunks admitted from the gold doc:
+  bm25                 observed C|A 0.659  predicted 0.659  (mean admitted 4.18)
+  minilm               observed C|A 0.732  predicted 0.732  (mean admitted 4.44)
+
+geometry model (hit@1 ~ logD + m): geometry coefs [-0.594 -0.004]; adding 1 retriever dummies: LR=0.77, df=1, p=0.38
+  deviance explained: geometry only 5.441%; retriever only 0.090%; both 5.538%
+
+lexical distinctiveness of the gold chunk (question-term overlap gold - best non-gold): terciles at [-0.2  0. ]; share with gold NOT the most question-overlapping chunk: 0.843
+retriever               low (gold lexically hidden)      mid     high   within-doc hit@1
+bm25                                  0.057 (n=105)    0.392    0.894
+minilm                                0.200 (n=105)    0.466    0.553

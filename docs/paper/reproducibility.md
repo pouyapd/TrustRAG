@@ -1,6 +1,6 @@
 # Reproducibility map
 
-Every table and figure in `paper.md`, mapped to the command that produces it and the
+Every table and figure in the manuscript (kept private) and the README, mapped to the command that produces it and the
 file it reads. Run from the repository root after `pip install -r requirements.txt`.
 
 Corpora are not redistributed; see `docs/DATASETS.md` for download commands and

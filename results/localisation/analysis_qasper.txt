@@ -1,0 +1,36 @@
+
+=== qasper : 290 questions, 111 docs, 2272 chunks; mean chunks/gold-doc 19.98, mean gold chunks/doc 2.79 ===
+
+retriever                   A      C    C|A  adm|A  prec|A |   wMRR   wH@1   wH@3   wH@5  lift@1
+random                    nan    nan    nan    nan     nan |  0.347  0.157  0.403  0.580    1.00
+bm25                    0.528  0.321  0.608   3.18   0.253 |  0.481  0.290  0.579  0.755    1.84
+minilm                  0.445  0.279  0.628   2.71   0.309 |  0.562  0.376  0.690  0.845    2.39
+mpnet                   0.383  0.238  0.622   2.90   0.304 |  0.518  0.335  0.617  0.797    2.13
+bge                     0.479  0.297  0.619   2.66   0.308 |  0.579  0.400  0.690  0.845    2.54
+e5                      0.466  0.307  0.659   2.89   0.315 |  0.549  0.359  0.669  0.821    2.28
+
+spread across retrievers (max-min):  reach A 14.5 pp | C|A 5.1 pp | within-doc hit@1 11.0 pp | within-doc MRR 0.097
+
+paired vs bm25 (within-doc hit@1 McNemar p; RR sign-test p; global A McNemar; global C McNemar):
+  minilm               wH@1 minilm-only  61 bm25-only  36 p=0.0144; RR wins 137/81 p=0.0 | A 20/44 p=0.00369 | C 28/40 p=0.182
+  mpnet                wH@1 mpnet-only  57 bm25-only  44 p=0.232; RR wins 127/103 p=0.129 | A 14/56 p=4.3e-07 | C 24/48 p=0.00631
+  bge                  wH@1 bge-only  62 bm25-only  30 p=0.00111; RR wins 129/77 p=0.0 | A 19/33 p=0.0704 | C 24/31 p=0.419
+  e5                   wH@1 e5-only  49 bm25-only  29 p=0.0308; RR wins 126/84 p=0.005 | A 15/33 p=0.0133 | C 28/32 p=0.699
+
+prediction of C|A from within-document hit@j at j = chunks admitted from the gold doc:
+  bm25                 observed C|A 0.608  predicted 0.608  (mean admitted 3.18)
+  minilm               observed C|A 0.628  predicted 0.628  (mean admitted 2.71)
+  mpnet                observed C|A 0.622  predicted 0.622  (mean admitted 2.90)
+  bge                  observed C|A 0.619  predicted 0.619  (mean admitted 2.66)
+  e5                   observed C|A 0.659  predicted 0.659  (mean admitted 2.89)
+
+geometry model (hit@1 ~ logD + m): geometry coefs [-0.323  0.092]; adding 4 retriever dummies: LR=9.20, df=4, p=0.0564
+  deviance explained: geometry only 0.504%; retriever only 0.486%; both 0.993%
+
+lexical distinctiveness of the gold chunk (question-term overlap gold - best non-gold): terciles at [-0.25  0.  ]; share with gold NOT the most question-overlapping chunk: 0.893
+retriever               low (gold lexically hidden)      mid     high   within-doc hit@1
+bm25                                  0.040 (n= 99)    0.338    0.839
+minilm                                0.303 (n= 99)    0.388    0.548
+mpnet                                 0.293 (n= 99)    0.331    0.484
+bge                                   0.303 (n= 99)    0.419    0.613
+e5                                    0.202 (n= 99)    0.406    0.613
