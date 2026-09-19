@@ -1,0 +1,140 @@
+{
+ "hf_hub_cache": "C:\\Users\\user\\.cache\\huggingface\\hub",
+ "read_on": "2026-09-19",
+ "models": {
+  "minilm": {
+   "model_id": "sentence-transformers/all-MiniLM-L6-v2",
+   "training_data_per_model_card": "1B sentence pairs incl. MS MARCO (9.1M triplets) and Natural Questions (100,231 pairs); model card lists the datasets",
+   "revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+   "cached_snapshots": [
+    "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+    "c9745ed1d9f207416be6d2e6f8de32d1f16199bf"
+   ],
+   "weights_sha256_by_snapshot": {
+    "1110a243fdf4706b3f48f1d95db1a4f5529b4d41": "53aa51172d142c89",
+    "c9745ed1d9f207416be6d2e6f8de32d1f16199bf": "53aa51172d142c89"
+   },
+   "weights_identical_across_snapshots": true,
+   "max_seq_length": 256,
+   "architecture": "BertModel",
+   "max_position_embeddings": 512,
+   "hidden_size": 384,
+   "num_layers": 6,
+   "tokenizer_class": "BertTokenizer",
+   "tokenizer_model_max_length": 512,
+   "effective_input_length": 256,
+   "effective_input_length_source": "sentence_bert_config.json max_seq_length"
+  },
+  "bge": {
+   "model_id": "BAAI/bge-small-en-v1.5",
+   "training_data_per_model_card": "model card cites MS MARCO and NQ among fine-tuning sets (BGE technical report)",
+   "revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+   "cached_snapshots": [
+    "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a"
+   ],
+   "max_seq_length": 512,
+   "architecture": "BertModel",
+   "max_position_embeddings": 512,
+   "hidden_size": 384,
+   "num_layers": 12,
+   "tokenizer_class": "BertTokenizer",
+   "tokenizer_model_max_length": 512,
+   "effective_input_length": 512,
+   "effective_input_length_source": "sentence_bert_config.json max_seq_length"
+  },
+  "e5": {
+   "model_id": "intfloat/e5-small-v2",
+   "training_data_per_model_card": "model card cites MS MARCO and NQ among fine-tuning sets (E5 technical report)",
+   "revision": "ffb93f3bd4047442299a41ebb6fa998a38507c52",
+   "cached_snapshots": [
+    "ffb93f3bd4047442299a41ebb6fa998a38507c52"
+   ],
+   "max_seq_length": 512,
+   "architecture": "BertModel",
+   "max_position_embeddings": 512,
+   "hidden_size": 384,
+   "num_layers": 12,
+   "tokenizer_class": "BertTokenizer",
+   "tokenizer_model_max_length": 512,
+   "effective_input_length": 512,
+   "effective_input_length_source": "sentence_bert_config.json max_seq_length"
+  },
+  "mpnet": {
+   "model_id": "sentence-transformers/all-mpnet-base-v2",
+   "training_data_per_model_card": "1B sentence pairs incl. MS MARCO (9.1M triplets) and Natural Questions (100,231 pairs); model card lists the datasets",
+   "revision": "e8c3b32edf5434bc2275fc9bab85f82640a19130",
+   "cached_snapshots": [
+    "e8c3b32edf5434bc2275fc9bab85f82640a19130"
+   ],
+   "max_seq_length": 384,
+   "architecture": "MPNetForMaskedLM",
+   "max_position_embeddings": 514,
+   "hidden_size": 768,
+   "num_layers": 12,
+   "tokenizer_class": "MPNetTokenizer",
+   "tokenizer_model_max_length": 512,
+   "effective_input_length": 384,
+   "effective_input_length_source": "sentence_bert_config.json max_seq_length"
+  },
+  "ce_msmarco_minilm": {
+   "model_id": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+   "training_data_per_model_card": "MS MARCO passage ranking",
+   "revision": "233902d25c440f23af6f7d6e94d2946bac0bee0a",
+   "cached_snapshots": [
+    "233902d25c440f23af6f7d6e94d2946bac0bee0a"
+   ],
+   "architecture": "BertForSequenceClassification",
+   "max_position_embeddings": 512,
+   "hidden_size": 384,
+   "num_layers": 6,
+   "tokenizer_class": "BertTokenizer",
+   "tokenizer_model_max_length": 512,
+   "effective_input_length": 512,
+   "effective_input_length_source": "CrossEncoder(..., max_length=512) in scripts/localisation_extra.py"
+  },
+  "bge_reranker_base": {
+   "model_id": "BAAI/bge-reranker-base",
+   "training_data_per_model_card": "undocumented: model card states only 'multilingual pair data'",
+   "revision": "2cfc18c9415c912f9d8155881c133215df768a70",
+   "cached_snapshots": [
+    "2cfc18c9415c912f9d8155881c133215df768a70"
+   ],
+   "architecture": "XLMRobertaForSequenceClassification",
+   "max_position_embeddings": 514,
+   "hidden_size": 768,
+   "num_layers": 12,
+   "tokenizer_class": "XLMRobertaTokenizer",
+   "tokenizer_model_max_length": 512,
+   "effective_input_length": 512,
+   "effective_input_length_source": "CrossEncoder(..., max_length=512) in scripts/localisation_extra.py"
+  },
+  "reader_qwen": {
+   "model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+   "training_data_per_model_card": "not documented at dataset level",
+   "revision": "7ae557604adf67be50417f59c2c2f167def9a775",
+   "cached_snapshots": [
+    "7ae557604adf67be50417f59c2c2f167def9a775"
+   ],
+   "architecture": "Qwen2ForCausalLM",
+   "max_position_embeddings": 32768,
+   "hidden_size": 896,
+   "num_layers": 24,
+   "tokenizer_class": "Qwen2Tokenizer",
+   "tokenizer_model_max_length": 131072
+  },
+  "reader_smollm": {
+   "model_id": "HuggingFaceTB/SmolLM2-360M-Instruct",
+   "training_data_per_model_card": "not documented at dataset level in the card",
+   "revision": "a10cc1512eabd3dde888204e902eca88bddb4951",
+   "cached_snapshots": [
+    "a10cc1512eabd3dde888204e902eca88bddb4951"
+   ],
+   "architecture": "LlamaForCausalLM",
+   "max_position_embeddings": 8192,
+   "hidden_size": 960,
+   "num_layers": 32,
+   "tokenizer_class": "GPT2Tokenizer",
+   "tokenizer_model_max_length": 8192
+  }
+ }
+}

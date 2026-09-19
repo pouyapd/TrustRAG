@@ -36,8 +36,9 @@ computed analytically from the document's geometry.
 Nothing was tuned per corpus. What differs is what the datasets impose: document length
 (20 vs 42 chunks per gold document), spans per question (QASPER cites more than one
 paragraph for half its questions; NQ one long answer) and domain (NLP papers vs
-Wikipedia). Model revisions are those resolved by `sentence-transformers` on the run
-date (2026-09-13); none is pinned, and this is recorded rather than implied otherwise.
+Wikipedia). Model revisions were not pinned at run time; the revisions the local cache
+resolved, their input limits and their documented training data are recorded in
+`model_metadata.json` (see Robustness checks).
 
 ## Results
 
@@ -243,10 +244,11 @@ Global top-5 over the whole corpus (same questions): reach A, span coverage C, l
 4. **Parameter count does not order the bi-encoders.** MPNet-base (110M) sits below the two
    33M models on both corpora (QASPER 0.335 vs 0.400/0.359; NQ 0.403 vs 0.463/0.457) and is
    never significantly different from any of them after correction.
-5. **Reach and localisation are independent** (QASPER, where reach varies): within-document
-   hit@1 is the same on documents the retriever reached and those it missed (Fisher exact
-   *p* = 0.31–0.63 for all five retrievers). On NQ reach is saturated (0.977–0.997) and cannot
-   be tested.
+5. **No association between reach and localisation was detected** (QASPER, where reach varies):
+   within-document hit@1 does not differ detectably between documents the retriever reached
+   and those it missed (Fisher exact *p* = 0.31–0.63 for all five retrievers; with 111
+   documents the power to detect a modest association is limited). On NQ reach is saturated
+   (0.977–0.997) and cannot be tested.
 
 ### What does not replicate
 
@@ -313,8 +315,8 @@ so length does not favour the rerankers specifically), and the MiniLM near-tie s
 The claim that survives both corpora:
 
 > Inside the right document, every retriever tested — lexical, dense bi-encoder and
-> cross-encoder, 22M to 278M parameters — ranks the answer-bearing chunk first for at most
-> half of questions (0.29–0.51), while placing it in its top five for 0.69–0.86. The
+> cross-encoder, 22M to 278M parameters — ranks the answer-bearing chunk first for about
+> half of questions or fewer (0.29–0.51), while placing it in its top five for 0.69–0.86. The
 > shortfall is a near-miss structure (median rank 2, a third to a half of gold chunks at
 > ranks 2–5) whose location differs from model to model (union of seven models 0.77–0.78
 > against 0.40–0.51 for the best one). Increasing retriever or reranker capacity does not
@@ -325,6 +327,59 @@ The claim that survives both corpora:
 What it does not license: that "no model can solve localisation", that the ceiling is
 model-independent, or that rerankers are useless inside documents — on NQ the reranker
 stage is worth +4 to +12 pp at rank 1 over the bi-encoders.
+
+## Robustness checks
+
+`scripts/localisation_robustness.py` answers three questions a reviewer asks of the study;
+none of them changes a result.
+
+**Document clustering.** QASPER's 290 questions sit in 111 papers (up to ten per paper) and
+the McNemar tests treat questions as independent. A document-level cluster bootstrap
+(documents resampled with replacement, 4,000 resamples, seed 0; `robustness_qasper.json`,
+`robustness_nq.json`, all 21 pairs) gives percentile intervals for the paired hit@1
+differences. Every pair that survives Holm correction keeps its sign with an interval that
+excludes zero, and the two reranker-vs-BGE-small comparisons stay inconclusive:
+
+| Corpus | Pair | Δhit@1 | 95% cluster-bootstrap CI | Excludes 0 |
+|---|---|---:|---:|---|
+| QASPER | BM25 vs BGE-small | -0.110 | [-0.173, -0.048] | yes |
+| QASPER | BM25 vs ms-marco CE | -0.097 | [-0.154, -0.039] | yes |
+| QASPER | BM25 vs bge-reranker-base | -0.021 | [-0.095, +0.057] | no |
+| QASPER | BGE-small vs bge-reranker-base | +0.090 | [+0.011, +0.168] | yes |
+| NQ | BM25 vs BGE-small | -0.110 | [-0.168, -0.050] | yes |
+| NQ | BM25 vs E5-small | -0.103 | [-0.164, -0.040] | yes |
+| NQ | BM25 vs ms-marco CE | -0.107 | [-0.163, -0.050] | yes |
+| NQ | BM25 vs bge-reranker-base | -0.153 | [-0.222, -0.084] | yes |
+| NQ | MiniLM vs bge-reranker-base | -0.120 | [-0.188, -0.053] | yes |
+| NQ | MPNet vs bge-reranker-base | -0.103 | [-0.167, -0.040] | yes |
+| NQ | BGE-small vs bge-reranker-base | -0.043 | [-0.104, +0.020] | no |
+
+**Chunk length against the models' input limits** (`chunk_audit_*.json`). all-MiniLM-L6-v2
+reads the first 256 wordpieces of a chunk; the other five neural models read 384 or 512.
+Measured in MiniLM's tokenizer, 92.0% of the QASPER chunks exceed 256 wordpieces
+(median 272, p90 292, max 340); on NQ 22.4% do (median 244, p90 264).
+No chunk exceeds 384. For no question is *all* gold evidence beyond MiniLM's cut; for
+28 QASPER questions (9.7%) and 1 NQ question (0.3%) one of several gold chunks has its
+overlap partly beyond it. MiniLM therefore sees slightly less of each chunk than the other
+models, which is a mild handicap in the model comparison, not a flaw in the measurement.
+
+**The ≥ 1-character overlap rule.** The largest gold overlap per question is never below
+50 characters on QASPER (minimum 132, median 647); on NQ 4 questions (1.3%) have it
+below 50 characters (minimum 17). The rule is not driven by tiny overlaps.
+
+**Model revisions actually run** (`model_metadata.json`, read from the local Hugging Face
+cache on 2026-09-19). Revisions were not pinned when the study ran; these are the
+revisions the cache resolved. Cross-encoders were scored with `max_length=512`.
+
+| Model | Revision (HF commit) | Effective input (tokens) | Position limit | Training data per model card |
+|---|---|---:|---:|---|
+| all-MiniLM-L6-v2 | `1110a243fdf4` (two snapshots cached, weights byte-identical) | 256 | 512 | 1B sentence pairs incl. MS MARCO (9.1M triplets) and Natural Questions (100,231 pairs); model card lists the datasets |
+| bge-small-en-v1.5 | `5c38ec7c405e` | 512 | 512 | model card cites MS MARCO and NQ among fine-tuning sets (BGE technical report) |
+| e5-small-v2 | `ffb93f3bd404` | 512 | 512 | model card cites MS MARCO and NQ among fine-tuning sets (E5 technical report) |
+| all-mpnet-base-v2 | `e8c3b32edf54` | 384 | 514 | 1B sentence pairs incl. MS MARCO (9.1M triplets) and Natural Questions (100,231 pairs); model card lists the datasets |
+| ms-marco-MiniLM-L-6-v2 | `233902d25c44` | 512 | 512 | MS MARCO passage ranking |
+| bge-reranker-base | `2cfc18c9415c` | 512 | 514 | undocumented: model card states only 'multilingual pair data' |
+| Qwen2.5-0.5B-Instruct (reader) | `7ae557604adf` | n/a | 32768 | not documented at dataset level |
 
 ## Levers: what moves localisation, from the stored sweeps
 
@@ -368,6 +423,9 @@ stage is worth +4 to +12 pp at rank 1 over the bi-encoders.
 | `admission_qasper.json`, `admission_nq.json` | flat vs document-first allocation at fixed budget (`localisation_admission.py`) |
 | `corpus_contrast.json` | the QASPER/NQ contrasts above |
 | `rank_distribution.png` | the figure (`localisation_figure.py`) |
+| `robustness_qasper.json`, `robustness_nq.json` | document-level cluster bootstrap for all 21 pairwise hit@1 differences (`localisation_robustness.py --bootstrap`) |
+| `chunk_audit_qasper.json`, `chunk_audit_nq.json` | chunk lengths in MiniLM's tokenizer, gold evidence beyond its cut, size of the largest gold overlap (`--audit-chunks`) |
+| `model_metadata.json` | model revisions, input limits and documented training data as run (`--model-metadata`) |
 
 ## Reproducing
 
@@ -387,6 +445,11 @@ python scripts/localisation_extra.py --dataset qasper --raw data/raw/qasper-dev-
 python scripts/localisation_extra.py --dataset nq --raw data/raw/nq-validation-0.parquet --split validation --limit 300 \
     --dense-key minilm --chroma data/build/index_nq_val_300_fixed:exp_nq_validation \
     --cross-encoder BAAI/bge-reranker-base --out results/localisation/reranker_bge_base_nq.json
+# robustness: cluster bootstrap, chunk audit, model metadata
+python scripts/localisation_robustness.py --bootstrap qasper --out results/localisation/robustness_qasper.json
+python scripts/localisation_robustness.py --audit-chunks qasper --raw data/raw/qasper-dev-v0.3.json --split dev \
+    --out results/localisation/chunk_audit_qasper.json
+python scripts/localisation_robustness.py --model-metadata --out results/localisation/model_metadata.json
 # consolidate, figure
 python scripts/localisation_report.py --dataset nq \
     --probe results/localisation/within_document_nq.json results/localisation/within_document_nq_dense.json \

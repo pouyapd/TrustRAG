@@ -621,8 +621,10 @@ first (a third to a half of gold chunks at ranks 2–5); the misses are only par
 across models (union 0.77–0.78 against 0.40–0.51 for the best single model); BM25 is the
 weakest localiser and the only one whose deficit survives Holm correction on both corpora,
 succeeding at 0.84–0.89 when the gold chunk is the lexically most question-like chunk and
-at 0.04–0.06 otherwise; the 110M bi-encoder trails the 33M ones; reach and localisation
-are independent (Fisher *p* = 0.31–0.63 on QASPER, where reach varies).
+at 0.04–0.06 otherwise; the 110M bi-encoder trails the 33M ones; no association between
+reach and localisation was detected (Fisher exact *p* = 0.31–0.63 on QASPER, where reach
+varies; power is limited). The Holm-significant pairs keep their sign under a document-level
+cluster bootstrap (`results/localisation/robustness_*.json`).
 
 **Does not replicate.** Cross-encoder capacity helps on NQ (the 278M reranker is the
 best model, +4 to +12 pp over the bi-encoders) and not on QASPER (the same reranker is

@@ -61,3 +61,22 @@ def test_holm_adjustment_against_hand_computation() -> None:
     assert holm([0.01, 0.011, 0.5]) == pytest.approx([0.03, 0.03, 0.5])
     # never above one
     assert holm([0.9, 0.8]) == [1.0, 1.0]
+
+
+def test_cluster_bootstrap_keeps_clusters_whole_and_brackets_the_mean() -> None:
+    from scripts.localisation_robustness import cluster_bootstrap
+
+    # every question in cluster A favours model 1, every question in B favours model 2;
+    # resampling whole clusters can only produce means in {-1, 0, +1/3, ...} built from
+    # the two cluster sums, never a value the per-question mix could not produce
+    clusters = [[1, 1, 1], [-1, -1, -1], [1, 1, 1], [0, 0, 0]]
+    out = cluster_bootstrap(clusters, n_boot=2000, seed=1)
+    assert out["delta_hit@1"] == pytest.approx(3 / 12)
+    assert out["n_clusters"] == 4 and out["n_questions"] == 12
+    lo, hi = out["ci95"]
+    assert -1.0 <= lo <= out["delta_hit@1"] <= hi <= 1.0
+    # a difference that is zero on every question has a degenerate interval at zero
+    flat = cluster_bootstrap([[0, 0], [0], [0, 0, 0]], n_boot=200, seed=0)
+    assert flat["ci95"] == [0.0, 0.0] and flat["excludes_zero"] is False
+    # deterministic under a fixed seed
+    assert cluster_bootstrap(clusters, n_boot=500, seed=7) == cluster_bootstrap(clusters, n_boot=500, seed=7)

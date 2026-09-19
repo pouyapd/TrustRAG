@@ -1,0 +1,29 @@
+{
+ "dataset": "qasper",
+ "tokenizer": "sentence-transformers/all-MiniLM-L6-v2",
+ "wordpiece_limit": 256,
+ "n_chunks": 2272,
+ "wordpieces_per_chunk": {
+  "median": 272.0,
+  "p90": 292.0,
+  "max": 340,
+  "share_over_256": 0.9195,
+  "share_over_384": 0.0,
+  "share_over_512": 0.0
+ },
+ "n_questions": 290,
+ "questions_all_gold_beyond_cut": {
+  "n": 0,
+  "share": 0.0
+ },
+ "questions_some_gold_beyond_cut": {
+  "n": 28,
+  "share": 0.0966
+ },
+ "largest_gold_overlap_chars": {
+  "min": 132,
+  "median": 647.0,
+  "n_below_50": 0,
+  "share_below_50": 0.0
+ }
+}

@@ -45,8 +45,8 @@ reliably, and capacity does not fix it consistently:
 | Pairs significant after Holm (of 21) | 2 | 6 |
 
 The median rank is 2 on both corpora and a third to a half of gold chunks sit at ranks 2–5. BM25 is
-the weakest localiser on both, the 110M bi-encoder trails 33M models on both, and reach is
-independent of localisation. The cross-encoder result does *not* replicate: the 278M reranker is
+the weakest localiser on both, the 110M bi-encoder trails 33M models on both, and no association
+between reach and localisation was detected. The cross-encoder result does *not* replicate: the 278M reranker is
 the best model on NQ and the worst neural model on QASPER, and its NQ lead over BGE-small is not
 significant (*p* = 0.19). Full study, raw rows, tests and the corpus contrast:
 [results/localisation/README.md](results/localisation/README.md).
@@ -170,8 +170,9 @@ misses are only partly shared (union of seven 0.77–0.78 vs best single 0.40–
 the weakest localiser on both corpora and the only one whose deficit survives Holm
 correction on both; it succeeds at 0.84–0.89 when the gold chunk is the lexically most
 question-like chunk of its document and at 0.04–0.06 otherwise. The 110M bi-encoder trails
-the 33M ones on both corpora. Reach and localisation are statistically independent
-(Fisher *p* = 0.31–0.63, QASPER).
+the 33M ones on both corpora. No association between reach and localisation was detected
+(Fisher exact *p* = 0.31–0.63, QASPER; power is limited), and the pairwise conclusions hold
+under a document-level cluster bootstrap.
 
 **What does not.** Cross-encoder capacity helps on Wikipedia and not on scientific papers:
 the 278M reranker is the best model on NQ (+4 to +12 pp over the bi-encoders) and the
@@ -395,7 +396,7 @@ Read before quoting anything above. Full list in
   labels, and the annotated run uses an extractive control that cannot hallucinate.
 - **The core premise is prior art.** This is a measurement-validity study, not a new
   evaluation paradigm.
-- **Retrieval breadth.** The decomposition uses two retrievers (dense + BM25); the localisation study adds four bi-encoders and two cross-encoders but one reranker per size class, on two corpora, with model revisions unpinned.
+- **Retrieval breadth.** The decomposition uses two retrievers (dense + BM25); the localisation study adds four bi-encoders and two cross-encoders but one reranker per size class, on two corpora. Model revisions were not pinned at run time; the revisions actually run are recorded after the fact in `results/localisation/model_metadata.json`.
 - **One corpus and one configuration** for the human study; small generators (0.5B, 0.36B). Gold-span under-coverage is measured on QASPER only, not on NQ.
 - **Targeted, not systematic, literature review.**
 - **Not a deployed system** — containerised and CI-tested, never run at production scale.
