@@ -44,4 +44,4 @@ against 0.600 for the document gate) is the one the manuscript reports.
 | 5 | Real generative model behind the annotated package | Open — the annotated run uses the extractive control; the oracle-evidence experiment uses Qwen2.5-0.5B on 150 questions but was not annotated |
 | 6 | Threshold-tuning ablation, held-out | Done — `scripts/threshold_ablation.py`, 144 configurations, 50/50 split, seed 20260906; the output rows are in the annotation package |
 | 7 | Oracle-context ablation | Done — `scripts/run_oracle_evidence.py`, reported in the root README as a replication |
-| 8 | Distribution of the annotation package | Decided — deposited as a separate checksummed archive in the Zenodo record of release v1.0.0 (DOI inserted once the record exists) |
+| 8 | Distribution of the annotation package | Done — deposited as a separate checksummed archive in the Zenodo record of release v1.0.0 (version DOI 10.5281/zenodo.22879569; concept DOI 10.5281/zenodo.22879357) |

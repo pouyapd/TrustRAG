@@ -58,8 +58,8 @@ fingerprint, Python version, platform, package versions.
   are annotation data, not a computation. The annotation package (200 units with retrieved
   context, original/review/final labels with provenance, audits, adjudication sheet and
   answers, threshold-ablation and oracle-evidence rows) is deposited as a separate
-  checksummed archive in the Zenodo record of release v1.0.0; the DOI is added to the
-  README and `CITATION.cff` once the record exists.
+  checksummed archive in the Zenodo record of release v1.0.0 (version DOI
+  10.5281/zenodo.22879569; concept DOI 10.5281/zenodo.22879357).
 - **Approximate nearest-neighbour search.** Fine-grained aggregates on long-document
   corpora move by ≤0.001 between independently built indices. Headline A/B/C figures
   reproduce exactly; no reported gap or test changes.

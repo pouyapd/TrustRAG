@@ -35,8 +35,9 @@ is the code and result state the manuscript reports. It is archived on Zenodo: c
 [10.5281/zenodo.22879357](https://doi.org/10.5281/zenodo.22879357) (always the latest version),
 version DOI [10.5281/zenodo.22879358](https://doi.org/10.5281/zenodo.22879358) for the v1.0.0
 code archive. The human annotation package (SHA-256 `d6d84ecb155853939be2b6d482caedb808915e29aa54498fb78c7d09502ea44d`)
-is deposited as a separate archive in a new version of the same record; until that version is
-published the record holds the code archive only (see [Reproducibility](#reproducibility)).
+is the second version of the same record: version DOI
+[10.5281/zenodo.22879569](https://doi.org/10.5281/zenodo.22879569), distributed under CC BY 4.0
+because it excerpts QASPER text (see [Reproducibility](#reproducibility)).
 
 **In one paragraph.** Every chunk of the document that holds the gold evidence is ranked against
 the question by seven localisers — BM25, four dense bi-encoders and two cross-encoder rerankers,
@@ -322,8 +323,10 @@ first use); and `reports/`, which holds the run records and the annotation packa
 labels are data, not a computation, so the package (200 units with full retrieved context,
 original/review/final labels with provenance, guideline and truncation audits, gold-span
 adjudication sheet and answers, threshold-ablation and oracle-evidence rows; QASPER excerpts under
-CC BY 4.0) is deposited as a separate checksummed archive (SHA-256 `d6d84ecb15585393…`) in a new
-version of the Zenodo record of release v1.0.0 (concept DOI 10.5281/zenodo.22879357).
+CC BY 4.0) is deposited as a separate checksummed archive (SHA-256 `d6d84ecb15585393…`) as the
+second version of the Zenodo record of release v1.0.0: version DOI
+[10.5281/zenodo.22879569](https://doi.org/10.5281/zenodo.22879569) (concept DOI
+10.5281/zenodo.22879357; the code archive is version 10.5281/zenodo.22879358).
 Every report embeds the git commit, raw-file SHA-256, configuration, threshold fingerprint and
 package versions. Approximate nearest-neighbour search moves fine-grained decomposition aggregates
 by ≤ 0.001 between independently built indices; the localisation study has no randomness (stable

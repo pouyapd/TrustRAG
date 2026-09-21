@@ -58,9 +58,9 @@ are listed in `results/localisation/model_metadata.json`), and `reports/` (run r
 annotation package). The human annotation package — 200 QASPER units with full retrieved context,
 original/review/final labels with provenance, guideline and truncation audits, the gold-span
 adjudication sheet and answers, threshold-ablation and oracle-evidence rows; 68 files, SHA-256
-`d6d84ecb155853939be2b6d482caedb808915e29aa54498fb78c7d09502ea44d`) is deposited as a separate archive in a new
-version of the Zenodo record of this release, under QASPER's CC BY 4.0 terms for the excerpted
-text.
+`d6d84ecb155853939be2b6d482caedb808915e29aa54498fb78c7d09502ea44d`) is deposited as the second version of the
+Zenodo record of this release (version DOI 10.5281/zenodo.22879569), under QASPER's CC BY 4.0
+terms for the excerpted text.
 
 ### Changes since the previous commit on `main` (9a7ab20)
 
