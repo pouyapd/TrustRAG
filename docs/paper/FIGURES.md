@@ -1,5 +1,11 @@
 # Figures
 
+> **Stage-2 document (2 September 2026).** Written before the human annotation study, the
+> gold-span adjudication and the within-document localisation study. The "reference set"
+> here is the automated (language-model) annotation pass, not the human labels; the human
+> study in [human_validation_final.md](human_validation_final.md) supersedes it as the
+> reported number. Stage and status of every document: [README.md](README.md) in this folder.
+
 Five figures exist as files. `results/figures/` is tracked by git;
 `docs/figures/` is new in the working tree and not gitignored. Each entry gives what it shows, what it is
 evidence *for*, the data it is drawn from, and the command that regenerates it.

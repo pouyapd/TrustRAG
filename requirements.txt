@@ -29,6 +29,8 @@ numpy>=1.26.4
 pyarrow>=15.0.0
 pandas>=2.2.3
 scikit-learn>=1.5.2
+# Exact tests in the localisation scripts (Fisher, McNemar helpers) and their tests.
+scipy>=1.11
 
 # Testing
 pytest>=8.3.3

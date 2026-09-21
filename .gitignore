@@ -33,7 +33,7 @@ reports/
 # Docker
 *.log
 
-# Raw third-party corpora - never redistributed, fetched by scripts/fetch_datasets.py
+# Raw third-party corpora - never redistributed, fetched as described in docs/DATASETS.md
 data/raw/
 data/build/
 manuscript_private/

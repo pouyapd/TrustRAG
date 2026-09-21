@@ -1,93 +1,68 @@
-# TrustRAG — Evidence-Aware RAG Evaluation
+# TrustRAG — evidence localisation and failure attribution for RAG evaluation
 
 [![CI](https://github.com/pouyapd/TrustRAG/actions/workflows/ci.yml/badge.svg)](https://github.com/pouyapd/TrustRAG/actions/workflows/ci.yml)
 ![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)
-![License: MIT](https://img.shields.io/badge/license-MIT-green)
-![Tests](https://img.shields.io/badge/tests-486%20passing-brightgreen)
-![Coverage](https://img.shields.io/badge/coverage-80%25-green)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Release v1.0.0](https://img.shields.io/badge/release-v1.0.0-blue)](https://github.com/pouyapd/TrustRAG/releases/tag/v1.0.0)
 
-**TrustRAG is a research codebase for evaluating retrieval-augmented generation at the level of
-evidence, not documents.** Chunks carry character offsets from the source document into the vector
-store and the stored run, so "did the passage that supports the answer arrive?" is decided by
-interval overlap after the fact. On top of that it holds a nine-category failure taxonomy with two
-interchangeable retrieval gates, blinded annotation tooling, and a within-document localisation
-study. That document-level retrieval metrics overstate success on long documents is
-[established prior work](docs/paper/literature_review.md); this repository measures what happens
-after the right document is reached, and what span-level evaluation buys and costs.
+**TrustRAG is a research framework for evaluating retrieval-augmented generation (RAG) at the
+level of evidence rather than documents.** A document-level retrieval metric counts any retrieved
+chunk of a relevant document as a success. TrustRAG measures what that metric cannot see: the gap
+between retrieving the correct document and localising the passage that actually supports the
+answer — the passage a generator needs, and the passage an evaluation decision about *which stage
+failed* depends on. It does this with an offset-carrying pipeline (every chunk keeps its character
+range in the source document, so evidence coverage is interval arithmetic, not string search), a
+document-restricted localisation protocol with an analytic chance level, a failure taxonomy whose
+retrieval rule can be gated on document-level or span-level evidence, and an audit of the evidence
+annotations that span-level scoring relies on.
 
-> **Research questions.**
-> 1. Inside the document that holds the evidence, how often does a retriever rank the evidence
->    chunk first, and does that depend on the model family, model size, or the corpus?
-> 2. When RAG failure attribution is gated on span-level evidence rather than document-level
->    retrieval, does it agree better with human judgement — and how far can the span-based gold
->    standard itself be trusted?
+TrustRAG proposes no retrieval method and claims no state-of-the-art result. It is a measurement
+study: what happens inside the right document, on two public corpora, with the reference itself
+audited.
 
-**What was tested.** Seven localisers (BM25, four dense bi-encoders, two cross-encoders, 22M–278M)
-ranking every chunk of the gold document on QASPER (290 questions) and Natural Questions (300),
-under one protocol with paired tests and an analytic chance level; a document/span retrieval
-decomposition on four corpora; a 200-unit human annotation study of the taxonomy with a guided
-second review; a 60-unit human adjudication of gold-span completeness; and a paired oracle-evidence
-replication with a 0.5B reader.
+## Research paper
 
-![Rank of the gold chunk inside its document, per model and corpus](results/localisation/rank_distribution.png)
+**Right Document, Wrong Passage: Evidence Localisation in Retrieval-Augmented Generation Evaluation
+on QASPER and Natural Questions.** Pouya Bathaei Pourmand, 2026.
 
-**Strongest current result.** Inside the right document, no retriever ranks the evidence first
-reliably, and capacity does not fix it consistently:
+*Status: manuscript prepared for submission to* Language Resources and Evaluation *(Springer).* It
+has not been submitted, accepted or published; this line will be updated when that changes. The
+manuscript is not in the repository.
 
-| | QASPER | NQ |
-|---|---|---|
-| Chance hit@1 (random order of the document's chunks) | 0.157 | 0.116 |
-| hit@1, all seven models | 0.290 – 0.400 | 0.353 – 0.507 |
-| hit@5, all seven models | 0.755 – 0.855 | 0.690 – 0.837 |
-| Best single model | BGE-small 33M, 0.400 | bge-reranker-base 278M, 0.507 |
-| Worst neural model | bge-reranker-base 278M, 0.310 | MiniLM 22M, 0.387 |
-| Some model ranks the gold first | 0.769 | 0.780 |
-| Pairs significant after Holm (of 21) | 2 | 6 |
+Release **[v1.0.0](https://github.com/pouyapd/TrustRAG/releases/tag/v1.0.0)** of this repository
+is the code and result state the manuscript reports. It is archived on Zenodo through the GitHub
+integration; the DOI will be added here, in `CITATION.cff` and in the manuscript once the record
+exists (no DOI is quoted until then). The human annotation package is deposited in the same Zenodo
+record as a separate archive (see [Reproducibility](#reproducibility)).
 
-The median rank is 2 on both corpora and a third to a half of gold chunks sit at ranks 2–5. BM25 is
-the weakest localiser on both, the 110M bi-encoder trails 33M models on both, and no association
-between reach and localisation was detected. The cross-encoder result does *not* replicate: the 278M reranker is
-the best model on NQ and the worst neural model on QASPER, and its NQ lead over BGE-small is not
-significant (*p* = 0.19). Full study, raw rows, tests and the corpus contrast:
-[results/localisation/README.md](results/localisation/README.md).
-
-**Where to find things.** Results and analysis → [results/localisation/](results/localisation/README.md),
-[docs/EXPERIMENTS.md](docs/EXPERIMENTS.md), [docs/paper/](docs/paper/) · Reproduction → [Reproducibility](#reproducibility)
-and [docs/paper/reproducibility.md](docs/paper/reproducibility.md) · What is and is not claimed →
-[literature_review.md](docs/paper/literature_review.md), [Limitations](#limitations).
-
-**All findings, including one we withdrew.**
-
-| | Result |
-|---|---|
-| **Inside the right document, no retriever ranks the evidence first reliably — and capacity does not fix it consistently** | Seven localisers rank the gold chunk first for **0.29–0.40** of QASPER questions and **0.35–0.51** of NQ questions, against top-5 rates of 0.69–0.86; the median rank is 2. The 278M reranker is the best model on NQ and the worst neural model on QASPER; the 110M bi-encoder trails 33M models on both. [Full study](results/localisation/README.md). |
-| **Evidence-gating agrees better with humans — for retrieval attribution only** | Against 200 human-reviewed labels: accuracy **0.700 vs 0.600**, κ **0.437 vs 0.375**, paired **22 vs 2**, exact McNemar *p* < 0.0001. But only the retrieval classes are reliable: `wrong_retrieval` F1 0.907 against `ok` recall 0.094. |
-| **The span-based gold standard is incomplete, and now measured** | Human adjudication of 60 sampled units puts gold-span under-coverage at **0.119, 95% CI [0.096, 0.142]** — the span rule calls a retrieval failure where the answer was in fact derivable. A sensitivity analysis places the defensible range at **4–12%**. Modest, quantified, and an order of magnitude smaller than the effects measured. |
-| **A result we reported and then withdrew** | We claimed the document/span choice inverts the BM25-vs-dense ranking. It does not — the finding was an evidence-mode bug in our own baseline. Corrected, BM25 leads at *both* granularities on QASPER (0.528/0.321 vs 0.441/0.276) and dense leads at both on NQ and HotpotQA, across 5 depths and 3 chunk sizes. Reported in full [below](#a-withdrawn-result-no-retriever-ranking-inversion). |
-
-**What this repository does not claim.** Evidence-aware RAG evaluation is not new here;
-neither is the failure taxonomy, nor the oracle-evidence experiment (a
-[replication](#oracle-evidence-control-a-replication) — 32.1% repair
-against 32.8% published). See [literature_review.md](docs/paper/literature_review.md) for
-what is and is not novel. The manuscript is kept private and is not published.
-
-📋 **[Reviewer simulation](docs/paper/reviewer_simulation.md)** · 🎯 **[Venue fit](docs/paper/venue_fit.md)** · 🧪 **[Full experiment log](docs/EXPERIMENTS.md)**
-
----
+**In one paragraph.** Every chunk of the document that holds the gold evidence is ranked against
+the question by seven localisers — BM25, four dense bi-encoders and two cross-encoder rerankers,
+22M–278M parameters — on QASPER (290 questions, NLP papers) and Natural Questions (300 questions,
+Wikipedia), under one protocol and a length-aware analytic chance level. Rank-1 localisation stays
+at or below about half the questions for every model and corpus (hit@1 0.29–0.51) while hit@5
+reaches 0.69–0.86; the median rank is 2 for almost every model, and the models miss different
+questions. BM25 is the weakest localiser on both corpora, differences among the bi-encoders are
+not significant after Holm correction, and the cross-encoder reranker effect does not replicate
+across corpora. An author-conducted annotation study of 200 QASPER units finds that gating failure
+attribution on span coverage agrees with the human labels more often than gating on document
+coverage (accuracy 0.700 against 0.600), and a stratified, blind adjudication of 60 units estimates
+the incompleteness of the QASPER span annotations at 0.119 (95% CI [0.096, 0.142]; 4–12% under
+sensitivity analysis). The results argue for reporting localisation against chance and for auditing
+evidence annotations before they serve as a scoring reference.
 
 ## Contents
 
-[Core insight](#core-insight) · [Methodology](#methodology) · [Results](#results) ·
-[Human validation](#human-validation) · [Gold-span limits](#how-far-the-gold-standard-can-be-trusted) ·
-[Datasets & setup](#datasets-and-experimental-setup) · [Reproducibility](#reproducibility) ·
-[Install](#install-and-use) · [Tests](#tests) · [Limitations](#limitations)
+[The problem](#the-problem-right-document-wrong-passage) · [What is evaluated](#what-the-framework-evaluates) ·
+[Main findings](#main-findings) · [Human-reviewed attribution study](#human-reviewed-attribution-study) ·
+[Gold-span completeness audit](#gold-span-completeness-audit) · [Oracle-evidence control](#oracle-evidence-control-a-replication) ·
+[Decomposition and a withdrawn result](#retrieval-decomposition-and-a-withdrawn-result) ·
+[Reproducibility](#reproducibility) · [Repository structure](#repository-structure) · [Installation](#installation) ·
+[Tests](#tests) · [Limitations](#limitations) · [Version](#version-and-release) · [Citation](#citation) · [License](#license)
 
----
+## The problem: right document, wrong passage
 
-## Core insight
-
-A gold span and a retrieved chunk are half-open character intervals in the same
-document. Overlap decides coverage — arithmetic, not string search:
+A gold span and a retrieved chunk are half-open character intervals in the same document.
+Positive overlap is evidence coverage:
 
 ```
 document  qasper:1901.00001
@@ -96,344 +71,385 @@ retrieved chunk  [ 900, 2100)   overlap = 560 chars  ->  evidence covered
 retrieved chunk  [8300, 9500)   overlap =   0 chars  ->  same document, no evidence
 ```
 
-Both chunks satisfy a document-level metric. Only the first makes the question
-answerable from context. Three definitions of retrieval success follow:
+Both chunks satisfy a document-level metric; only the first makes the question answerable from
+context. Three definitions of retrieval success follow — **A**: some chunk from a relevant document
+(the conventional metric); **B**: every document a multi-hop question requires; **C**: a retrieved
+chunk contains the gold span — with `C ≤ B ≤ A` by construction. The A→C gap is large on
+long-document corpora (16.6 pp on QASPER, 26.7 pp on NQ at *k* = 5; see
+[below](#retrieval-decomposition-and-a-withdrawn-result)). That the gap exists is
+[prior work](docs/paper/literature_review.md). TrustRAG asks what remains once the right document
+has been reached: does the retriever rank the evidence passage first inside it, does that depend on
+the model or the corpus, and how far can the span annotations used to score it be trusted?
 
-- **A** — some chunk from a relevant document (the conventional metric)
-- **B** — every document a multi-hop question requires
-- **C** — a retrieved chunk actually contains the gold span
+## What the framework evaluates
 
-`C ≤ B ≤ A` by construction. A→B isolates a **quantifier** effect, B→C a **granularity**
-effect, and the two are near-orthogonal: each is null on the corpus where the other
-dominates.
+**Within-document localisation protocol.** For every answerable question, *all* chunks of the gold
+document (256 tokens, overlap 32, character offsets verified `document[start:end] == chunk.text`)
+are ranked against the question by a localiser; the rank of the first chunk overlapping a gold span
+is recorded. No other document competes, so the measurement is about localisation only. The
+expected hit@*k* and MRR under a random ordering of that document's *D* chunks with *m* gold chunks
+are computed analytically, which makes corpora with different document lengths comparable and gives
+a lift over chance for every model. Statistics: exact McNemar on paired hit@1 with Holm correction
+over all 21 model pairs per corpus, exact sign tests on reciprocal ranks, Wilson intervals,
+Spearman rank correlation, union analysis, and a document-level cluster bootstrap because QASPER
+questions cluster in papers. Also measured: hit@*k* for *k* ∈ {1, 3, 5, 10, 20}, near-miss mass at
+ranks 2–5, the trade-off between admitting more chunks of the reached document and reach, chunk
+size (128/256/512), and descriptive corpus contrasts (offered as hypotheses, not tested causes).
 
-## Methodology
+**Seven localisers, identical protocol on both corpora.**
 
-Character offsets travel chunker → vector store → retrieval → stored record, so
-`document[chunk.start:chunk.end] == chunk.text` holds by construction and is
-property-tested. That is what makes span coverage computable after the fact.
+| Localiser | Family | Parameters |
+|---|---|---|
+| BM25 (Okapi, k1 = 1.5, b = 0.75, corpus-level IDF) | lexical | — |
+| `sentence-transformers/all-MiniLM-L6-v2` | dense bi-encoder | 22M |
+| `BAAI/bge-small-en-v1.5` | dense bi-encoder | 33M |
+| `intfloat/e5-small-v2` | dense bi-encoder | 33M |
+| `sentence-transformers/all-mpnet-base-v2` | dense bi-encoder | 110M |
+| `cross-encoder/ms-marco-MiniLM-L-6-v2` | cross-encoder reranker | 22M |
+| `BAAI/bge-reranker-base` | cross-encoder reranker | 278M |
 
-The failure taxonomy has nine categories and one rule — R4 — that decides whether a row
-is charged to retrieval. It reads a single boolean. **The document-gated variant binds it
-to A; the evidence-gated variant binds it to C. Everything else is identical**, and both
-labels are written to every row, so the comparison runs on identical retrieval output at
-zero extra inference cost.
+Model revisions actually run, input limits and documented training data:
+[results/localisation/model_metadata.json](results/localisation/model_metadata.json).
 
-Design rationale: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) ·
-Taxonomy: [docs/TAXONOMY.md](docs/TAXONOMY.md)
+**Datasets.** Corpora are not redistributed; loaders, download commands, checksums and licence
+metadata are committed ([docs/DATASETS.md](docs/DATASETS.md)).
 
-## Results
+| Dataset | Licence | Structure | Used for |
+|---|---|---|---|
+| QASPER (dev) | CC BY 4.0 | NLP papers, ~20 chunks per gold document, evidence paragraphs (2.09 spans per question) | localisation, human study, gold-span audit, oracle control, decomposition |
+| Natural Questions (validation) | CC BY-SA 3.0 | Wikipedia pages, ~42 chunks per gold document, one long answer | localisation, decomposition |
+| HotpotQA, 2WikiMultihopQA | CC BY-SA 4.0, Apache-2.0 | 10 paragraphs, 2–4 gold | the A→B quantifier effect in the decomposition only |
 
-### Retrieval decomposition
+**Failure taxonomy with two retrieval gates.** Nine categories, one rule (R4) that decides whether
+a row is charged to retrieval. The document-gated variant binds R4 to definition A, the
+evidence-gated variant to definition C; everything else is identical and both labels are written to
+every row, so the comparison runs on the same retrieval output at no extra inference cost
+([docs/TAXONOMY.md](docs/TAXONOMY.md)).
 
-| Corpus | n | A | B | C | quantifier A→B | granularity B→C |
-|---|---:|---:|---:|---:|---:|---:|
-| QASPER dev | 290 | 0.441 | 0.441 | 0.276 | 0.0 pp | **16.6 pp** (p=7.1e-15) |
-| Natural Questions | 300 | 0.997 | 0.997 | 0.730 | 0.0 pp | **26.7 pp** (p=1.7e-24) |
-| HotpotQA | 150 | 0.993 | 0.507 | 0.507 | **48.7 pp** (p=2.1e-22) | 0.0 pp |
-| 2WikiMultihopQA | 150 | — | — | — | **64.7 pp** (p=1.3e-29) | 1.3 pp (n.s.) |
+## Main findings
 
-![A/B/C decomposition across corpora](results/figures/abc_decomposition.png)
+![Rank of the gold chunk inside its document, per model and corpus](results/localisation/rank_distribution.png)
 
-### A withdrawn result: no retriever-ranking inversion
+| | QASPER (n = 290) | NQ (n = 300) |
+|---|---|---|
+| Chance hit@1 (random order of the document's chunks) | 0.157 | 0.116 |
+| hit@1, seven localisers | 0.290 – 0.400 | 0.353 – 0.507 |
+| hit@5, seven localisers | 0.755 – 0.855 | 0.690 – 0.837 |
+| Best single localiser at rank 1 | BGE-small 33M, 0.400 | bge-reranker-base 278M, 0.507 |
+| Weakest neural localiser at rank 1 | bge-reranker-base 278M, 0.310 | MiniLM 22M, 0.387 |
+| Some localiser ranks the gold chunk first | 0.769 | 0.780 |
+| Pairs significant after Holm (of 21) | 2 (both BM25 deficits) | 6 |
 
-![Dense vs BM25 under both definitions](results/figures/bm25_vs_dense.png)
+Per localiser, hit@1 / hit@5 (from [`hit_at_k_qasper.json`](results/localisation/hit_at_k_qasper.json)
+and [`hit_at_k_nq.json`](results/localisation/hit_at_k_nq.json), recomputed from the stored ranks):
 
-An earlier version of this README claimed the document/span choice reverses the
-BM25-vs-dense comparison. **It was an artefact of our own bug**: QASPER declares
-`any_sufficient` evidence mode, the BM25 baseline hard-coded `all_required`, and 51% of
-QASPER questions carry more than one span — so BM25's span coverage was under-reported
-(0.183 instead of 0.321) against a dense pipeline using the correct mode.
+| Localiser | QASPER hit@1 | QASPER hit@5 | NQ hit@1 | NQ hit@5 |
+|---|---:|---:|---:|---:|
+| BM25 | 0.290 | 0.755 | 0.353 | 0.690 |
+| MiniLM-L6 (22M) | 0.376 | 0.845 | 0.387 | 0.773 |
+| BGE-small (33M) | 0.400 | 0.845 | 0.463 | 0.817 |
+| E5-small (33M) | 0.359 | 0.821 | 0.457 | 0.803 |
+| MPNet-base (110M) | 0.334 | 0.797 | 0.403 | 0.793 |
+| ms-marco-MiniLM cross-encoder (22M) | 0.386 | 0.855 | 0.460 | 0.813 |
+| bge-reranker-base (278M) | 0.310 | 0.797 | 0.507 | 0.837 |
 
-Corrected, **no inversion occurs on any corpus**: BM25 leads at both granularities on
-QASPER (paired 40 vs 27, p = 0.142, n.s.), dense leads at both on NQ (53 vs 27,
-p = 0.0049) and HotpotQA. Stable across k = 1…20 and chunk sizes 128/256/512.
-Conditional on reaching a gold document at k = 5, the two retrievers cover the span at
-similar rates (60.8% vs 62.5%) — which is why an inversion was implausible. The section
-below shows that this similarity is a coincidence of the top-k cut, not equal ranking
-skill: BM25 ranks worse inside the document and compensates by admitting more chunks
-from it (3.2 vs 2.7).
+**What replicates on both corpora.** Every model places the evidence near the top of its document
+but rarely first: the median rank is 2 for almost every model, a third to a half of gold chunks sit
+at ranks 2–5, and the misses are only partly shared (union of seven at rank 1 0.77–0.78 against a
+best single model of 0.40–0.51). BM25 is the weakest localiser on both corpora and the only model
+whose deficit survives Holm correction on both; it localises at 0.84–0.89 when the gold chunk is
+the lexically most question-like chunk of its document and at 0.04–0.06 otherwise. The 110M
+bi-encoder trails the 33M ones on both corpora, though no difference among the bi-encoders is
+significant after correction. No association between reaching the document and localising inside
+it was detected on QASPER (Fisher exact *p* 0.31–0.63; power is limited), and the pairwise
+conclusions hold under the document-level cluster bootstrap.
 
-### Inside the right document: who finds the passage?
+**What does not replicate.** The 278M cross-encoder reranker is the best localiser on NQ
+(+4 to +12 pp hit@1 over the bi-encoders, significantly above MiniLM and MPNet after correction,
+though its lead over BGE-small is not significant, *p* = 0.19) and the worst neural localiser on
+QASPER, below every bi-encoder and indistinguishable from BM25. The corpora differ in ways
+consistent with this — QASPER papers are more topically homogeneous chunk-to-chunk (mean
+intra-document cosine 0.58 vs 0.46), their gold evidence shares no content word with the question
+about four times as often (8.3% vs 2.0%), and web QA is in the documented training data of every
+neural model tested while scientific-paper QA is in none — but these contrasts are descriptive;
+they suggest hypotheses and do not establish causes.
 
-The granularity gap says retrievers reach the right document and miss the passage. This
-study asks whose fault that is. For every question, *all* chunks of the gold document are
-ranked against the question by each of seven localisers, so no other document competes,
-and the rank of the first gold-overlapping chunk is recorded against an analytic chance
-level. Same chunking, same evidence definition, same statistics on both corpora.
+**The claim that survives both corpora.** Increasing retriever or reranker capacity does not
+produce a consistent improvement in rank-1 evidence localisation, and the localisation term is
+closed only by admitting more of the reached document (hit@1 0.29–0.40 → hit@5 0.76–0.86 →
+hit@10 0.93–0.98 on QASPER), at the price of reach; no fixed document-first allocation beats flat
+top-*k* at equal budget. Conditional span coverage at a fixed cut-off is therefore not a measure of
+ranking skill: two retrievers can cover the span at similar rates while ranking it very
+differently inside the document, if one admits more chunks from it. Full tables, pairwise tests,
+correlations, sweeps, corpus contrasts and limitations:
+[results/localisation/README.md](results/localisation/README.md).
 
-The headline table is at the top of this README; the full tables are in [results/localisation/README.md](results/localisation/README.md).
-
-**What replicates.** Every model places the evidence near the top of its document but
-rarely first — median rank 2, a third to a half of gold chunks at ranks 2–5 — and the
-misses are only partly shared (union of seven 0.77–0.78 vs best single 0.40–0.51). BM25 is
-the weakest localiser on both corpora and the only one whose deficit survives Holm
-correction on both; it succeeds at 0.84–0.89 when the gold chunk is the lexically most
-question-like chunk of its document and at 0.04–0.06 otherwise. The 110M bi-encoder trails
-the 33M ones on both corpora. No association between reach and localisation was detected
-(Fisher exact *p* = 0.31–0.63, QASPER; power is limited), and the pairwise conclusions hold
-under a document-level cluster bootstrap.
-
-**What does not.** Cross-encoder capacity helps on Wikipedia and not on scientific papers:
-the 278M reranker is the best model on NQ (+4 to +12 pp over the bi-encoders) and the
-worst neural model on QASPER (below every bi-encoder, indistinguishable from BM25). The
-corpora differ in ways consistent with this — QASPER papers are far more topically
-homogeneous chunk-to-chunk (mean intra-document cosine 0.58 vs 0.46), their evidence is
-lexically hidden from the question four times as often, and NQ-style web QA is in the
-documented training data of every neural model tested while scientific-paper QA is in
-none — but this is a hypothesis, not a finding.
-
-**The claim that survives both corpora:** increasing retriever or reranker capacity does
-not produce a consistent improvement in rank-1 evidence localisation, and the localisation
-term is closed only by admitting more of the reached document (top-1 chunk 0.31–0.39 →
-top-5 0.77–0.85 → top-10 0.95 on QASPER), at the price of reach; no fixed document-first
-allocation beats flat top-*k* at equal budget. Full tables, pairwise tests, correlations,
-the corpus contrast and limitations: [results/localisation/README.md](results/localisation/README.md).
-
-### Oracle-evidence control (a replication)
-
-Every question answered twice by the same generator, same prompt, same decoding — only
-the context differs (retrieved chunks vs the gold spans verbatim). Within-question
-pairing removes question difficulty and generator identity as confounds.
-
-| Stratum | n | retrieved | oracle | difference | p |
-|---|---:|---:|---:|---:|---:|
-| Evidence complete under retrieval | 46 | 0.065 | 0.174 | +10.9 pp | 0.125 (n.s.) |
-| **Document retrieved, span missing** | 26 | **0.000** | **0.231** | **+23.1 pp** | 0.031 |
-| Nothing from any gold document | 78 | 0.000 | 0.321 | +32.1 pp | 6.0e-08 |
-
-![Oracle-evidence control](results/figures/oracle_evidence.png)
-
-The middle row is the argument: those 26 questions are scored as retrieval *successes* by
-a document-level metric, the model got none right, and supplying the actual span repairs
-23% of them. This replicates [arXiv:2608.08944](https://arxiv.org/html/2608.08944)
-(32.8% repair over 11,105 failures) at n=150 with one reader and no sham control.
-
-## Human validation
+## Human-reviewed attribution study
 
 ![Both retrieval gates scored against the final human-reviewed labels](results/figures/human_validation.png)
 
-**Provenance matters here, so it is stated precisely.**
-
-| Artifact | What it is |
-|---|---|
-| `annotator_human/completed.jsonl` | **Human**, original pass, 200 units |
-| `review_43_flagged/annotator_review/` | **Human**, second review of 43 audit-flagged units |
-| `final_human_reviewed/completed.jsonl` | **Derived**: original label where unflagged, review decision where flagged |
-| `annotator_a/completed.jsonl` | **Automated** — a language-model annotator. Not ground truth. |
-
-An audit against the written guidelines flagged 43 of 200 labels as conflicting with an
-explicit rule. The annotator re-reviewed those 43 on full context: **36 changed, 7
-upheld**. A per-unit provenance chain records `original → flag reason → review → final`.
-
-**This is agreement with a guided expert reading, not independent validation.** The
-annotator was told which units to re-examine and why, and the changes moved toward what
-the guidelines prescribe. Reported honestly rather than as validation.
+200 QASPER units were annotated by the author under written guidelines
+([docs/ANNOTATION_GUIDELINES.md](docs/ANNOTATION_GUIDELINES.md)) in a blinded package built by
+[`scripts/build_annotation_package.py`](scripts/build_annotation_package.py). Provenance is
+stated exactly because it matters: an audit against the guidelines flagged 43 of the 200 labels as
+conflicting with an explicit rule; the annotator re-reviewed those 43 on full context (36 changed,
+7 upheld); 22 labels come from a pilot on a truncated display and were never re-judged (none of the
+22 was among the 43). The final 200 labels are therefore 135 original full-context labels, 43
+review decisions and 22 pilot-era labels, with a per-unit chain `original → flag reason → review →
+final`.
 
 | Variant | Accuracy | 95% CI | Macro F1 | κ |
 |---|---:|---:|---:|---:|
-| Document-gated | 0.6000 | 0.531–0.665 | 0.4764 | 0.3752 |
-| **Evidence-gated** | **0.7000** | 0.633–0.759 | **0.4819** | **0.4371** |
+| Document-gated | 0.600 | 0.531–0.665 | 0.476 | 0.375 |
+| **Evidence-gated** | **0.700** | 0.633–0.759 | **0.482** | **0.437** |
 
-Per class, evidence-gated: `wrong_retrieval` F1 **0.907** (support 136),
-`answered_when_unanswerable` F1 **1.000** (9), `partial_answer` 0.286 (22), `ok` 0.158
-(32), `incorrect_answer` 0.059 (1).
+Paired over the same units: 118 both correct, **22 only evidence-gated**, 2 only document-gated,
+58 neither; exact McNemar *p* = 3.6 × 10⁻⁵. Per class (evidence-gated): `wrong_retrieval` F1 0.907
+(support 136), `answered_when_unanswerable` 1.000 (9), `partial_answer` 0.286 (22), `ok` 0.158
+(32), `incorrect_answer` 0.059 (1). Retrieval-side attribution is where the gate helps;
+generation-side classes are not reliable, and a held-out threshold ablation (144 configurations,
+50/50 split, [`scripts/threshold_ablation.py`](scripts/threshold_ablation.py)) moves the evidence
+gate only from 0.730 to 0.750 on the held-out half — the rules, not the thresholds, are the larger
+problem.
 
-> **Retrieval-side attribution is validated. Generation-side classification is not.** A
-> [held-out threshold ablation](docs/paper/results.md) (144
-> configurations, 50/50 split) improves the evidence gate from 0.730 to 0.750 accuracy
-> and does not rescue the generation classes — the rules, not the thresholds, are the
-> larger problem.
+**This is agreement with a guided expert reading, not independent validation.** There is one
+annotator (the author), no inter-annotator agreement, and the second pass was directed by an audit
+of the same guidelines under test. Agreement with an earlier *automated* (language-model) reference
+pass is higher (0.805, κ 0.630) than with the human labels; the human number is the one reported.
+Full account: [docs/paper/human_validation_final.md](docs/paper/human_validation_final.md).
 
-Agreement with the *automated* reference pass is markedly higher (0.805, κ 0.631) than
-agreement with humans. Two automated readings share failure directions; **the human
-number is the one reported.**
-
-Full detail: [human_validation_final.md](docs/paper/human_validation_final.md)
-
-## How far the gold standard can be trusted
+## Gold-span completeness audit
 
 ![Proxy partition of the 133 zero-coverage units, before human adjudication](results/figures/gold_span_validity.png)
 
-*The proxy partition that preceded adjudication. The 87 unresolved units in the three
-right-hand bands are what the human study below settled.*
-
-**Question put to a human annotator, blind to every previous label:** *is the reference
-answer derivable from the retrieved text alone, without relying on the annotated gold
-span?*
-
-All 133 answerable units with zero gold-span coverage were partitioned by two automated
-proxies. Where both agreed, the unit was counted directly (36 answer absent, 10 answer
-present). The 87 they could not resolve were sampled — 60 units, stratified,
-seed `20260907` — and adjudicated by hand: **4 YES, 56 NO, 0 CANNOT_TELL**.
+Span-level scoring assumes the annotated spans are the only places the answer can be derived from.
+QASPER marks supporting paragraphs, not every sufficient passage, so a retriever that returns a
+different but sufficient passage is scored as a failure. The audit asks, for the 133 answerable
+units with zero gold-span coverage, whether the reference answer is derivable from the retrieved
+text alone. Two proxies (content-word overlap and MiniLM cosine) resolved 46 units where they agreed
+(36 answer absent, 10 answer present); the 87 they could not resolve were stratified, and 60 were
+sampled (seed 20260907) and adjudicated by hand, blind to every previous label and score
+([`scripts/build_goldspan_adjudication.py`](scripts/build_goldspan_adjudication.py),
+[`scripts/score_goldspan_adjudication.py`](scripts/score_goldspan_adjudication.py)):
+**4 YES, 56 NO, 0 CANNOT_TELL**.
 
 | | Estimate |
 |---|---|
-| **Gold-span under-coverage** | **0.119**, 95% CI **[0.096, 0.142]** (≈16 of 133 units) |
+| Gold-span under-coverage among the 133 zero-coverage units | **0.119**, 95% CI **[0.096, 0.142]** |
 | Defensible range under sensitivity analysis | **4% – 12%** |
-| Share of the full 200-unit annotation set | ≈ 8% |
 
-The confidence interval covers sampling error only. The point estimate leans on 10
-units both proxies called under-coverage that **no human ever checked** — and the
-adjudication showed the human agreeing with "answer present" on only 6.7% of unresolved
-units, well below the 100% the proxies asserted there. If those 10 behave like the
-adjudicated ones, the rate is 0.049. Adjudicating them is the cheapest remaining
-improvement in the project.
+The interval covers sampling error only, and the point estimate leans on the 10 units both proxies
+called "answer present" that no human checked; the adjudicated sample agreed with "answer present"
+on only 6.7% of unresolved units, and if those 10 behave like the adjudicated ones the rate is
+0.049. The estimate is not definitive: it is one annotator, one corpus, and a proxy-resolved census
+part. What it supports is that the span reference is a substantially sound instrument for
+retrieval attribution — the bias runs in the expected direction and is an order of magnitude
+smaller than the effects measured — and that annotation completeness can be measured at low cost
+before annotations are used as a scoring reference.
 
-**What this means:** span-level evidence is a substantially sound instrument for
-retrieval attribution. The bias runs in the expected direction — QASPER marks supporting
-sentences, not every passage an answer can be derived from — but it is modest and does
-not undermine the retrieval-side conclusions above.
+## Oracle-evidence control (a replication)
 
-## Datasets and experimental setup
+![Oracle-evidence control](results/figures/oracle_evidence.png)
 
-| Dataset | Licence | Structure | Role |
-|---|---|---|---|
-| QASPER | CC BY 4.0 | NLP papers, ~22k chars | granularity |
-| Natural Questions | CC BY-SA 3.0 | Wikipedia, ~37k chars | granularity |
-| HotpotQA | CC BY-SA 4.0 | 10 paragraphs, 2 gold | quantifier |
-| 2WikiMultihopQA | Apache-2.0 | 10 paragraphs, 2–4 gold | quantifier (replication) |
+150 QASPER questions answered twice by the same generator (Qwen2.5-0.5B-Instruct), same prompt,
+same decoding; only the context differs (retrieved chunks vs the gold spans verbatim).
 
-Chunk size 256, overlap 32, top-k 5, `all-MiniLM-L6-v2`; BM25 (Okapi, k1=1.5, b=0.75)
-over identical chunks. Robustness: 4 embedders, depths k=1…20, chunk sizes 128/256/512.
-Generators: deterministic extractive control; Qwen2.5-0.5B-Instruct and
-SmolLM2-360M-Instruct locally. **Corpora are not redistributed** — loaders, checksums and
-licences are committed ([docs/DATASETS.md](docs/DATASETS.md)).
+| Stratum | n | retrieved | oracle | difference | p |
+|---|---:|---:|---:|---:|---:|
+| Evidence complete under retrieval | 46 | 0.065 | 0.174 | +10.9 pp | 0.125 (7 discordant; indicative) |
+| **Document retrieved, span missing** | 26 | **0.000** | **0.231** | **+23.1 pp** | 0.031 (6 discordant; indicative) |
+| Nothing from any gold document | 78 | 0.000 | 0.321 | +32.1 pp | 6.0 × 10⁻⁸ |
 
-Statistics: Wilson intervals, seeded bootstrap, **exact** McNemar for paired binary
-comparisons, `MIN_N_FOR_INFERENCE = 30` as a stated convention. No multiple-comparison
-correction is applied; the headline results survive one, the marginal ones would not.
+The middle row is the argument: those 26 questions count as retrieval *successes* under a
+document-level metric, the model got none right, and supplying the actual span repairs 23% of them.
+The experiment replicates [arXiv:2608.08944](https://doi.org/10.48550/arXiv.2608.08944) (32.8%
+repair over 11,105 failures) at n = 150 with one small reader and no sham control; the two smaller
+strata have too few discordant pairs for their *p*-values to carry weight.
+
+## Retrieval decomposition and a withdrawn result
+
+The A/B/C decomposition on four corpora (dense retrieval, `all-MiniLM-L6-v2`, *k* = 5, 256-token
+chunks) isolates a *quantifier* effect (A→B, multi-hop completeness) from a *granularity* effect
+(B→C, span coverage); the two are near-orthogonal, each null on the corpus where the other
+dominates. Full protocol and threats to validity: [docs/EXPERIMENTS.md](docs/EXPERIMENTS.md).
+
+| Corpus | n | A | B | C | quantifier A→B | granularity B→C |
+|---|---:|---:|---:|---:|---:|---:|
+| QASPER dev | 290 | 0.441 | 0.441 | 0.276 | 0.0 pp | **16.6 pp** (p = 7.1e-15) |
+| Natural Questions | 300 | 0.997 | 0.997 | 0.730 | 0.0 pp | **26.7 pp** (p = 1.7e-24) |
+| HotpotQA | 150 | 0.993 | 0.507 | 0.507 | **48.7 pp** (p = 2.1e-22) | 0.0 pp |
+| 2WikiMultihopQA | 150 | — | — | — | **64.7 pp** (p = 1.3e-29) | 1.3 pp (n.s.) |
+
+**A result we reported and then withdrew.** An earlier version of this repository claimed that the
+document/span choice reverses the BM25-vs-dense comparison. It does not: the finding was an
+evidence-mode defect in our own BM25 baseline (QASPER declares `any_sufficient` evidence, the
+baseline hard-coded `all_required`, and 51% of QASPER questions carry more than one span, so BM25's
+span coverage was under-reported at 0.183 instead of 0.321). Corrected, **no inversion occurs on
+any corpus**: BM25 leads at both granularities on QASPER (0.528/0.321 vs 0.441/0.276; paired 40
+vs 27, p = 0.142, n.s.) and dense leads at both on NQ (53 vs 27, p = 0.0049) and HotpotQA, stable
+across *k* = 1…20 and chunk sizes 128/256/512. Conditional on reaching a gold document at *k* = 5
+the two cover the span at similar rates (60.8% vs 62.5%) — which the localisation study shows is a
+coincidence of the top-*k* cut, not equal ranking skill: BM25 ranks worse inside the document and
+compensates by admitting more chunks from it (3.2 vs 2.7). The withdrawal is kept on record here
+and in the manuscript.
 
 ## Reproducibility
 
+Everything the manuscript reports traces to a file in this repository or to the annotation package
+deposited with the Zenodo record:
+
+| Available in the repository | Where |
+|---|---|
+| Localisation protocol, seven-localiser runs, cross-encoders and variants | [`scripts/localisation_probe.py`](scripts/localisation_probe.py), [`localisation_extra.py`](scripts/localisation_extra.py) |
+| Consolidated metrics, Holm-corrected pairwise tests, sign tests, Wilson intervals, Spearman, union analysis, figure | [`localisation_report.py`](scripts/localisation_report.py), [`localisation_analysis.py`](scripts/localisation_analysis.py), [`localisation_figure.py`](scripts/localisation_figure.py) |
+| Robustness: document-level cluster bootstrap, chunk audit, model metadata, hit@k from stored ranks, reach × localisation Fisher tests | [`localisation_robustness.py`](scripts/localisation_robustness.py) |
+| Admission-budget and chunk-size sweeps; corpus contrasts | [`localisation_admission.py`](scripts/localisation_admission.py), [`localisation_contrast.py`](scripts/localisation_contrast.py) |
+| Stored per-question rows and summaries for every localisation table | [`results/localisation/`](results/localisation/README.md) (29 files; file table in its README) |
+| A/B/C decomposition, sweeps, BM25 baseline, oracle-evidence control | [`reproduce_study.py`](scripts/reproduce_study.py), [`run_bm25_baseline.py`](scripts/run_bm25_baseline.py), [`run_oracle_evidence.py`](scripts/run_oracle_evidence.py); outputs in [`results/`](results/) |
+| Annotation tooling: blinded package build, offline annotation server, validation, guideline audit, review subset, final dataset with provenance, scoring | [`build_annotation_package.py`](scripts/build_annotation_package.py), [`annotate.py`](scripts/annotate.py), [`audit_human_annotations.py`](scripts/audit_human_annotations.py), [`build_review_subset.py`](scripts/build_review_subset.py), [`build_final_human_dataset.py`](scripts/build_final_human_dataset.py), [`score_annotations.py`](scripts/score_annotations.py) |
+| Gold-span audit: lexical/semantic proxies, blind adjudication sheet, stratified estimator | [`audit_gold_span_coverage.py`](scripts/audit_gold_span_coverage.py), [`audit_gold_span_semantic.py`](scripts/audit_gold_span_semantic.py), [`build_goldspan_adjudication.py`](scripts/build_goldspan_adjudication.py), [`score_goldspan_adjudication.py`](scripts/score_goldspan_adjudication.py) |
+| Threshold ablation, truncation audit | [`threshold_ablation.py`](scripts/threshold_ablation.py), [`audit_annotation_truncation.py`](scripts/audit_annotation_truncation.py) |
+| Statistics (Wilson, exact McNemar, bootstrap, Holm) | [`src/evaluation/statistics.py`](src/evaluation/statistics.py) |
+| Human study and gold-span documentation | [`docs/paper/human_validation_final.md`](docs/paper/human_validation_final.md), [`docs/paper/`](docs/paper/README.md) |
+| Analysis → command → output map | [`docs/paper/reproducibility.md`](docs/paper/reproducibility.md) |
+
+**Not in the git tree.** The raw corpora (fetched from their original sources with the commands and
+checksums in [docs/DATASETS.md](docs/DATASETS.md)); model weights (pulled from Hugging Face on
+first use); and `reports/`, which holds the run records and the annotation package — annotation
+labels are data, not a computation, so the package (200 units with full retrieved context,
+original/review/final labels with provenance, guideline and truncation audits, gold-span
+adjudication sheet and answers, threshold-ablation and oracle-evidence rows; QASPER excerpts under
+CC BY 4.0) is deposited as a separate checksummed archive in the Zenodo record of release v1.0.0.
+Every report embeds the git commit, raw-file SHA-256, configuration, threshold fingerprint and
+package versions. Approximate nearest-neighbour search moves fine-grained decomposition aggregates
+by ≤ 0.001 between independently built indices; the localisation study has no randomness (stable
+argsort of deterministic scores).
+
+**Reproducing the analyses.**
+
 ```bash
-python scripts/reproduce_study.py --all     # every retrieval experiment, no API key
+pip install -r requirements.txt            # everything except plotting
+python scripts/reproduce_study.py --all    # A/B/C decomposition on four corpora, no API key
+# within-document localisation: exact commands and runtimes in results/localisation/README.md,
+# e.g. hit@k and the reach tests from the committed rows (seconds, no model download):
+python scripts/localisation_robustness.py --hit-at-k qasper --out results/localisation/hit_at_k_qasper.json
+python scripts/localisation_robustness.py --reach-association qasper --out results/localisation/reach_association_qasper.json
+# human study and gold-span audit: commands in docs/paper/human_validation_final.md §7 and
+# docs/paper/reproducibility.md (need the annotation package under reports/)
+pip install -r requirements-research.txt && python scripts/make_paper_figures.py --all   # figures
 ```
 
-Every table and figure maps to a command and an output file in
-**[docs/paper/reproducibility.md](docs/paper/reproducibility.md)**. Reports embed git
-commit, raw-file SHA-256, configuration, threshold fingerprint and package versions.
+## Repository structure
 
-Two honest limits: `reports/` is gitignored, so the annotation artifacts behind the human
-validation are produced locally rather than shipped; and approximate nearest-neighbour
-search moves fine-grained aggregates by ≤0.001 between independently built indices
-(headline figures reproduce exactly).
+```
+src/
+  data/loaders/      QASPER, Natural Questions, HotpotQA, 2WikiMultihopQA loaders (+ parquet variants)
+  data/              corpus chunking with character offsets, identity checks, licence metadata
+  rag/               chunker, embedders (query prefixes per model), vector store, providers, local LLM
+  evaluation/        evidence coverage, metrics, statistics, failure taxonomy, records, provenance, runner
+  api/, monitoring/  the FastAPI service and Prometheus metrics of the pipeline (not used by the study)
+scripts/             36 scripts: localisation_*.py, run_*.py, build_*/audit_*/score_*.py, reproduce_study.py,
+                     threshold_ablation.py, make_*figures.py, report_tables.py, curate_results.py
+results/
+  localisation/      per-question rows, summaries, tests, bootstrap, sweeps, contrasts, hit@k, figure, README
+  figures/           decomposition, oracle, human-validation and gold-span figures
+  *.json             A/B/C decomposition, BM25 baseline and sweep outputs
+docs/
+  EXPERIMENTS.md     decomposition protocol, all results, threats to validity
+  TAXONOMY.md, EVALUATION.md, ANNOTATION_GUIDELINES.md, DATASETS.md, ARCHITECTURE.md, QUICKSTART.md
+  paper/             supporting documents for the manuscript, with the stage of each (docs/paper/README.md)
+tests/               23 test modules, 488 tests
+data/documents/, data/eval/   the small sample corpus used by the offline pipeline smoke test
+CITATION.cff, .zenodo.json, LICENSE, pyproject.toml, CHANGELOG.md
+```
 
-## Install and use
+## Installation
+
+Python 3.11 or newer (CI runs 3.12).
 
 ```bash
 git clone https://github.com/pouyapd/TrustRAG.git && cd TrustRAG
-pip install -r requirements.txt
-python scripts/run_offline_eval.py      # end-to-end evaluation, ~30s, no key
-pytest tests/ -q                        # 486 tests
+python -m venv venv && source venv/bin/activate      # Windows: venv\Scripts\activate
+pip install -r requirements.txt                      # service, evaluation, tests
+pip install -r requirements-research.txt             # + matplotlib, torch/transformers for figures and local generators
+python scripts/run_offline_eval.py                   # end-to-end smoke run on the sample corpus, ~30 s, no key
 ```
 
-<details>
-<summary><b>All research commands</b></summary>
-
-```bash
-# retrieval study and robustness sweeps
-python scripts/reproduce_study.py --all
-python scripts/reproduce_study.py --embedder-sweep --topk-sweep --multihop
-
-# BM25 baseline, scored under the same definitions
-python scripts/run_bm25_baseline.py --dataset qasper \
-    --raw data/raw/qasper-dev-v0.3.json --split dev --limit 300 \
-    --dense-rows reports/experiments/qasper_dev_300/rows.jsonl \
-    --dense-records reports/experiments/qasper_dev_300/inference.jsonl \
-    --out results/bm25_qasper_dev_300.json
-
-# paired oracle-evidence control
-python scripts/run_oracle_evidence.py \
-    --records reports/experiments/qasper_dev_300/inference.jsonl \
-    --generator qwen0.5b --limit 150 --out reports/experiments/oracle_qasper_qwen
-
-# annotation: build a blinded package, annotate locally, validate
-python scripts/build_annotation_package.py --records ... --out ... --n-units 200
-python scripts/annotate.py --annotator human --package ...
-python scripts/annotate.py --annotator human --package ... --validate
-
-# audit the labels, derive the final reviewed dataset, check the gold standard
-python scripts/audit_human_annotations.py --package ... --annotator human --out ...
-python scripts/build_final_human_dataset.py --original ... --review ... --out ...
-python scripts/audit_gold_span_semantic.py --package ... --out ...
-python scripts/threshold_ablation.py --package ... --labels ... --out ...
-
-# within-document localisation study (commands and runtimes in results/localisation/README.md)
-python scripts/localisation_probe.py --dataset qasper --raw ... --embedders minilm,mpnet,bge,e5 --out ...
-python scripts/localisation_extra.py --dataset qasper --raw ... --cross-encoder BAAI/bge-reranker-base --out ...
-python scripts/localisation_report.py --dataset qasper --probe ... --extra ... --reranker ... --out ...
-
-# figures
-pip install -r requirements-research.txt
-python scripts/make_figures.py --all && python scripts/make_paper_figures.py --all
-```
-</details>
+No API key is needed for anything reported here; all models run locally on CPU. The FastAPI
+service (`uvicorn src.api.main:app`) and the Docker setup are the pipeline the evaluation wraps;
+[docs/QUICKSTART.md](docs/QUICKSTART.md) covers them.
 
 ## Tests
 
 ```bash
-pytest tests/ -v --cov=src      # 486 tests, 80% line coverage, ruff clean
+pytest tests/ -q                     # 488 tests
+ruff check src/ tests/ scripts/      # clean
 ```
 
-Unit tests, property-style invariants (span coverage implies document coverage, for every
-record), end-to-end integration from a real dataset file through chunking and retrieval to
-a failure label, and a regression test for every defect found during the work — including
-a 600-character annotation truncation defect that hid 49% of retrieved evidence from
-annotators and biased labels toward blaming retrieval.
-
-CI runs lint, tests, an evaluation regression and a Docker build on every push.
+Unit tests, property-style invariants (span coverage implies document coverage for every record;
+the offset identity for every chunk), end-to-end integration from a dataset file through chunking
+and retrieval to a failure label, statistical helpers against known values, a test that recomputes
+hit@k and the reach tests from the committed localisation rows, and a regression test for every
+defect found during the work — including the 600-character annotation-display truncation that hid
+retrieved evidence from the annotator and biased labels toward blaming retrieval. CI runs lint,
+tests, an evaluation regression and a Docker build on every push.
 
 ## Limitations
 
-Read before quoting anything above. Full list in
-[docs/paper/limitations.md](docs/paper/limitations.md).
+Read before quoting any number above.
 
-- **One annotator, and a guided review.** No inter-annotator agreement exists. The second
-  pass was directed by an audit of the same guidelines being tested.
-- **The span gold standard is incomplete** — estimated 0.119 [0.096, 0.142], defensibly 4–12%; the interval covers sampling error only and the adjudication had one annotator.
-- **Generation-side categories are unvalidated**; three have zero support in the human
+- **One annotator, and a guided review.** The human study is author-conducted; there is no
+  inter-annotator agreement, and the second pass was directed by an audit of the guidelines being
+  tested. 22 of the 200 labels retain pilot-era provenance.
+- **The gold-span estimate is not definitive.** 0.119 [0.096, 0.142], defensibly 4–12%; the
+  interval covers sampling error only, the census part rests on proxies, and it is measured on
+  QASPER only.
+- **Generation-side categories are unvalidated**; several have near-zero support in the human
   labels, and the annotated run uses an extractive control that cannot hallucinate.
-- **The core premise is prior art.** This is a measurement-validity study, not a new
-  evaluation paradigm.
-- **Retrieval breadth.** The decomposition uses two retrievers (dense + BM25); the localisation study adds four bi-encoders and two cross-encoders but one reranker per size class, on two corpora. Model revisions were not pinned at run time; the revisions actually run are recorded after the fact in `results/localisation/model_metadata.json`.
-- **One corpus and one configuration** for the human study; small generators (0.5B, 0.36B). Gold-span under-coverage is measured on QASPER only, not on NQ.
-- **Targeted, not systematic, literature review.**
+- **Two corpora, one chunking, small models.** Seven localisers with one reranker per size class,
+  revisions recorded after the fact; no claim is made about other corpora, chunkers or larger
+  models, and the corpus contrasts are descriptive, not causal.
+- **Reach × localisation** was tested on QASPER only (NQ reach is saturated) with limited power.
+- **The oracle control** has n = 150, one small reader, no sham control, and two strata with too
+  few discordant pairs.
+- **The core premise is prior art.** This is a measurement study, not a new evaluation paradigm
+  ([docs/paper/literature_review.md](docs/paper/literature_review.md)).
 - **Not a deployed system** — containerised and CI-tested, never run at production scale.
 
-## Documentation
+## Version and release
 
-| Document | Contents |
-|---|---|
-| [results/localisation/README.md](results/localisation/README.md) | Within-document evidence localisation study, QASPER and NQ |
-| [docs/paper/literature_review.md](docs/paper/literature_review.md) | Novelty audit and comparison table |
-| [docs/paper/human_validation_final.md](docs/paper/human_validation_final.md) | The complete human study |
-| [docs/paper/reviewer_simulation.md](docs/paper/reviewer_simulation.md) | Three adversarial reviews and the fixes |
-| [docs/paper/venue_fit.md](docs/paper/venue_fit.md) | Where this can realistically be submitted |
-| [docs/paper/reproducibility.md](docs/paper/reproducibility.md) | Command → output map |
-| [docs/EXPERIMENTS.md](docs/EXPERIMENTS.md) | Full protocol and threats to validity |
-| [docs/TAXONOMY.md](docs/TAXONOMY.md) · [docs/EVALUATION.md](docs/EVALUATION.md) | Categories, rules, metric definitions |
-| [docs/ANNOTATION_GUIDELINES.md](docs/ANNOTATION_GUIDELINES.md) | What annotators are asked to judge |
-| [docs/DATASETS.md](docs/DATASETS.md) · [docs/QUICKSTART.md](docs/QUICKSTART.md) | Data provenance; install and run |
+`v1.0.0` (21 September 2026) is the research and reproducibility release: the state of the code,
+result files and documentation that the manuscript reports. Later commits may change documentation
+or add analyses; anything the manuscript cites is fixed at this tag, and a change to a cited result
+file would be released under a new tag. Release notes: [CHANGELOG.md](CHANGELOG.md).
 
 ## Citation
 
-The manuscript is kept private and is **not published**. Cite the repository:
+`CITATION.cff` is the source of truth (GitHub's "Cite this repository" reads it). Until the article
+exists, cite the software release:
 
 ```bibtex
 @software{bathaeipourmand_trustrag_2026,
-  author = {Bathaei Pourmand, Pouya},
-  title  = {TrustRAG: Evidence-Aware RAG Evaluation},
-  year   = {2026},
-  url    = {https://github.com/pouyapd/TrustRAG}
+  author  = {Bathaei Pourmand, Pouya},
+  title   = {{TrustRAG}: evidence localisation and failure attribution for retrieval-augmented generation evaluation},
+  version = {1.0.0},
+  year    = {2026},
+  url     = {https://github.com/pouyapd/TrustRAG},
+  note    = {Zenodo DOI to be added once the archive record exists}
 }
 ```
 
+The manuscript *Right document, wrong passage: evidence localisation in retrieval-augmented
+generation evaluation on QASPER and Natural Questions* is prepared for submission to *Language
+Resources and Evaluation*; a citation to the article will replace the software citation when it
+exists.
+
 ## License
 
-MIT for this code. Evaluated corpora carry their own licences — see
-[docs/DATASETS.md](docs/DATASETS.md).
+MIT for the code and the result files ([LICENSE](LICENSE)). The evaluated corpora carry their own
+licences ([docs/DATASETS.md](docs/DATASETS.md)); the annotation package excerpts QASPER text and is
+distributed under CC BY 4.0.
 
 ## Author
 
-Pouya Bathaei Pourmand — MSc researcher, Computer Engineering (AI), University of Genoa.
+Pouya Bathaei Pourmand — independent researcher, Genoa, Italy.

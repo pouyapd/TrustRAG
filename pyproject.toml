@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "trustrag"
-version = "0.1.0"
-description = "Production RAG with systematic evaluation and failure mode analysis"
+version = "1.0.0"
+description = "Evidence localisation and failure attribution for retrieval-augmented generation evaluation"
 authors = [{name = "Pouya Bathaei Pourmand", email = "pouyapd68@gmail.com"}]
 readme = "README.md"
 requires-python = ">=3.11"

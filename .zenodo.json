@@ -1,0 +1,46 @@
+{
+  "title": "TrustRAG: evidence localisation and failure attribution for retrieval-augmented generation evaluation (v1.0.0)",
+  "upload_type": "software",
+  "description": "<p>Code, per-question result files and reproduction commands for the measurement study <em>Right document, wrong passage: evidence localisation in retrieval-augmented generation evaluation on QASPER and Natural Questions</em>. The release contains the corpus loaders and chunker (QASPER and Natural Questions are fetched from their original sources and are not redistributed), the within-document localisation protocol with its analytic chance level, the seven-localiser comparison (BM25, four dense bi-encoders, two cross-encoder rerankers) with Holm-corrected paired tests and a document-level cluster bootstrap, the union, rank-correlation, admission-budget and chunk-size analyses, the corpus-contrast script, the annotation interface and audit scripts behind the human-reviewed failure-attribution study and the gold-span completeness adjudication, the oracle-evidence experiment, and the test suite. The human annotation package (200 QASPER units with retrieved context, original/review/final labels with provenance, guideline and truncation audits, gold-span adjudication sheet and answers, threshold-ablation and oracle-evidence rows) is deposited as a separate archive in this record under the redistribution terms of QASPER (CC BY 4.0).</p>",
+  "creators": [
+    {
+      "name": "Bathaei Pourmand, Pouya",
+      "affiliation": "Independent researcher, Genoa, Italy"
+    }
+  ],
+  "keywords": [
+    "retrieval-augmented generation",
+    "evidence localisation",
+    "retrieval evaluation",
+    "question answering",
+    "annotation completeness",
+    "evaluation methodology",
+    "QASPER",
+    "Natural Questions"
+  ],
+  "license": "MIT",
+  "access_right": "open",
+  "version": "1.0.0",
+  "language": "eng",
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/pouyapd/TrustRAG",
+      "relation": "isSupplementTo",
+      "resource_type": "software",
+      "scheme": "url"
+    },
+    {
+      "identifier": "10.18653/v1/2021.naacl-main.365",
+      "relation": "isDerivedFrom",
+      "resource_type": "dataset",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.1162/tacl_a_00276",
+      "relation": "isDerivedFrom",
+      "resource_type": "dataset",
+      "scheme": "doi"
+    }
+  ],
+  "notes": "Release tag v1.0.0 corresponds to the results reported in the manuscript prepared for submission to Language Resources and Evaluation (2026; not yet submitted, not accepted, not published). Model revisions actually run are listed in results/localisation/model_metadata.json."
+}

@@ -80,3 +80,24 @@ def test_cluster_bootstrap_keeps_clusters_whole_and_brackets_the_mean() -> None:
     assert flat["ci95"] == [0.0, 0.0] and flat["excludes_zero"] is False
     # deterministic under a fixed seed
     assert cluster_bootstrap(clusters, n_boot=500, seed=7) == cluster_bootstrap(clusters, n_boot=500, seed=7)
+
+
+def test_hit_at_k_and_reach_association_from_the_committed_rows() -> None:
+    from pathlib import Path
+
+    from scripts.localisation_robustness import run_hit_at_k, run_reach_association
+
+    results = Path(__file__).resolve().parents[1] / "results" / "localisation"
+    hk = run_hit_at_k(results, "qasper")
+    # hit@k is monotone in k, bounded by one, and agrees with the consolidated summary at k = 1, 3, 5
+    summary = __import__("json").loads((results / "summary_qasper.json").read_text(encoding="utf-8"))
+    for name, entry in hk["models"].items():
+        ks = [entry[k] for k in ("1", "3", "5", "10", "20")]
+        assert ks == sorted(ks) and ks[-1] <= 1.0
+        for k in ("1", "3", "5"):
+            assert entry[k] == pytest.approx(summary["models"][name][f"hit@{k}"], abs=6e-4)
+    assert hk["n_questions"] == 290 and set(hk["variants"]) == {"bm25_local_idf", "rrf_bm25+bge", "oracle_union_bm25+dense"}
+    ra = run_reach_association(results, "qasper")
+    for cell in ra["retrievers"].values():
+        n = sum(cell["missed_doc"][k] + cell["reached_doc"][k] for k in ("gold_not_first", "gold_first"))
+        assert n == 290 and 0.0 <= cell["fisher_exact_p"] <= 1.0

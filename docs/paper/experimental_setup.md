@@ -1,5 +1,11 @@
 # Experimental setup
 
+> **Stage-2 document (2 September 2026).** Written before the human annotation study, the
+> gold-span adjudication and the within-document localisation study. The "reference set"
+> here is the automated (language-model) annotation pass, not the human labels; the human
+> study in [human_validation_final.md](human_validation_final.md) supersedes it as the
+> reported number. Stage and status of every document: [README.md](README.md) in this folder.
+
 All values are read from the run artifacts in the working tree. Source file is
 given per block. Note that `reports/` is listed in `.gitignore`, so these files
 are produced by the commands in `reproducibility.md` rather than shipped with a

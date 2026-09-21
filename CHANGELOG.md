@@ -1,0 +1,86 @@
+# Changelog
+
+## v1.0.0 — 21 September 2026 — research and reproducibility release
+
+This is the software and artefact release corresponding to the manuscript *Right Document, Wrong
+Passage: Evidence Localisation in Retrieval-Augmented Generation Evaluation on QASPER and Natural
+Questions* (Pouya Bathaei Pourmand, 2026), prepared for submission to *Language Resources and
+Evaluation*. The manuscript has not been submitted, accepted or published at the time of this
+release, and the release makes no claim to the contrary. The tag `v1.0.0` fixes the code, result
+files and documentation the manuscript reports; the release is archived on Zenodo through the
+GitHub integration, and the DOI is added to the README, `CITATION.cff` and the manuscript once the
+record exists.
+
+### What the release contains
+
+- **Corpus loaders and chunking.** QASPER (dev), Natural Questions (validation), HotpotQA and
+  2WikiMultihopQA loaders (`src/data/loaders/`); corpora are fetched from their original sources
+  and are not redistributed (`docs/DATASETS.md` gives commands, checksums and licences). The
+  256-token chunker carries character offsets, and the offset identity
+  `document[start:end] == chunk.text` is property-tested.
+- **Within-document evidence-localisation protocol** with its analytic, length-aware chance level
+  (`scripts/localisation_probe.py`), the seven-localiser comparison — BM25, all-MiniLM-L6-v2,
+  bge-small-en-v1.5, e5-small-v2, all-mpnet-base-v2, ms-marco-MiniLM-L-6-v2, bge-reranker-base —
+  with Holm-corrected exact McNemar tests, sign tests, Wilson intervals, Spearman and union
+  analyses (`localisation_report.py`, `localisation_analysis.py`), the document-level cluster
+  bootstrap, chunk audit, model metadata, hit@k recomputed from stored ranks and
+  reach × localisation Fisher tests (`localisation_robustness.py`), admission-budget and chunk-size
+  sweeps (`localisation_admission.py`) and the corpus contrasts (`localisation_contrast.py`).
+- **All per-question localisation rows and summaries** under `results/localisation/` (29 files;
+  the file table and reproduction commands are in its README), including the new
+  `hit_at_k_qasper.json`, `hit_at_k_nq.json` and `reach_association_qasper.json`, so that every
+  deeper cut-off and every reach test quoted in the manuscript traces to a committed file.
+- **A/B/C retrieval decomposition** on four corpora, embedder/depth/chunk-size sweeps, the BM25
+  baseline scored under the same definitions, and the withdrawn-inversion record
+  (`scripts/reproduce_study.py`, `run_bm25_baseline.py`, `results/*.json`, `docs/EXPERIMENTS.md`).
+- **Annotation tooling** for the human-reviewed attribution study: blinded stratified package
+  build, offline annotation server, validation, guideline audit, review subset, final dataset with
+  a per-unit provenance chain, scoring, truncation audit and held-out threshold ablation
+  (`build_annotation_package.py`, `annotate.py`, `audit_human_annotations.py`,
+  `build_review_subset.py`, `build_final_human_dataset.py`, `score_annotations.py`,
+  `audit_annotation_truncation.py`, `threshold_ablation.py`).
+- **Gold-span completeness audit**: lexical and semantic proxies, the blind stratified
+  adjudication sheet and the stratified estimator (`audit_gold_span_coverage.py`,
+  `audit_gold_span_semantic.py`, `build_goldspan_adjudication.py`,
+  `score_goldspan_adjudication.py`).
+- **Oracle-evidence experiment** (`run_oracle_evidence.py`) and the failure taxonomy with its two
+  retrieval gates (`src/evaluation/taxonomy.py`, `docs/TAXONOMY.md`).
+- **Documentation**: the root README (project, paper, findings, reproducibility, limitations),
+  `results/localisation/README.md`, `docs/paper/` with a stage index (`docs/paper/README.md`),
+  `docs/paper/human_validation_final.md`, `docs/paper/reproducibility.md`.
+- **Metadata**: `LICENSE` (MIT), `CITATION.cff`, `.zenodo.json`, `pyproject.toml` version 1.0.0.
+- **Tests**: 488 tests pass (`pytest tests/ -q`); `ruff check src/ tests/ scripts/` is clean.
+
+### Not in the git tree
+
+The raw corpora, model weights (pulled from Hugging Face on first use; the revisions actually run
+are listed in `results/localisation/model_metadata.json`), and `reports/` (run records and the
+annotation package). The human annotation package — 200 QASPER units with full retrieved context,
+original/review/final labels with provenance, guideline and truncation audits, the gold-span
+adjudication sheet and answers, threshold-ablation and oracle-evidence rows — is deposited as a
+separate checksummed archive in the Zenodo record of this release, under QASPER's CC BY 4.0 terms
+for the excerpted text.
+
+### Changes since the previous commit on `main` (9a7ab20)
+
+- Added `LICENSE`, `CITATION.cff`, `.zenodo.json`, `CHANGELOG.md`; version 1.0.0 in
+  `pyproject.toml` and `src/__init__.py`; `scipy` listed explicitly in `requirements.txt`.
+- `scripts/localisation_robustness.py`: `--hit-at-k` and `--reach-association` modes;
+  `scripts/localisation_contrast.py`: the corpus-contrast computation as a script (reproduces
+  `results/localisation/corpus_contrast.json` exactly; the file now also records that one NQ
+  question is excluded because its gold document has no non-gold chunk).
+- Documentation corrections found by the pre-submission audit, none of which changes a stored
+  result: four table cells that had been re-rounded from four-decimal summaries (MPNet hit@1 0.334,
+  BM25-with-document-local-IDF hit@5 0.734, bge-reranker-base MRR 0.514, one Wilson interval
+  [0.404, 0.517]); κ 0.630 for agreement with the automated reference pass; and the provenance of
+  the 22 pilot-era labels in the human study (none of the 22 was among the 43 reviewed units, so
+  all 22 keep their pilot label: 135 original + 43 review decisions + 22 pilot-era).
+- `docs/paper/`: stage index added; stale internal planning notes removed (`venue_fit.md`,
+  `paper_outline.md`, `reviewer_simulation.md`, `RESEARCH_SUMMARY.md`); stage banners on the
+  stage-2 documents; `reproducibility.md` updated.
+- Root README rewritten around the manuscript; author affiliation is "independent researcher,
+  Genoa, Italy".
+
+### Licence
+
+MIT for the code and result files. QASPER excerpts in the annotation archive: CC BY 4.0.

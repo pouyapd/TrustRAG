@@ -1,0 +1,39 @@
+cff-version: 1.2.0
+message: "If you use this software or its result files, please cite it as below."
+type: software
+title: "TrustRAG: evidence localisation and failure attribution for retrieval-augmented generation evaluation"
+version: 1.0.0
+date-released: 2026-09-21
+license: MIT
+repository-code: "https://github.com/pouyapd/TrustRAG"
+# doi: 10.5281/zenodo.NNNNNNN   <- fill in the concept DOI once the Zenodo record exists
+authors:
+  - family-names: "Bathaei Pourmand"
+    given-names: "Pouya"
+    email: "pouyapd68@gmail.com"
+    # orcid: "https://orcid.org/0000-0000-0000-0000"   <- add if available
+keywords:
+  - retrieval-augmented generation
+  - evidence localisation
+  - retrieval evaluation
+  - question answering
+  - annotation completeness
+  - evaluation methodology
+abstract: >-
+  Code, per-question result files and reproduction commands for a measurement study of
+  evidence localisation inside the gold document in retrieval-augmented generation
+  evaluation on QASPER and Natural Questions: seven localisers (BM25, four dense
+  bi-encoders, two cross-encoder rerankers) under one protocol with an analytic,
+  length-aware chance level; Holm-corrected paired tests and a document-level cluster
+  bootstrap; union and rank-correlation analyses; admission-budget and chunk-size sweeps;
+  and the scripts behind a human-reviewed failure-attribution study and a gold-span
+  completeness adjudication. The human annotation package is deposited as a separate
+  archive in the same Zenodo record.
+preferred-citation:
+  type: article
+  title: "Right document, wrong passage: evidence localisation in retrieval-augmented generation evaluation on QASPER and Natural Questions"
+  authors:
+    - family-names: "Bathaei Pourmand"
+      given-names: "Pouya"
+  year: 2026
+  notes: "Manuscript prepared for submission to Language Resources and Evaluation (not yet submitted); cite the software release until the article is published."

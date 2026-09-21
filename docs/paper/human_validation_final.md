@@ -79,7 +79,7 @@ Paired over the same 200 units: 118 both correct, **22 only evidence-gated**,
 > judgement better than document-gating on the same units.
 
 > **What it does not license.** Absolute agreement with humans is much lower than
-> with the automated reference (accuracy 0.700 vs 0.805; κ 0.437 vs 0.631). The
+> with the automated reference (accuracy 0.700 vs 0.805; κ 0.437 vs 0.630). The
 > earlier figure overstated how well the taxonomy tracks human judgement, because
 > the LLM reference and the rule system share failure directions. Any published
 > number should be the human one.
@@ -169,8 +169,10 @@ annotation over those 133 units, which is human work that has not been done.
   legitimate reading of a review pass, but it is not blind re-annotation, and the
   §4 result must be read with it in mind.
 - **22 units** in the original pass came from a pilot conducted on the truncated
-  package; 7 of those were re-reviewed on full context, 15 were not flagged and so
-  carry pilot-era labels.
+  package. None of the 22 was among the 43 units flagged by the audit
+  (`final_human_reviewed/provenance_chain.json`), so all 22 carry pilot-era labels
+  that were never re-judged on full context; the final 200 labels are 135 original
+  full-context labels, 43 review decisions and 22 pilot-era labels.
 - **One corpus, one configuration** — QASPER dev, k = 5, 256-token chunks, MiniLM.
 
 ## 7. Reproducing this section

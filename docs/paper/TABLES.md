@@ -1,5 +1,11 @@
 # Tables
 
+> **Stage-2 document (2 September 2026).** Written before the human annotation study, the
+> gold-span adjudication and the within-document localisation study. The "reference set"
+> here is the automated (language-model) annotation pass, not the human labels; the human
+> study in [human_validation_final.md](human_validation_final.md) supersedes it as the
+> reported number. Stage and status of every document: [README.md](README.md) in this folder.
+
 Publication-ready tables. Every cell is copied from a run artifact in this
 working tree; the source file and the command that regenerates it are named per
 table. Numbers are identical to `results.md` — this file is the paper-facing

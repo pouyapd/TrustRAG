@@ -1,0 +1,71 @@
+{
+ "dataset": "qasper",
+ "method": "2x2 table per retriever: gold document reached at k=5 (global top-k run) x gold chunk ranked first inside its document (within-document run); Fisher's exact test, two-sided",
+ "retrievers": {
+  "bm25": {
+   "missed_doc": {
+    "gold_not_first": 101,
+    "gold_first": 36,
+    "hit@1": 0.263
+   },
+   "reached_doc": {
+    "gold_not_first": 105,
+    "gold_first": 48,
+    "hit@1": 0.314
+   },
+   "fisher_exact_p": 0.3659
+  },
+  "minilm": {
+   "missed_doc": {
+    "gold_not_first": 98,
+    "gold_first": 63,
+    "hit@1": 0.391
+   },
+   "reached_doc": {
+    "gold_not_first": 83,
+    "gold_first": 46,
+    "hit@1": 0.357
+   },
+   "fisher_exact_p": 0.6257
+  },
+  "mpnet": {
+   "missed_doc": {
+    "gold_not_first": 115,
+    "gold_first": 64,
+    "hit@1": 0.358
+   },
+   "reached_doc": {
+    "gold_not_first": 78,
+    "gold_first": 33,
+    "hit@1": 0.297
+   },
+   "fisher_exact_p": 0.3082
+  },
+  "bge": {
+   "missed_doc": {
+    "gold_not_first": 88,
+    "gold_first": 63,
+    "hit@1": 0.417
+   },
+   "reached_doc": {
+    "gold_not_first": 86,
+    "gold_first": 53,
+    "hit@1": 0.381
+   },
+   "fisher_exact_p": 0.5506
+  },
+  "e5": {
+   "missed_doc": {
+    "gold_not_first": 102,
+    "gold_first": 53,
+    "hit@1": 0.342
+   },
+   "reached_doc": {
+    "gold_not_first": 84,
+    "gold_first": 51,
+    "hit@1": 0.378
+   },
+   "fisher_exact_p": 0.5415
+  }
+ }
+}

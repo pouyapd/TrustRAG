@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Robustness checks for the within-document localisation study.
 
-Three things a reviewer asks about the study that the main report does not answer:
+Five things a reviewer asks about the study that the main report does not answer:
 
 1. QASPER's questions are clustered in documents (290 questions in 111 papers, up to ten per
    paper), and the paired McNemar tests treat questions as independent. ``--bootstrap``
@@ -14,6 +14,13 @@ Three things a reviewer asks about the study that the main report does not answe
 3. Model revisions were not pinned when the study ran. ``--model-metadata`` records the
    revision hashes and input limits of every model as they sit in the local Hugging Face
    cache, so the paper can report what was actually run.
+4. The summary files report hit@1/3/5 only. ``--hit-at-k`` re-reads the stored per-question
+   gold ranks and reports hit@k for k in {1, 3, 5, 10, 20} for the seven models and the
+   three variants, so the deeper cut-offs quoted in the paper trace to a committed file.
+5. Reach and localisation are reported separately. ``--reach-association`` cross-tabulates,
+   per retriever, whether the gold document was reached at k = 5 against whether the gold
+   chunk was ranked first inside it, with Fisher's exact test (QASPER only; NQ reach is
+   saturated).
 
 Each mode writes one JSON file; nothing here changes a result of the study.
 """
@@ -111,6 +118,73 @@ def cluster_bootstrap(diffs_by_cluster: list[list[int]], n_boot: int = 4000, see
         "n_boot": n_boot,
         "seed": seed,
     }
+
+
+VARIANTS = ["bm25_local_idf", "rrf_bm25+bge", "oracle_union_bm25+dense"]
+
+
+def load_ranks(results_dir: Path, dataset: str) -> dict[str, dict[str, int]]:
+    """question_id -> gold rank for the seven models and the three variants."""
+    ranks: dict[str, dict[str, int]] = {}
+    probe_files = [results_dir / f"within_document_{dataset}.json"]
+    if dataset == "nq":
+        probe_files.append(results_dir / "within_document_nq_dense.json")
+    for f in probe_files:
+        data = json.loads(f.read_text(encoding="utf-8"))["within_document_rows"]
+        for model, model_rows in data.items():
+            if model in MODELS:
+                ranks[model] = {r["question_id"]: int(r["rank"]) for r in model_rows}
+    extra = json.loads((results_dir / f"localisers_{dataset}.json").read_text(encoding="utf-8"))["rows"]
+    ranks["ce_msmarco_minilm"] = {r["question_id"]: int(r["rank"]) for r in extra["cross_encoder"]}
+    # the variants are reported with BGE-small as the dense partner; on NQ they live in a
+    # separate file because the first NQ run paired BM25 with MiniLM
+    partner = results_dir / f"localisers_{dataset}_bge_partner.json"
+    if partner.exists():
+        extra = json.loads(partner.read_text(encoding="utf-8"))["rows"]
+    for v in VARIANTS:
+        ranks[v] = {r["question_id"]: int(r["rank"]) for r in extra[v]}
+    rer = json.loads((results_dir / f"reranker_bge_base_{dataset}.json").read_text(encoding="utf-8"))["rows"]
+    ranks["bge_reranker_base"] = {r["question_id"]: int(r["rank"]) for r in rer["cross_encoder"]}
+    return ranks
+
+
+def run_hit_at_k(results_dir: Path, dataset: str, ks: tuple[int, ...] = (1, 3, 5, 10, 20)) -> dict:
+    ranks = load_ranks(results_dir, dataset)
+    common = set.intersection(*(set(r) for r in ranks.values()))
+    out = {"dataset": dataset, "n_questions": len(common),
+           "method": "hit@k = share of the common questions whose stored gold rank is <= k",
+           "models": {}, "variants": {}}
+    for name, r in ranks.items():
+        vals = [r[q] for q in sorted(common)]
+        entry = {str(k): round(sum(1 for v in vals if v <= k) / len(vals), 3) for k in ks}
+        entry["max_rank"] = max(vals)
+        (out["variants"] if name in VARIANTS else out["models"])[name] = entry
+    return out
+
+
+def run_reach_association(results_dir: Path, dataset: str) -> dict:
+    from scipy.stats import fisher_exact
+
+    data = json.loads((results_dir / f"within_document_{dataset}.json").read_text(encoding="utf-8"))
+    out = {"dataset": dataset,
+           "method": "2x2 table per retriever: gold document reached at k=5 (global top-k run) x gold chunk "
+                     "ranked first inside its document (within-document run); Fisher's exact test, two-sided",
+           "retrievers": {}}
+    for model, global_rows in data["global_rows"].items():
+        within = {r["question_id"]: r for r in data["within_document_rows"][model]}
+        table = [[0, 0], [0, 0]]  # [reached][ranked first]
+        for g in global_rows:
+            table[int(bool(g["A"]))][int(within[g["question_id"]]["rank"] == 1)] += 1
+        _, p = fisher_exact(table)
+        missed, reached = table
+        out["retrievers"][model] = {
+            "missed_doc": {"gold_not_first": missed[0], "gold_first": missed[1],
+                           "hit@1": round(missed[1] / sum(missed), 3) if sum(missed) else None},
+            "reached_doc": {"gold_not_first": reached[0], "gold_first": reached[1],
+                            "hit@1": round(reached[1] / sum(reached), 3) if sum(reached) else None},
+            "fisher_exact_p": round(float(p), 4),
+        }
+    return out
 
 
 def run_bootstrap(results_dir: Path, dataset: str, n_boot: int, seed: int) -> dict:
@@ -259,6 +333,9 @@ def main() -> None:
     ap.add_argument("--split")
     ap.add_argument("--limit", type=int, default=300)
     ap.add_argument("--model-metadata", action="store_true")
+    ap.add_argument("--hit-at-k", choices=["qasper", "nq"], help="hit@{1,3,5,10,20} from the stored gold ranks")
+    ap.add_argument("--reach-association", choices=["qasper", "nq"],
+                    help="Fisher's exact test of document reach at k=5 against rank-1 localisation")
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
 
@@ -269,8 +346,12 @@ def main() -> None:
         out = run_chunk_audit(args.audit_chunks, ROOT / args.raw, args.split, args.limit)
     elif args.model_metadata:
         out = run_model_metadata()
+    elif args.hit_at_k:
+        out = run_hit_at_k(results_dir, args.hit_at_k)
+    elif args.reach_association:
+        out = run_reach_association(results_dir, args.reach_association)
     else:
-        ap.error("choose --bootstrap, --audit-chunks or --model-metadata")
+        ap.error("choose --bootstrap, --audit-chunks, --model-metadata, --hit-at-k or --reach-association")
     Path(args.out).write_text(json.dumps(out, indent=1), encoding="utf-8")
     print(json.dumps(out, indent=1)[:3000])
 

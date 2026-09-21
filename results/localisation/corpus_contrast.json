@@ -1,6 +1,7 @@
 {
  "qasper": {
   "n_questions": 290,
+  "n_excluded_no_gold_or_no_nongold_chunk": 0,
   "intra_document_mean_cosine": 0.5778,
   "query_gold_margin_mean": -0.024,
   "query_gold_margin_share_positive": 0.3759,
@@ -15,6 +16,7 @@
  },
  "nq": {
   "n_questions": 299,
+  "n_excluded_no_gold_or_no_nongold_chunk": 1,
   "intra_document_mean_cosine": 0.4625,
   "query_gold_margin_mean": -0.0348,
   "query_gold_margin_share_positive": 0.3846,
