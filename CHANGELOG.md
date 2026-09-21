@@ -7,9 +7,9 @@ Passage: Evidence Localisation in Retrieval-Augmented Generation Evaluation on Q
 Questions* (Pouya Bathaei Pourmand, 2026), prepared for submission to *Language Resources and
 Evaluation*. The manuscript has not been submitted, accepted or published at the time of this
 release, and the release makes no claim to the contrary. The tag `v1.0.0` fixes the code, result
-files and documentation the manuscript reports; the release is archived on Zenodo through the
-GitHub integration, and the DOI is added to the README, `CITATION.cff` and the manuscript once the
-record exists.
+files and documentation the manuscript reports. The release is archived on Zenodo through the
+GitHub integration: concept DOI 10.5281/zenodo.22879357, version DOI 10.5281/zenodo.22879358
+(code archive, 201 files).
 
 ### What the release contains
 
@@ -57,9 +57,10 @@ The raw corpora, model weights (pulled from Hugging Face on first use; the revis
 are listed in `results/localisation/model_metadata.json`), and `reports/` (run records and the
 annotation package). The human annotation package — 200 QASPER units with full retrieved context,
 original/review/final labels with provenance, guideline and truncation audits, the gold-span
-adjudication sheet and answers, threshold-ablation and oracle-evidence rows — is deposited as a
-separate checksummed archive in the Zenodo record of this release, under QASPER's CC BY 4.0 terms
-for the excerpted text.
+adjudication sheet and answers, threshold-ablation and oracle-evidence rows; 68 files, SHA-256
+`d6d84ecb155853939be2b6d482caedb808915e29aa54498fb78c7d09502ea44d`) is deposited as a separate archive in a new
+version of the Zenodo record of this release, under QASPER's CC BY 4.0 terms for the excerpted
+text.
 
 ### Changes since the previous commit on `main` (9a7ab20)
 

@@ -4,6 +4,7 @@
 ![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Release v1.0.0](https://img.shields.io/badge/release-v1.0.0-blue)](https://github.com/pouyapd/TrustRAG/releases/tag/v1.0.0)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22879357.svg)](https://doi.org/10.5281/zenodo.22879357)
 
 **TrustRAG is a research framework for evaluating retrieval-augmented generation (RAG) at the
 level of evidence rather than documents.** A document-level retrieval metric counts any retrieved
@@ -30,10 +31,12 @@ has not been submitted, accepted or published; this line will be updated when th
 manuscript is not in the repository.
 
 Release **[v1.0.0](https://github.com/pouyapd/TrustRAG/releases/tag/v1.0.0)** of this repository
-is the code and result state the manuscript reports. It is archived on Zenodo through the GitHub
-integration; the DOI will be added here, in `CITATION.cff` and in the manuscript once the record
-exists (no DOI is quoted until then). The human annotation package is deposited in the same Zenodo
-record as a separate archive (see [Reproducibility](#reproducibility)).
+is the code and result state the manuscript reports. It is archived on Zenodo: concept DOI
+[10.5281/zenodo.22879357](https://doi.org/10.5281/zenodo.22879357) (always the latest version),
+version DOI [10.5281/zenodo.22879358](https://doi.org/10.5281/zenodo.22879358) for the v1.0.0
+code archive. The human annotation package (SHA-256 `d6d84ecb155853939be2b6d482caedb808915e29aa54498fb78c7d09502ea44d`)
+is deposited as a separate archive in a new version of the same record; until that version is
+published the record holds the code archive only (see [Reproducibility](#reproducibility)).
 
 **In one paragraph.** Every chunk of the document that holds the gold evidence is ranked against
 the question by seven localisers — BM25, four dense bi-encoders and two cross-encoder rerankers,
@@ -319,7 +322,8 @@ first use); and `reports/`, which holds the run records and the annotation packa
 labels are data, not a computation, so the package (200 units with full retrieved context,
 original/review/final labels with provenance, guideline and truncation audits, gold-span
 adjudication sheet and answers, threshold-ablation and oracle-evidence rows; QASPER excerpts under
-CC BY 4.0) is deposited as a separate checksummed archive in the Zenodo record of release v1.0.0.
+CC BY 4.0) is deposited as a separate checksummed archive (SHA-256 `d6d84ecb15585393…`) in a new
+version of the Zenodo record of release v1.0.0 (concept DOI 10.5281/zenodo.22879357).
 Every report embeds the git commit, raw-file SHA-256, configuration, threshold fingerprint and
 package versions. Approximate nearest-neighbour search moves fine-grained decomposition aggregates
 by ≤ 0.001 between independently built indices; the localisation study has no randomness (stable
@@ -435,7 +439,7 @@ exists, cite the software release:
   version = {1.0.0},
   year    = {2026},
   url     = {https://github.com/pouyapd/TrustRAG},
-  note    = {Zenodo DOI to be added once the archive record exists}
+  doi     = {10.5281/zenodo.22879357}
 }
 ```
 
