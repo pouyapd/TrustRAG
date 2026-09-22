@@ -49,9 +49,9 @@ questions. BM25 is the weakest localiser on both corpora, differences among the 
 not significant after Holm correction, and the cross-encoder reranker effect does not replicate
 across corpora. An author-conducted annotation study of 200 QASPER units finds that gating failure
 attribution on span coverage agrees with the human labels more often than gating on document
-coverage (accuracy 0.700 against 0.600), and a stratified, blind adjudication of 60 units estimates
-the incompleteness of the QASPER span annotations at 0.119 (95% CI [0.096, 0.142]; 4–12% under
-sensitivity analysis). The results argue for reporting localisation against chance and for auditing
+coverage (accuracy 0.700 against 0.600), and an author-conducted, blind adjudication of 97 of the
+133 zero-coverage units puts the incompleteness of the QASPER span annotations at 0.053, about
+5–7% once the 36 units that were left unadjudicated are allowed for. The results argue for reporting localisation against chance and for auditing
 evidence annotations before they serve as a scoring reference.
 
 ## Contents
@@ -233,23 +233,31 @@ units with zero gold-span coverage, whether the reference answer is derivable fr
 text alone. Two proxies (content-word overlap and MiniLM cosine) resolved 46 units where they agreed
 (36 answer absent, 10 answer present); the 87 they could not resolve were stratified, and 60 were
 sampled (seed 20260907) and adjudicated by hand, blind to every previous label and score
-([`scripts/build_goldspan_adjudication.py`](scripts/build_goldspan_adjudication.py),
+([`scripts/build_goldspan_adjudication.py`](scripts/build_goldspan_adjudication.py)):
+**4 YES, 56 NO, 0 CANNOT_TELL**. A second round then adjudicated the 27 unresolved units the
+sample had not drawn and the 10 the proxies had called "answer present", under the same protocol
+and the same blind sheet ([`scripts/build_goldspan_remainder.py`](scripts/build_goldspan_remainder.py),
+[`scripts/render_goldspan_review.py`](scripts/render_goldspan_review.py),
 [`scripts/score_goldspan_adjudication.py`](scripts/score_goldspan_adjudication.py)):
-**4 YES, 56 NO, 0 CANNOT_TELL**.
+**3 YES, 34 NO, 0 CANNOT_TELL**. That brings 97 of the 133 units to a human judgement.
 
-| | Estimate |
+| | Result |
 |---|---|
-| Gold-span under-coverage among the 133 zero-coverage units | **0.119**, 95% CI **[0.096, 0.142]** |
-| Defensible range under sensitivity analysis | **4% – 12%** |
+| Gold-span under-coverage among the 133 zero-coverage units | **0.053** — 7 units, counted, no sampling error |
+| Units carrying a human judgement | **97 of 133** |
+| Range once the 36 unadjudicated units are allowed for | **5% – 7%** |
 
-The interval covers sampling error only, and the point estimate leans on the 10 units both proxies
-called "answer present" that no human checked; the adjudicated sample agreed with "answer present"
-on only 6.7% of unresolved units, and if those 10 behave like the adjudicated ones the rate is
-0.049. The estimate is not definitive: it is one annotator, one corpus, and a proxy-resolved census
-part. What it supports is that the span reference is a substantially sound instrument for
-retrieval attribution — the bias runs in the expected direction and is an order of magnitude
-smaller than the effects measured — and that annotation completeness can be measured at low cost
-before annotations are used as a scoring reference.
+Because every unresolved unit was judged, the figure is a direct count rather than a sample
+estimate and there is no sampling error left to report. Two things it does not settle. The 36
+units both proxies called "answer absent" were never read by a person and are counted as holding
+no under-coverage; if they behaved like the 97 that were adjudicated the rate would be 0.072,
+which is where the 5–7% range comes from. And the same person judged both rounds, so the second
+round adds coverage, not agreement: there is still one annotator, no inter-annotator agreement,
+and one corpus. What the audit supports is that the span reference is a substantially sound
+instrument for retrieval attribution — the bias runs in the expected direction and is an order of
+magnitude smaller than the effects measured — and that annotation completeness can be measured at
+low cost before annotations are used as a scoring reference. It also shows the proxies should not
+have been trusted on their own: of the 10 units they were confident about, 3 were confirmed.
 
 ## Oracle-evidence control (a replication)
 
@@ -365,7 +373,7 @@ docs/
   EXPERIMENTS.md     decomposition protocol, all results, threats to validity
   TAXONOMY.md, EVALUATION.md, ANNOTATION_GUIDELINES.md, DATASETS.md, ARCHITECTURE.md, QUICKSTART.md
   paper/             supporting documents for the manuscript, with the stage of each (docs/paper/README.md)
-tests/               23 test modules, 488 tests
+tests/               24 test modules, 501 tests
 data/documents/, data/eval/   the small sample corpus used by the offline pipeline smoke test
 CITATION.cff, .zenodo.json, LICENSE, pyproject.toml, CHANGELOG.md
 ```
@@ -389,7 +397,7 @@ service (`uvicorn src.api.main:app`) and the Docker setup are the pipeline the e
 ## Tests
 
 ```bash
-pytest tests/ -q                     # 488 tests
+pytest tests/ -q                     # 501 tests
 ruff check src/ tests/ scripts/      # clean
 ```
 

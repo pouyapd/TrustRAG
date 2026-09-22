@@ -1,5 +1,28 @@
 # Changelog
 
+## Unreleased
+
+- **Gold-span completeness audit completed.** The first pass had adjudicated a stratified sample
+  of 60 of the 87 proxy-unresolved zero-coverage units and counted the 10 units both proxies
+  called "answer present" as under-coverage without anyone reading them. The author has now
+  adjudicated the remaining 37 units — the 27 unresolved units the sample had not drawn and
+  those 10 — under the same protocol, the same answers and the same blind sheet: **3 YES, 34 NO,
+  0 CANNOT_TELL**. The 87 unresolved units are therefore a census, the finite population
+  correction is zero and the sampling error disappears; the proxy-resolved stratum is now
+  observed rather than assumed (3 of 10 confirmed).
+  - Under-coverage over the 133 zero-coverage units: **0.053** (7 units, counted) in place of
+    0.119 with a 95% CI of [0.096, 0.142]; the range once the 36 unadjudicated "answer absent"
+    units are allowed for is about **5–7%**, in place of the earlier 4–12%.
+  - The same person judged both rounds. This adds coverage, not agreement: there is still one
+    annotator and no inter-annotator agreement, and 36 of the 133 units remain unread.
+  - New: `scripts/build_goldspan_remainder.py` (builds the second package),
+    `scripts/render_goldspan_review.py` (renders a package for reading, locating each gold span
+    in its paper), `tests/test_goldspan_remainder.py` (13 tests).
+    `scripts/score_goldspan_adjudication.py` gained `--remainder`; without it the original
+    estimate is reproduced unchanged.
+  - The first-pass package (`reports/annotation/goldspan_adjudication/`) is untouched.
+- **Tests**: 501 pass (`pytest tests/ -q`); `ruff check src/ tests/ scripts/` is clean.
+
 ## v1.0.0 — 21 September 2026 — research and reproducibility release
 
 This is the software and artefact release corresponding to the manuscript *Right Document, Wrong

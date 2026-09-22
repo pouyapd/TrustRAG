@@ -130,11 +130,14 @@ therefore a comparison between a coarse rule (document-level) and a rule that is
 sharper but biased in a known direction. It is not a comparison against a clean
 oracle.
 
-> **Superseded (2026-09-07).** A stratified human adjudication of 60 of the 87
-> unresolved units now estimates under-coverage at **0.119, 95% CI [0.096, 0.142]**,
-> defensibly 4–12% under sensitivity analysis (README, "How far the gold standard can be trusted";
-> `reports/annotation/goldspan_adjudication/estimate.json`). The lexical figure
-> below is retained as the record of what the proxy alone suggested.
+> **Superseded (2026-09-07, extended 2026-09-22).** Author-conducted adjudication of
+> 97 of the 133 zero-coverage units — the 87 proxy-unresolved ones in full, plus the 10
+> the proxies had called "answer present" — counts under-coverage at **0.053** (7 units),
+> about 5–7% once the 36 units that were left unadjudicated are allowed for
+> (README, "Gold-span completeness audit";
+> `reports/annotation/goldspan_adjudication_remaining37/estimate_combined.json`).
+> One annotator judged both rounds, so no inter-annotator agreement follows. The lexical
+> figure below is retained as the record of what the proxy alone suggested.
 
 Token presence is not entailment, so 23.3% is an **upper bound** on how often the
 span rule is wrong, not a correction factor. A tighter estimate needs entailment

@@ -297,9 +297,10 @@ Three differences are consistent with the reversal; none is proven to cause it.
   less often (10.7% vs 15.4%); QASPER also marks two supporting paragraphs per question on
   average, any one of which counts, so the "gold" is a set the model was never trained to
   identify as such. The human adjudication in this repository found the answer derivable
-  from a *non*-gold retrieved chunk in 19–33% of right-document misses on QASPER, which
-  means part of what the metric calls a miss is annotation redundancy rather than ranking
-  error — a share that is unknown for NQ.
+  from a *non*-gold retrieved chunk in 6 of the 33 right-document misses on QASPER (18%; 28
+  of the 33 were adjudicated and the other 5 are counted as no), which means part of what the
+  metric calls a miss is annotation redundancy rather than ranking error — a share that is
+  unknown for NQ.
 - **Training distribution.** NQ is in the documented training data of every neural model
   tested that documents its data: the MiniLM and MPNet cards list 100,231 NQ pairs and 9.1M
   MS MARCO triplets; E5 and BGE list NQ and MS MARCO among their fine-tuning sets; the
@@ -409,8 +410,9 @@ revisions the cache resolved. Cross-encoders were scored with `max_length=512`.
   one corpus each way and needs a third long-document corpus to be characterised.
 - Corpora are small (111 and 297 documents). Reach is not comparable across corpora and is
   only weakly tested here; the within-document measurement is unaffected by corpus size.
-- The gold on QASPER is incomplete in a known direction (human adjudication: 4–12% of
-  zero-coverage units had the answer elsewhere in the retrieved text; 19–33% among
+- The gold on QASPER is incomplete in a known direction (author-conducted adjudication of 97
+  of the 133 zero-coverage units: 7 had the answer elsewhere in the retrieved text, a counted
+  0.053, about 5–7% once the 36 unadjudicated units are allowed for; 6 of the 33 among
   right-document misses). Some "misses" are therefore annotation redundancy; the share is
   unmeasured for NQ.
 - One reranker per size class; `bge-reranker-base` training data undocumented.

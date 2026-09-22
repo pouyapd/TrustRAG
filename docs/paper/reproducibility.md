@@ -38,11 +38,14 @@ produced locally rather than shipped with a clone. `results/` is tracked.
 | Gold spans, both proxies | gold-span coverage, lexical + semantic (partition of the 133 zero-coverage units) | `python scripts/audit_gold_span_semantic.py --package … --out audit/gold_span_semantic.json` | `audit/gold_span_semantic.json` |
 | Gold spans, adjudication sample | stratified 60-unit sample of the 87 unresolved units, blind sheet | `python scripts/build_goldspan_adjudication.py --package … --audit audit/gold_span_semantic.json --n 60 --seed 20260907 --out reports/annotation/goldspan_adjudication` | adjudication package |
 | Gold spans, estimate | under-coverage estimate from the completed sheet (census part + stratified sample, fpc) | `python scripts/score_goldspan_adjudication.py …` | `goldspan_adjudication/estimate.json` |
+| Gold spans, remaining units | the 37 units the first pass left open (27 unsampled + 10 proxy-resolved "present"), same protocol, no sampling | `python scripts/build_goldspan_remainder.py --package … --audit audit/gold_span_semantic.json --first-pass reports/annotation/goldspan_adjudication --out reports/annotation/goldspan_adjudication_remaining37` | second adjudication package |
+| Gold spans, review sheet | the package rendered for reading, with the gold span located in its paper | `python scripts/render_goldspan_review.py --package … --corpus data/raw/qasper-dev-v0.3.json --out …/HUMAN_REVIEW.md` | `HUMAN_REVIEW.md` |
+| Gold spans, combined count | both rounds together; the unresolved stratum becomes a census, so the fpc is zero and the estimate degenerates to a count | `python scripts/score_goldspan_adjudication.py --package reports/annotation/goldspan_adjudication --remainder reports/annotation/goldspan_adjudication_remaining37 --audit … --out …/estimate_combined.json` | `goldspan_adjudication_remaining37/estimate_combined.json` |
 | Localisation | within-document ranks, seven localisers, two corpora, tests, bootstrap, sweeps, contrasts | see `results/localisation/README.md` § Reproducing | `results/localisation/*.json`, `rank_distribution.png` |
 | Annotation package | blinded, stratified package build | `python scripts/build_annotation_package.py --records … --out reports/annotation/qasper_dev_300_full_context --n-units 200` | package + `manifest.json` |
 | Figures | all four paper figures | `pip install -r requirements-research.txt && python scripts/make_paper_figures.py --all` | `results/figures/*.png` |
 | Figures | earlier study figures | `python scripts/make_figures.py --all` | `results/figures/*.png` |
-| Tests | full suite | `pytest tests/ -q` | 488 tests |
+| Tests | full suite | `pytest tests/ -q` | 501 tests |
 | Lint | ruff | `ruff check scripts/ src/ tests/` | clean |
 
 ## Provenance recorded in every report
