@@ -416,9 +416,10 @@ Read before quoting any number above.
 - **One annotator, and a guided review.** The human study is author-conducted; there is no
   inter-annotator agreement, and the second pass was directed by an audit of the guidelines being
   tested. 22 of the 200 labels retain pilot-era provenance.
-- **The gold-span estimate is not definitive.** 0.119 [0.096, 0.142], defensibly 4–12%; the
-  interval covers sampling error only, the census part rests on proxies, and it is measured on
-  QASPER only.
+- **The gold-span figure is not definitive.** 0.053 — 7 of the 133 units, counted, no sampling
+  error — but one adjudicator judged both rounds, the 36 units both proxies called "answer
+  absent" were never read (allowing for them gives about 5–7%), and it is measured on QASPER
+  only.
 - **Generation-side categories are unvalidated**; several have near-zero support in the human
   labels, and the annotated run uses an extractive control that cannot hallucinate.
 - **Two corpora, one chunking, small models.** Seven localisers with one reranker per size class,
