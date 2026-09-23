@@ -2,8 +2,8 @@ cff-version: 1.2.0
 message: "If you use this software or its result files, please cite it as below."
 type: software
 title: "TrustRAG: evidence localisation and failure attribution for retrieval-augmented generation evaluation"
-version: 1.0.0
-date-released: 2026-09-21
+version: 1.1.0
+date-released: 2026-09-22
 license: MIT
 repository-code: "https://github.com/pouyapd/TrustRAG"
 doi: 10.5281/zenodo.22879357
@@ -27,8 +27,9 @@ abstract: >-
   length-aware chance level; Holm-corrected paired tests and a document-level cluster
   bootstrap; union and rank-correlation analyses; admission-budget and chunk-size sweeps;
   and the scripts behind a human-reviewed failure-attribution study and a gold-span
-  completeness adjudication. The human annotation package is deposited as a separate
-  archive in the same Zenodo record.
+  completeness adjudication, whose labels and estimates are in results/goldspan_adjudication.
+  The human annotation package is deposited as a separate archive in the same Zenodo
+  record; the DOI below is the concept DOI, which always resolves to that record.
 preferred-citation:
   type: article
   title: "Right document, wrong passage: evidence localisation in retrieval-augmented generation evaluation on QASPER and Natural Questions"

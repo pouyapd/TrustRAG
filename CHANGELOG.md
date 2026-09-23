@@ -1,6 +1,12 @@
 # Changelog
 
-## Unreleased
+## v1.1.0 — 22 September 2026 — completed gold-span adjudication
+
+Tag `v1.1.0` is the code and result state the manuscript reports. It is a GitHub tag, not a
+new Zenodo deposit: everything it adds is tracked in the repository, so no archive is needed.
+The Zenodo record is unchanged — concept DOI 10.5281/zenodo.22879357, code archive
+10.5281/zenodo.22879358 (v1.0.0), annotation package 10.5281/zenodo.22879569 — and the earlier
+versions remain published.
 
 - **Gold-span completeness audit completed.** The first pass had adjudicated a stratified sample
   of 60 of the 87 proxy-unresolved zero-coverage units and counted the 10 units both proxies
@@ -21,7 +27,14 @@
     `scripts/score_goldspan_adjudication.py` gained `--remainder`; without it the original
     estimate is reproduced unchanged.
   - The first-pass package (`reports/annotation/goldspan_adjudication/`) is untouched.
-- **Tests**: 501 pass (`pytest tests/ -q`); `ruff check src/ tests/ scripts/` is clean.
+  - New: [`results/goldspan_adjudication/`](results/goldspan_adjudication/) tracks the proxy
+    partition of the 133 units, both rounds of labels and both estimates. These files carry no
+    QASPER text, so Table 9 now recomputes from a clone with one command. The adjudication
+    sheets, which do quote QASPER, stay out of the repository as before.
+  - Reference identifiers in the manuscript build are now clickable: apacite hyperlinks a
+    reference's `doi` field but printed the `url` field as plain text, which left 12 of 16
+    entries unlinked.
+- **Tests**: 504 pass (`pytest tests/ -q`); `ruff check src/ tests/ scripts/` is clean.
 
 ## v1.0.0 — 21 September 2026 — research and reproducibility release
 

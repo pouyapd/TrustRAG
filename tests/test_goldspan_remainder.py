@@ -20,6 +20,7 @@ from scripts.score_goldspan_adjudication import read_answers, stratified
 REPO = Path(__file__).resolve().parents[1]
 FIRST = REPO / "reports" / "annotation" / "goldspan_adjudication"
 REMAINDER = REPO / "reports" / "annotation" / "goldspan_adjudication_remaining37"
+PUBLIC = REPO / "results" / "goldspan_adjudication"
 VALID = {"YES", "NO", "CANNOT_TELL"}
 
 
@@ -199,6 +200,69 @@ def test_the_second_round_is_not_described_as_independent():
     for claim in ("independently validated", "inter-annotator agreement is",
                   "second annotator agreed"):
         assert claim not in blurb
+
+
+# --- the tracked copy, which is what a clone can recompute from -------------
+
+def test_public_copy_carries_the_labels_and_no_qasper_text():
+    """results/goldspan_adjudication is in git; the sheets it mirrors are not."""
+    first = read_answers(PUBLIC / "first_pass" / "answers.csv")
+    rem = read_answers(PUBLIC / "remaining37" / "answers.csv")
+    assert len(first) == 60 and len(rem) == 37
+    assert not set(first) & set(rem)
+    assert Counter(first.values()) == {"NO": 56, "YES": 4}
+    assert Counter(rem.values()) == {"NO": 34, "YES": 3}
+
+    audit = json.loads((PUBLIC / "gold_span_semantic.json").read_text(encoding="utf-8"))
+    assert audit["n_units"] == 133
+    assert audit["buckets"]["A_genuinely_unsupported"] == 36
+
+    # The sheets stay out of git because they quote QASPER. A tracked file may carry ids,
+    # labels, counts and our own prose, but none of the fields that hold excerpted text.
+    for name in ("first_pass/answers.csv", "first_pass/manifest.json",
+                 "first_pass/estimate.json", "remaining37/answers.csv",
+                 "remaining37/manifest.json", "remaining37/estimate_combined.json",
+                 "gold_span_semantic.json"):
+        body = (PUBLIC / name).read_text(encoding="utf-8")
+        # key form only: the manifests name these fields when they record what was shown
+        # to or withheld from the reviewer, which is metadata, not the text itself.
+        for field in ('"retrieved_context":', '"gold_evidence":', '"text":',
+                      '"question":', '"reference_answers":', '"system_answer":'):
+            assert field not in body, f"{name} carries {field}, which holds QASPER text"
+
+
+def test_public_copy_matches_the_working_packages():
+    """It is a copy, so it must not drift from what was actually adjudicated."""
+    if not (REMAINDER / "answers.csv").exists():
+        pytest.skip("the working packages are not present in this checkout")
+    for src, dst in ((FIRST / "answers.csv", PUBLIC / "first_pass" / "answers.csv"),
+                     (REMAINDER / "answers.csv", PUBLIC / "remaining37" / "answers.csv"),
+                     (REMAINDER / "manifest.json", PUBLIC / "remaining37" / "manifest.json"),
+                     (FIRST / "manifest.json", PUBLIC / "first_pass" / "manifest.json")):
+        assert src.read_bytes() == dst.read_bytes(), f"{dst.name} has drifted from {src}"
+
+
+def test_table_nine_recomputes_from_the_tracked_files_alone():
+    stored = json.loads((PUBLIC / "remaining37" / "estimate_combined.json").read_text(
+        encoding="utf-8"))["combined_with_remaining_units"]
+    first = read_answers(PUBLIC / "first_pass" / "answers.csv")
+    rem = read_answers(PUBLIC / "remaining37" / "answers.csv")
+    audit = json.loads((PUBLIC / "gold_span_semantic.json").read_text(encoding="utf-8"))
+
+    bucket = {u["annotation_id"]: u["bucket"] for u in audit["units"]}
+    labels = {**first, **rem}
+    assert len(labels) == 97
+    assert not any(bucket[i] == "A_genuinely_unsupported" for i in labels)
+
+    yes = sum(1 for a in labels.values() if a == "YES")
+    assert yes == 7
+    assert stored["estimates"]["decidable_only"]["under_coverage_count"] == pytest.approx(yes)
+    assert yes / audit["n_units"] == pytest.approx(
+        stored["estimates"]["decidable_only"]["under_coverage_rate"], abs=5e-5)
+    # the one surviving assumption, and the rate it produces
+    assert stored["units_still_unadjudicated"] == audit["buckets"]["A_genuinely_unsupported"]
+    sens = stored["sensitivity_to_bucket_A"]["scenarios"]["bucket_a_behaves_like_adjudicated_units"]
+    assert sens["under_coverage_rate"] == pytest.approx(yes / 97, abs=5e-5)
 
 
 @needs_package

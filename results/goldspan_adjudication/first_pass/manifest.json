@@ -1,0 +1,132 @@
+{
+  "kind": "gold-span adjudication sample",
+  "created_utc": "2026-09-06T19:55:53+00:00",
+  "question_put_to_the_annotator": "Is the reference answer derivable from the retrieved text alone, without relying on the annotated gold span?",
+  "allowed_answers": [
+    "YES",
+    "NO",
+    "CANNOT_TELL"
+  ],
+  "population": {
+    "zero_gold_span_coverage_units": 133,
+    "resolved_by_proxy_agreement": 46,
+    "unresolved_eligible_for_sampling": 87,
+    "stratum_sizes": {
+      "C_possibly_inferable": 8,
+      "D_ambiguous": 58,
+      "D_ambiguous_lexical_only": 21
+    }
+  },
+  "sampling": {
+    "design": "stratified by proxy-agreement bucket, proportional allocation with largest-remainder rounding, simple random draw within stratum, then shuffled for presentation",
+    "seed": 20260907,
+    "n_requested": 60,
+    "n_selected": 60,
+    "allocation": {
+      "C_possibly_inferable": 6,
+      "D_ambiguous": 40,
+      "D_ambiguous_lexical_only": 14
+    },
+    "reproduce": "python scripts/build_goldspan_adjudication.py --package reports/annotation/qasper_dev_300_full_context --audit reports/annotation/qasper_dev_300_full_context/audit/gold_span_semantic.json --n 60 --seed 20260907 --out reports/annotation/goldspan_adjudication"
+  },
+  "selected_ids_by_stratum": {
+    "C_possibly_inferable": [
+      "unit_0016",
+      "unit_0080",
+      "unit_0090",
+      "unit_0142",
+      "unit_0152",
+      "unit_0167"
+    ],
+    "D_ambiguous": [
+      "unit_0000",
+      "unit_0007",
+      "unit_0012",
+      "unit_0013",
+      "unit_0018",
+      "unit_0019",
+      "unit_0021",
+      "unit_0025",
+      "unit_0028",
+      "unit_0041",
+      "unit_0044",
+      "unit_0045",
+      "unit_0053",
+      "unit_0056",
+      "unit_0060",
+      "unit_0082",
+      "unit_0085",
+      "unit_0089",
+      "unit_0102",
+      "unit_0107",
+      "unit_0119",
+      "unit_0121",
+      "unit_0123",
+      "unit_0124",
+      "unit_0126",
+      "unit_0130",
+      "unit_0132",
+      "unit_0133",
+      "unit_0138",
+      "unit_0146",
+      "unit_0154",
+      "unit_0159",
+      "unit_0160",
+      "unit_0164",
+      "unit_0176",
+      "unit_0181",
+      "unit_0185",
+      "unit_0190",
+      "unit_0196",
+      "unit_0199"
+    ],
+    "D_ambiguous_lexical_only": [
+      "unit_0002",
+      "unit_0040",
+      "unit_0047",
+      "unit_0059",
+      "unit_0064",
+      "unit_0077",
+      "unit_0091",
+      "unit_0104",
+      "unit_0109",
+      "unit_0134",
+      "unit_0137",
+      "unit_0158",
+      "unit_0161",
+      "unit_0168"
+    ]
+  },
+  "blinding": {
+    "fields_shown": [
+      "annotation_id",
+      "question",
+      "reference_answers",
+      "corpus_can_answer",
+      "gold_evidence",
+      "retrieved_context"
+    ],
+    "withheld": [
+      "human_label",
+      "human_confidence",
+      "human_notes",
+      "reference/automated annotation label",
+      "taxonomy labels",
+      "proxy scores",
+      "bucket name"
+    ],
+    "note": "Bucket membership is not shown and unit order is shuffled, so the stratum cannot be inferred from the sheet."
+  },
+  "integrity": {
+    "retrieved_chunks": 300,
+    "retrieved_chunks_complete": 300,
+    "gold_spans": 107,
+    "gold_spans_complete": 107,
+    "source_sheet_sha256": "b5a95c33070385d5df14e762476ca0da3e3cffbe68e5967e7fcb0dd19634951d",
+    "audit_file_sha256": "b06a67eb7bb61d8437dca04a83548709362f9cf6bf6c5f687b758acfa97c7edc"
+  },
+  "does_not_modify": [
+    "reports/annotation/qasper_dev_300_full_context/annotator_human/completed.jsonl",
+    "reports/annotation/qasper_dev_300_full_context/final_human_reviewed/completed.jsonl"
+  ]
+}

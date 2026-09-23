@@ -1,0 +1,119 @@
+{
+  "kind": "gold-span adjudication — remaining units (census, not a sample)",
+  "created_utc": "2026-09-22T13:38:53+00:00",
+  "question_put_to_the_annotator": "Is the reference answer derivable from the retrieved text alone, without relying on the annotated gold span?",
+  "allowed_answers": [
+    "YES",
+    "NO",
+    "CANNOT_TELL"
+  ],
+  "relation_to_first_pass": {
+    "first_pass": "reports/annotation/goldspan_adjudication",
+    "first_pass_units": 60,
+    "overlap_with_first_pass": 0,
+    "note": "The same reviewer (the author) judged the first pass. This package is an extension of that pass, not an independent second annotation, and yields no inter-annotator agreement."
+  },
+  "population": {
+    "zero_gold_span_coverage_units": 133,
+    "already_adjudicated": 60,
+    "remaining_without_a_human_judgement": 37,
+    "group_sizes": {
+      "B_supported_outside_gold_span": 10,
+      "C_possibly_inferable": 2,
+      "D_ambiguous": 18,
+      "D_ambiguous_lexical_only": 7
+    },
+    "still_not_adjudicated_after_this_pass": {
+      "A_genuinely_unsupported": 36,
+      "note": "Units both proxies called 'answer absent'. Counted as no under-coverage; this remains an assumption after this pass."
+    }
+  },
+  "selection": {
+    "design": "census of every zero-coverage unit that has no human judgement, i.e. the 27 unresolved units the first sample did not draw plus the 10 bucket-B units counted on the proxies' word",
+    "sampling": "none - all remaining units are included, so there is no seed",
+    "presentation_order": "by unit id, so group membership is not inferable",
+    "reproduce": "python scripts/build_goldspan_remainder.py --package reports/annotation/qasper_dev_300_full_context --audit reports/annotation/qasper_dev_300_full_context/audit/gold_span_semantic.json --first-pass reports/annotation/goldspan_adjudication --out reports/annotation/goldspan_adjudication_remaining37"
+  },
+  "ids_by_group": {
+    "B_supported_outside_gold_span": [
+      "unit_0011",
+      "unit_0015",
+      "unit_0058",
+      "unit_0063",
+      "unit_0067",
+      "unit_0099",
+      "unit_0108",
+      "unit_0122",
+      "unit_0171",
+      "unit_0175"
+    ],
+    "C_possibly_inferable": [
+      "unit_0003",
+      "unit_0050"
+    ],
+    "D_ambiguous": [
+      "unit_0017",
+      "unit_0022",
+      "unit_0023",
+      "unit_0030",
+      "unit_0037",
+      "unit_0062",
+      "unit_0068",
+      "unit_0105",
+      "unit_0111",
+      "unit_0112",
+      "unit_0116",
+      "unit_0118",
+      "unit_0127",
+      "unit_0129",
+      "unit_0149",
+      "unit_0163",
+      "unit_0166",
+      "unit_0179"
+    ],
+    "D_ambiguous_lexical_only": [
+      "unit_0008",
+      "unit_0073",
+      "unit_0075",
+      "unit_0098",
+      "unit_0110",
+      "unit_0150",
+      "unit_0153"
+    ]
+  },
+  "blinding": {
+    "fields_shown": [
+      "annotation_id",
+      "question",
+      "reference_answers",
+      "corpus_can_answer",
+      "gold_evidence",
+      "retrieved_context"
+    ],
+    "withheld": [
+      "human_label",
+      "human_confidence",
+      "human_notes",
+      "reference/automated annotation label",
+      "taxonomy labels",
+      "proxy scores",
+      "bucket name",
+      "first-pass answers"
+    ],
+    "note": "Group membership is not shown and units are ordered by id, so a unit's proxy bucket - including whether the proxies called it under-coverage - cannot be inferred from the sheet."
+  },
+  "integrity": {
+    "retrieved_chunks": 185,
+    "retrieved_chunks_complete": 185,
+    "gold_spans": 77,
+    "gold_spans_complete": 77,
+    "source_sheet_sha256": "b5a95c33070385d5df14e762476ca0da3e3cffbe68e5967e7fcb0dd19634951d",
+    "audit_file_sha256": "b06a67eb7bb61d8437dca04a83548709362f9cf6bf6c5f687b758acfa97c7edc"
+  },
+  "does_not_modify": [
+    "reports/annotation/goldspan_adjudication/answers.csv",
+    "reports/annotation/goldspan_adjudication/manifest.json",
+    "reports/annotation/qasper_dev_300_full_context/annotator_human/completed.jsonl",
+    "reports/annotation/qasper_dev_300_full_context/final_human_reviewed/completed.jsonl"
+  ]
+}

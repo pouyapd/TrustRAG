@@ -1,0 +1,965 @@
+{
+  "package": "reports/annotation/qasper_dev_300_full_context",
+  "encoder": "sentence-transformers/all-MiniLM-L6-v2",
+  "thresholds": {
+    "lexical_high": 0.8,
+    "semantic_high": 0.6,
+    "semantic_low": 0.35
+  },
+  "n_units": 133,
+  "buckets": {
+    "D_ambiguous": 58,
+    "D_ambiguous_lexical_only": 21,
+    "C_possibly_inferable": 8,
+    "A_genuinely_unsupported": 36,
+    "B_supported_outside_gold_span": 10
+  },
+  "shares": {
+    "D_ambiguous": 0.4361,
+    "D_ambiguous_lexical_only": 0.1579,
+    "C_possibly_inferable": 0.0602,
+    "A_genuinely_unsupported": 0.2707,
+    "B_supported_outside_gold_span": 0.0752
+  },
+  "interpretation": {
+    "A_genuinely_unsupported": "retrieval failure that the span rule reports correctly",
+    "B_supported_outside_gold_span": "the span rule reports a retrieval failure that the retrieved text does not support; gold-span under-coverage",
+    "C_possibly_inferable": "needs human adjudication",
+    "D_ambiguous": "needs human adjudication",
+    "D_ambiguous_lexical_only": "needs human adjudication"
+  },
+  "caveat": "Both signals are proxies. Neither establishes entailment, and the semantic threshold is a convention, not a calibrated decision boundary. Bucket B is a lower bound on under-coverage under agreement of two weak signals; the C/D bands are explicitly unresolved and require human adjudication that has not been performed.",
+  "units": [
+    {
+      "annotation_id": "unit_0015",
+      "lexical_presence": 1.0,
+      "semantic_max_cosine": 0.7298,
+      "bucket": "B_supported_outside_gold_span",
+      "rationale": "both signals agree the answer content is in the retrieved text"
+    },
+    {
+      "annotation_id": "unit_0016",
+      "lexical_presence": 0.5294,
+      "semantic_max_cosine": 0.7152,
+      "bucket": "C_possibly_inferable",
+      "rationale": "semantically close but lexically different; may be paraphrase or may be topical similarity without the fact"
+    },
+    {
+      "annotation_id": "unit_0037",
+      "lexical_presence": 0.7778,
+      "semantic_max_cosine": 0.6898,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0130",
+      "lexical_presence": 0.6,
+      "semantic_max_cosine": 0.6895,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0011",
+      "lexical_presence": 1.0,
+      "semantic_max_cosine": 0.6893,
+      "bucket": "B_supported_outside_gold_span",
+      "rationale": "both signals agree the answer content is in the retrieved text"
+    },
+    {
+      "annotation_id": "unit_0003",
+      "lexical_presence": 0.5833,
+      "semantic_max_cosine": 0.682,
+      "bucket": "C_possibly_inferable",
+      "rationale": "semantically close but lexically different; may be paraphrase or may be topical similarity without the fact"
+    },
+    {
+      "annotation_id": "unit_0142",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.6677,
+      "bucket": "C_possibly_inferable",
+      "rationale": "semantically close but lexically different; may be paraphrase or may be topical similarity without the fact"
+    },
+    {
+      "annotation_id": "unit_0063",
+      "lexical_presence": 1.0,
+      "semantic_max_cosine": 0.6658,
+      "bucket": "B_supported_outside_gold_span",
+      "rationale": "both signals agree the answer content is in the retrieved text"
+    },
+    {
+      "annotation_id": "unit_0050",
+      "lexical_presence": 0.5,
+      "semantic_max_cosine": 0.6641,
+      "bucket": "C_possibly_inferable",
+      "rationale": "semantically close but lexically different; may be paraphrase or may be topical similarity without the fact"
+    },
+    {
+      "annotation_id": "unit_0090",
+      "lexical_presence": 0.3333,
+      "semantic_max_cosine": 0.6513,
+      "bucket": "C_possibly_inferable",
+      "rationale": "semantically close but lexically different; may be paraphrase or may be topical similarity without the fact"
+    },
+    {
+      "annotation_id": "unit_0152",
+      "lexical_presence": 0.4,
+      "semantic_max_cosine": 0.6395,
+      "bucket": "C_possibly_inferable",
+      "rationale": "semantically close but lexically different; may be paraphrase or may be topical similarity without the fact"
+    },
+    {
+      "annotation_id": "unit_0099",
+      "lexical_presence": 1.0,
+      "semantic_max_cosine": 0.6378,
+      "bucket": "B_supported_outside_gold_span",
+      "rationale": "both signals agree the answer content is in the retrieved text"
+    },
+    {
+      "annotation_id": "unit_0175",
+      "lexical_presence": 1.0,
+      "semantic_max_cosine": 0.6331,
+      "bucket": "B_supported_outside_gold_span",
+      "rationale": "both signals agree the answer content is in the retrieved text"
+    },
+    {
+      "annotation_id": "unit_0067",
+      "lexical_presence": 0.9,
+      "semantic_max_cosine": 0.6304,
+      "bucket": "B_supported_outside_gold_span",
+      "rationale": "both signals agree the answer content is in the retrieved text"
+    },
+    {
+      "annotation_id": "unit_0025",
+      "lexical_presence": 0.6,
+      "semantic_max_cosine": 0.6264,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0058",
+      "lexical_presence": 1.0,
+      "semantic_max_cosine": 0.6243,
+      "bucket": "B_supported_outside_gold_span",
+      "rationale": "both signals agree the answer content is in the retrieved text"
+    },
+    {
+      "annotation_id": "unit_0122",
+      "lexical_presence": 0.9167,
+      "semantic_max_cosine": 0.6188,
+      "bucket": "B_supported_outside_gold_span",
+      "rationale": "both signals agree the answer content is in the retrieved text"
+    },
+    {
+      "annotation_id": "unit_0080",
+      "lexical_presence": 0.4444,
+      "semantic_max_cosine": 0.6155,
+      "bucket": "C_possibly_inferable",
+      "rationale": "semantically close but lexically different; may be paraphrase or may be topical similarity without the fact"
+    },
+    {
+      "annotation_id": "unit_0108",
+      "lexical_presence": 1.0,
+      "semantic_max_cosine": 0.6107,
+      "bucket": "B_supported_outside_gold_span",
+      "rationale": "both signals agree the answer content is in the retrieved text"
+    },
+    {
+      "annotation_id": "unit_0171",
+      "lexical_presence": 1.0,
+      "semantic_max_cosine": 0.6106,
+      "bucket": "B_supported_outside_gold_span",
+      "rationale": "both signals agree the answer content is in the retrieved text"
+    },
+    {
+      "annotation_id": "unit_0146",
+      "lexical_presence": 0.7692,
+      "semantic_max_cosine": 0.6069,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0023",
+      "lexical_presence": 0.7143,
+      "semantic_max_cosine": 0.6057,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0167",
+      "lexical_presence": 0.3636,
+      "semantic_max_cosine": 0.6037,
+      "bucket": "C_possibly_inferable",
+      "rationale": "semantically close but lexically different; may be paraphrase or may be topical similarity without the fact"
+    },
+    {
+      "annotation_id": "unit_0109",
+      "lexical_presence": 0.8571,
+      "semantic_max_cosine": 0.6,
+      "bucket": "D_ambiguous_lexical_only",
+      "rationale": "shared vocabulary without semantic support; likely incidental overlap"
+    },
+    {
+      "annotation_id": "unit_0040",
+      "lexical_presence": 1.0,
+      "semantic_max_cosine": 0.5959,
+      "bucket": "D_ambiguous_lexical_only",
+      "rationale": "shared vocabulary without semantic support; likely incidental overlap"
+    },
+    {
+      "annotation_id": "unit_0110",
+      "lexical_presence": 0.8,
+      "semantic_max_cosine": 0.5956,
+      "bucket": "D_ambiguous_lexical_only",
+      "rationale": "shared vocabulary without semantic support; likely incidental overlap"
+    },
+    {
+      "annotation_id": "unit_0133",
+      "lexical_presence": 0.7333,
+      "semantic_max_cosine": 0.5886,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0107",
+      "lexical_presence": 0.4545,
+      "semantic_max_cosine": 0.5876,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0163",
+      "lexical_presence": 0.6,
+      "semantic_max_cosine": 0.5817,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0124",
+      "lexical_presence": 0.625,
+      "semantic_max_cosine": 0.5774,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0105",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.5745,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0091",
+      "lexical_presence": 0.8333,
+      "semantic_max_cosine": 0.5737,
+      "bucket": "D_ambiguous_lexical_only",
+      "rationale": "shared vocabulary without semantic support; likely incidental overlap"
+    },
+    {
+      "annotation_id": "unit_0064",
+      "lexical_presence": 0.875,
+      "semantic_max_cosine": 0.5688,
+      "bucket": "D_ambiguous_lexical_only",
+      "rationale": "shared vocabulary without semantic support; likely incidental overlap"
+    },
+    {
+      "annotation_id": "unit_0199",
+      "lexical_presence": 0.7,
+      "semantic_max_cosine": 0.5674,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0041",
+      "lexical_presence": 0.3333,
+      "semantic_max_cosine": 0.5629,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0059",
+      "lexical_presence": 1.0,
+      "semantic_max_cosine": 0.5615,
+      "bucket": "D_ambiguous_lexical_only",
+      "rationale": "shared vocabulary without semantic support; likely incidental overlap"
+    },
+    {
+      "annotation_id": "unit_0158",
+      "lexical_presence": 1.0,
+      "semantic_max_cosine": 0.5598,
+      "bucket": "D_ambiguous_lexical_only",
+      "rationale": "shared vocabulary without semantic support; likely incidental overlap"
+    },
+    {
+      "annotation_id": "unit_0044",
+      "lexical_presence": 0.3333,
+      "semantic_max_cosine": 0.5458,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0030",
+      "lexical_presence": 0.2727,
+      "semantic_max_cosine": 0.5414,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0075",
+      "lexical_presence": 1.0,
+      "semantic_max_cosine": 0.5371,
+      "bucket": "D_ambiguous_lexical_only",
+      "rationale": "shared vocabulary without semantic support; likely incidental overlap"
+    },
+    {
+      "annotation_id": "unit_0112",
+      "lexical_presence": 0.4286,
+      "semantic_max_cosine": 0.5357,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0121",
+      "lexical_presence": 0.5,
+      "semantic_max_cosine": 0.5341,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0068",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.533,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0179",
+      "lexical_presence": 0.75,
+      "semantic_max_cosine": 0.5264,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0149",
+      "lexical_presence": 0.25,
+      "semantic_max_cosine": 0.5229,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0176",
+      "lexical_presence": 0.5,
+      "semantic_max_cosine": 0.5163,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0045",
+      "lexical_presence": 0.5,
+      "semantic_max_cosine": 0.5146,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0000",
+      "lexical_presence": 0.5,
+      "semantic_max_cosine": 0.5087,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0077",
+      "lexical_presence": 1.0,
+      "semantic_max_cosine": 0.5069,
+      "bucket": "D_ambiguous_lexical_only",
+      "rationale": "shared vocabulary without semantic support; likely incidental overlap"
+    },
+    {
+      "annotation_id": "unit_0153",
+      "lexical_presence": 1.0,
+      "semantic_max_cosine": 0.502,
+      "bucket": "D_ambiguous_lexical_only",
+      "rationale": "shared vocabulary without semantic support; likely incidental overlap"
+    },
+    {
+      "annotation_id": "unit_0137",
+      "lexical_presence": 0.8333,
+      "semantic_max_cosine": 0.497,
+      "bucket": "D_ambiguous_lexical_only",
+      "rationale": "shared vocabulary without semantic support; likely incidental overlap"
+    },
+    {
+      "annotation_id": "unit_0134",
+      "lexical_presence": 1.0,
+      "semantic_max_cosine": 0.4932,
+      "bucket": "D_ambiguous_lexical_only",
+      "rationale": "shared vocabulary without semantic support; likely incidental overlap"
+    },
+    {
+      "annotation_id": "unit_0150",
+      "lexical_presence": 1.0,
+      "semantic_max_cosine": 0.483,
+      "bucket": "D_ambiguous_lexical_only",
+      "rationale": "shared vocabulary without semantic support; likely incidental overlap"
+    },
+    {
+      "annotation_id": "unit_0123",
+      "lexical_presence": 0.75,
+      "semantic_max_cosine": 0.4822,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0181",
+      "lexical_presence": 0.625,
+      "semantic_max_cosine": 0.473,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0098",
+      "lexical_presence": 1.0,
+      "semantic_max_cosine": 0.4725,
+      "bucket": "D_ambiguous_lexical_only",
+      "rationale": "shared vocabulary without semantic support; likely incidental overlap"
+    },
+    {
+      "annotation_id": "unit_0053",
+      "lexical_presence": 0.4,
+      "semantic_max_cosine": 0.4712,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0013",
+      "lexical_presence": 0.2857,
+      "semantic_max_cosine": 0.4663,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0085",
+      "lexical_presence": 0.3333,
+      "semantic_max_cosine": 0.4648,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0056",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.4646,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0104",
+      "lexical_presence": 1.0,
+      "semantic_max_cosine": 0.4607,
+      "bucket": "D_ambiguous_lexical_only",
+      "rationale": "shared vocabulary without semantic support; likely incidental overlap"
+    },
+    {
+      "annotation_id": "unit_0018",
+      "lexical_presence": 0.6,
+      "semantic_max_cosine": 0.458,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0028",
+      "lexical_presence": 0.2308,
+      "semantic_max_cosine": 0.4562,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0166",
+      "lexical_presence": 0.4444,
+      "semantic_max_cosine": 0.4552,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0185",
+      "lexical_presence": 0.6667,
+      "semantic_max_cosine": 0.4532,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0190",
+      "lexical_presence": 0.4,
+      "semantic_max_cosine": 0.4531,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0012",
+      "lexical_presence": 0.5,
+      "semantic_max_cosine": 0.4466,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0022",
+      "lexical_presence": 0.5909,
+      "semantic_max_cosine": 0.4465,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0047",
+      "lexical_presence": 1.0,
+      "semantic_max_cosine": 0.4465,
+      "bucket": "D_ambiguous_lexical_only",
+      "rationale": "shared vocabulary without semantic support; likely incidental overlap"
+    },
+    {
+      "annotation_id": "unit_0082",
+      "lexical_presence": 0.5,
+      "semantic_max_cosine": 0.4438,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0154",
+      "lexical_presence": 0.75,
+      "semantic_max_cosine": 0.4395,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0164",
+      "lexical_presence": 0.625,
+      "semantic_max_cosine": 0.4386,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0160",
+      "lexical_presence": 0.4,
+      "semantic_max_cosine": 0.4384,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0159",
+      "lexical_presence": 0.1667,
+      "semantic_max_cosine": 0.4375,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0161",
+      "lexical_presence": 1.0,
+      "semantic_max_cosine": 0.4362,
+      "bucket": "D_ambiguous_lexical_only",
+      "rationale": "shared vocabulary without semantic support; likely incidental overlap"
+    },
+    {
+      "annotation_id": "unit_0102",
+      "lexical_presence": 0.375,
+      "semantic_max_cosine": 0.4266,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0132",
+      "lexical_presence": 0.5,
+      "semantic_max_cosine": 0.4255,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0019",
+      "lexical_presence": 0.3333,
+      "semantic_max_cosine": 0.4224,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0138",
+      "lexical_presence": 0.6,
+      "semantic_max_cosine": 0.4181,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0073",
+      "lexical_presence": 1.0,
+      "semantic_max_cosine": 0.4168,
+      "bucket": "D_ambiguous_lexical_only",
+      "rationale": "shared vocabulary without semantic support; likely incidental overlap"
+    },
+    {
+      "annotation_id": "unit_0116",
+      "lexical_presence": 0.1429,
+      "semantic_max_cosine": 0.41,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0021",
+      "lexical_presence": 0.2174,
+      "semantic_max_cosine": 0.4085,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0129",
+      "lexical_presence": 0.6,
+      "semantic_max_cosine": 0.4057,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0127",
+      "lexical_presence": 0.2857,
+      "semantic_max_cosine": 0.4039,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0060",
+      "lexical_presence": 0.6667,
+      "semantic_max_cosine": 0.4021,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0118",
+      "lexical_presence": 0.7692,
+      "semantic_max_cosine": 0.3957,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0008",
+      "lexical_presence": 1.0,
+      "semantic_max_cosine": 0.3851,
+      "bucket": "D_ambiguous_lexical_only",
+      "rationale": "shared vocabulary without semantic support; likely incidental overlap"
+    },
+    {
+      "annotation_id": "unit_0017",
+      "lexical_presence": 0.625,
+      "semantic_max_cosine": 0.3754,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0062",
+      "lexical_presence": 0.2,
+      "semantic_max_cosine": 0.3721,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0002",
+      "lexical_presence": 1.0,
+      "semantic_max_cosine": 0.3651,
+      "bucket": "D_ambiguous_lexical_only",
+      "rationale": "shared vocabulary without semantic support; likely incidental overlap"
+    },
+    {
+      "annotation_id": "unit_0007",
+      "lexical_presence": 0.1667,
+      "semantic_max_cosine": 0.365,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0196",
+      "lexical_presence": 0.3333,
+      "semantic_max_cosine": 0.3609,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0126",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.3512,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0009",
+      "lexical_presence": 0.4211,
+      "semantic_max_cosine": 0.345,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0066",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.3433,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0031",
+      "lexical_presence": 0.3,
+      "semantic_max_cosine": 0.3361,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0089",
+      "lexical_presence": 0.5,
+      "semantic_max_cosine": 0.3345,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0197",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.3235,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0186",
+      "lexical_presence": 0.25,
+      "semantic_max_cosine": 0.3217,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0119",
+      "lexical_presence": 0.6667,
+      "semantic_max_cosine": 0.3188,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0111",
+      "lexical_presence": 0.5,
+      "semantic_max_cosine": 0.3152,
+      "bucket": "D_ambiguous",
+      "rationale": "signals disagree or both are mid-range"
+    },
+    {
+      "annotation_id": "unit_0168",
+      "lexical_presence": 1.0,
+      "semantic_max_cosine": 0.3097,
+      "bucket": "D_ambiguous_lexical_only",
+      "rationale": "shared vocabulary without semantic support; likely incidental overlap"
+    },
+    {
+      "annotation_id": "unit_0136",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.3092,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0101",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.3089,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0093",
+      "lexical_presence": 0.3333,
+      "semantic_max_cosine": 0.3054,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0029",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.3044,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0143",
+      "lexical_presence": 0.0833,
+      "semantic_max_cosine": 0.2925,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0169",
+      "lexical_presence": 0.4444,
+      "semantic_max_cosine": 0.2858,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0057",
+      "lexical_presence": 0.25,
+      "semantic_max_cosine": 0.2771,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0036",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.2736,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0034",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.2707,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0103",
+      "lexical_presence": 0.1429,
+      "semantic_max_cosine": 0.2527,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0151",
+      "lexical_presence": 0.3333,
+      "semantic_max_cosine": 0.2494,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0174",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.2143,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0006",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.1762,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0020",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.1747,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0055",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.1657,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0106",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.1657,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0081",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.1605,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0039",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.1581,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0005",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.155,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0033",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.1522,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0182",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.1514,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0010",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.145,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0042",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.1445,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0071",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.1423,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0097",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.1423,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0145",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.142,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0095",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.1266,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0049",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.1253,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0157",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.1207,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0170",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.1049,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    },
+    {
+      "annotation_id": "unit_0131",
+      "lexical_presence": 0.0,
+      "semantic_max_cosine": 0.1033,
+      "bucket": "A_genuinely_unsupported",
+      "rationale": "both signals agree the answer content is absent"
+    }
+  ]
+}

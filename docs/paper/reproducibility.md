@@ -40,12 +40,13 @@ produced locally rather than shipped with a clone. `results/` is tracked.
 | Gold spans, estimate | under-coverage estimate from the completed sheet (census part + stratified sample, fpc) | `python scripts/score_goldspan_adjudication.py …` | `goldspan_adjudication/estimate.json` |
 | Gold spans, remaining units | the 37 units the first pass left open (27 unsampled + 10 proxy-resolved "present"), same protocol, no sampling | `python scripts/build_goldspan_remainder.py --package … --audit audit/gold_span_semantic.json --first-pass reports/annotation/goldspan_adjudication --out reports/annotation/goldspan_adjudication_remaining37` | second adjudication package |
 | Gold spans, review sheet | the package rendered for reading, with the gold span located in its paper | `python scripts/render_goldspan_review.py --package … --corpus data/raw/qasper-dev-v0.3.json --out …/HUMAN_REVIEW.md` | `HUMAN_REVIEW.md` |
+| Gold spans, public copy | the proxy partition, both rounds of labels and both estimates, free of QASPER text | (tracked) | `results/goldspan_adjudication/` |
 | Gold spans, combined count | both rounds together; the unresolved stratum becomes a census, so the fpc is zero and the estimate degenerates to a count | `python scripts/score_goldspan_adjudication.py --package reports/annotation/goldspan_adjudication --remainder reports/annotation/goldspan_adjudication_remaining37 --audit … --out …/estimate_combined.json` | `goldspan_adjudication_remaining37/estimate_combined.json` |
 | Localisation | within-document ranks, seven localisers, two corpora, tests, bootstrap, sweeps, contrasts | see `results/localisation/README.md` § Reproducing | `results/localisation/*.json`, `rank_distribution.png` |
 | Annotation package | blinded, stratified package build | `python scripts/build_annotation_package.py --records … --out reports/annotation/qasper_dev_300_full_context --n-units 200` | package + `manifest.json` |
 | Figures | all four paper figures | `pip install -r requirements-research.txt && python scripts/make_paper_figures.py --all` | `results/figures/*.png` |
 | Figures | earlier study figures | `python scripts/make_figures.py --all` | `results/figures/*.png` |
-| Tests | full suite | `pytest tests/ -q` | 501 tests |
+| Tests | full suite | `pytest tests/ -q` | 504 tests |
 | Lint | ruff | `ruff check scripts/ src/ tests/` | clean |
 
 ## Provenance recorded in every report
@@ -57,12 +58,15 @@ fingerprint, Python version, platform, package versions.
 ## Known reproducibility limits
 
 - **Annotation data is not in the git tree.** `reports/` is gitignored, so the human
-  study and the gold-span adjudication cannot be re-derived from a clone alone; the labels
+  study cannot be re-derived from a clone alone; the labels
   are annotation data, not a computation. The annotation package (200 units with retrieved
   context, original/review/final labels with provenance, audits, adjudication sheet and
   answers, threshold-ablation and oracle-evidence rows) is deposited as a separate
   checksummed archive in the Zenodo record of release v1.0.0 (version DOI
-  10.5281/zenodo.22879569; concept DOI 10.5281/zenodo.22879357).
+  10.5281/zenodo.22879569; concept DOI 10.5281/zenodo.22879357). The gold-span
+  adjudication is the exception: its labels, proxy partition and estimates carry no QASPER
+  text and are tracked in `results/goldspan_adjudication/`, so Table 9 does re-derive from
+  a clone. Only the adjudication sheets, which quote QASPER, need the archive.
 - **Approximate nearest-neighbour search.** Fine-grained aggregates on long-document
   corpora move by ≤0.001 between independently built indices. Headline A/B/C figures
   reproduce exactly; no reported gap or test changes.

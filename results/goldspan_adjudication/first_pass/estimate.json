@@ -1,0 +1,134 @@
+{
+  "note": "Under-coverage = the span rule reports a retrieval failure on a unit where the answer was in fact derivable from the retrieved text.",
+  "population_total": 133,
+  "counted_directly": {
+    "under_coverage": 10,
+    "no_under_coverage": 36
+  },
+  "sampled": {
+    "population": 87,
+    "n": 60,
+    "answers": {
+      "YES": 4,
+      "NO": 56,
+      "CANNOT_TELL": 0
+    }
+  },
+  "per_stratum": {
+    "C_possibly_inferable": {
+      "population": 8,
+      "sampled": 6,
+      "yes": 1,
+      "no": 5,
+      "cannot_tell": 0
+    },
+    "D_ambiguous": {
+      "population": 58,
+      "sampled": 40,
+      "yes": 1,
+      "no": 39,
+      "cannot_tell": 0
+    },
+    "D_ambiguous_lexical_only": {
+      "population": 21,
+      "sampled": 14,
+      "yes": 2,
+      "no": 12,
+      "cannot_tell": 0
+    }
+  },
+  "estimates": {
+    "decidable_only": {
+      "estimated_yes_in_unresolved": 5.78,
+      "under_coverage_count": 15.78,
+      "under_coverage_rate": 0.1187,
+      "ci95": [
+        0.0955,
+        0.1419
+      ],
+      "standard_error": 0.0118
+    },
+    "cannot_tell_as_yes": {
+      "estimated_yes_in_unresolved": 5.78,
+      "under_coverage_count": 15.78,
+      "under_coverage_rate": 0.1187,
+      "ci95": [
+        0.0955,
+        0.1419
+      ],
+      "standard_error": 0.0118
+    },
+    "cannot_tell_as_no": {
+      "estimated_yes_in_unresolved": 5.78,
+      "under_coverage_count": 15.78,
+      "under_coverage_rate": 0.1187,
+      "ci95": [
+        0.0955,
+        0.1419
+      ],
+      "standard_error": 0.0118
+    }
+  },
+  "unstratified_check": {
+    "sample_yes_rate_among_decidable": 0.0667,
+    "wilson_ci95": [
+      0.0262,
+      0.1593
+    ]
+  },
+  "sensitivity_to_unverified_census_units": {
+    "what_varies": "the 10 units both proxies called under-coverage were never checked by a human; this varies their true rate",
+    "why_it_matters": "this uncertainty is larger than the sampling error and is not covered by the confidence intervals above",
+    "scenarios": {
+      "proxies_correct_100pct": {
+        "assumed_yes_rate_in_bucket_B": 1.0,
+        "under_coverage_rate": 0.1187,
+        "ci95_sampling_error_only": [
+          0.0955,
+          0.1419
+        ]
+      },
+      "75pct": {
+        "assumed_yes_rate_in_bucket_B": 0.75,
+        "under_coverage_rate": 0.0999,
+        "ci95_sampling_error_only": [
+          0.0767,
+          0.1231
+        ]
+      },
+      "50pct": {
+        "assumed_yes_rate_in_bucket_B": 0.5,
+        "under_coverage_rate": 0.0811,
+        "ci95_sampling_error_only": [
+          0.0579,
+          0.1043
+        ]
+      },
+      "25pct": {
+        "assumed_yes_rate_in_bucket_B": 0.25,
+        "under_coverage_rate": 0.0623,
+        "ci95_sampling_error_only": [
+          0.0391,
+          0.0855
+        ]
+      },
+      "proxies_wrong_0pct": {
+        "assumed_yes_rate_in_bucket_B": 0.0,
+        "under_coverage_rate": 0.0435,
+        "ci95_sampling_error_only": [
+          0.0203,
+          0.0667
+        ]
+      },
+      "bucket_b_behaves_like_adjudicated_units": {
+        "assumed_yes_rate_in_bucket_B": 0.0667,
+        "under_coverage_rate": 0.0485,
+        "ci95_sampling_error_only": [
+          0.0253,
+          0.0717
+        ]
+      }
+    }
+  },
+  "reporting_guidance": "Quote `cannot_tell_as_yes` and `cannot_tell_as_no` as bounds when the undecidable share exceeds ~10%; otherwise `decidable_only` with the undecidable count stated alongside. The interval covers sampling error only -- it does not cover annotator error, and with one annotator there is no way to estimate that from these data."
+}
