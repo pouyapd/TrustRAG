@@ -42,5 +42,5 @@
       "scheme": "doi"
     }
   ],
-  "notes": "Tag v1.1.0 corresponds to the results reported in the manuscript prepared for submission to Language Resources and Evaluation (2026; not yet submitted, not accepted, not published). It adds the completed gold-span adjudication (Table 9) to v1.0.0. The deposited code archive in this record is v1.0.0; v1.1.0 is a GitHub tag and has not been deposited separately. The human annotation package remains at its existing version DOI 10.5281/zenodo.22879569 and is unchanged. Model revisions actually run are listed in results/localisation/model_metadata.json."
+  "notes": "Tag v1.1.0 corresponds to the results reported in the manuscript submitted to Language Resources and Evaluation on 23 September 2026 (passed technical checks on 28 September 2026; awaiting editorial assignment as of 9 October 2026; not peer-reviewed, accepted or published). It adds the completed gold-span adjudication (Table 9) to v1.0.0. The deposited code archive in this record is v1.0.0; v1.1.0 is a GitHub tag and has not been deposited separately. The human annotation package remains at its existing version DOI 10.5281/zenodo.22879569 and is unchanged. Model revisions actually run are listed in results/localisation/model_metadata.json."
 }

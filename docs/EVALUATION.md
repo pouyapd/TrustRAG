@@ -172,12 +172,16 @@ generalisation. Reported intervals describe sampling uncertainty over questions.
   reproducible, but it is not a language model. Retrieval and evidence
   measurements are unaffected, because retrieval is real. No generation-side
   conclusion should be drawn from these runs.
-- **Whether the taxonomy agrees with humans.** The annotation package exists
-  (`scripts/build_annotation_package.py`) and 200 units have been labelled
-  against the guidelines, but by a language-model annotator, not a person; 22
-  units in the earlier package carry human labels. The taxonomy is therefore
-  scored against an independent reading of the same units, not against human
-  judgement. See `docs/paper/limitations.md` §1.
+- **Whether the taxonomy agrees with independent human judgement.** 200 QASPER
+  units have been labelled under the guidelines by one person, the author, with a
+  guided review of the 43 labels an audit flagged
+  ([paper/human_validation_final.md](paper/human_validation_final.md)). The
+  evidence-gated taxonomy agrees with the final labels at accuracy 0.700
+  (κ 0.437), the document-gated one at 0.600 (κ 0.375); the generation-side
+  categories are not reliable. There is no second annotator, so this is
+  agreement with a guided expert reading rather than independent validation,
+  and it covers QASPER only. (An earlier, stage-2 scoring against a
+  language-model annotator is in `docs/paper/results.md`.)
 - **Faithfulness.** The pipeline still scores its own output with the same model
   that produced it. With the extractive control this is arithmetically circular
   and faithfulness is constant at 1.0, which the report states in its own

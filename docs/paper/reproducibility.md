@@ -1,9 +1,9 @@
 # Reproducibility map
 
-Every analysis reported in the README and in the manuscript (prepared for submission to
-*Language Resources and Evaluation*; not in this repository), mapped to the command that
-produces it and the file it reads. Run from the repository root after
-`pip install -r requirements.txt`. The within-document localisation study has its own
+Every analysis reported in the README and in the manuscript (submitted to *Language
+Resources and Evaluation* on 23 September 2026, awaiting editorial assignment; not in this
+repository), mapped to the command that produces it and the file it reads. Run from the
+repository root after `pip install -r requirements.txt`. The within-document localisation study has its own
 command list in [results/localisation/README.md](../../results/localisation/README.md)
 (section "Reproducing"); the human study has its own in
 [human_validation_final.md](human_validation_final.md) §7.
@@ -44,16 +44,18 @@ produced locally rather than shipped with a clone. `results/` is tracked.
 | Gold spans, combined count | both rounds together; the unresolved stratum becomes a census, so the fpc is zero and the estimate degenerates to a count | `python scripts/score_goldspan_adjudication.py --package reports/annotation/goldspan_adjudication --remainder reports/annotation/goldspan_adjudication_remaining37 --audit … --out …/estimate_combined.json` | `goldspan_adjudication_remaining37/estimate_combined.json` |
 | Localisation | within-document ranks, seven localisers, two corpora, tests, bootstrap, sweeps, contrasts | see `results/localisation/README.md` § Reproducing | `results/localisation/*.json`, `rank_distribution.png` |
 | Annotation package | blinded, stratified package build | `python scripts/build_annotation_package.py --records … --out reports/annotation/qasper_dev_300_full_context --n-units 200` | package + `manifest.json` |
-| Figures | all four paper figures | `pip install -r requirements-research.txt && python scripts/make_paper_figures.py --all` | `results/figures/*.png` |
+| Figures | all four paper figures; `bm25` and `goldspan` read tracked files, `oracle` and `human` need the annotation package and are skipped without it | `pip install -r requirements-research.txt && python scripts/make_paper_figures.py --all` (add `--out-dir DIR` to leave the tracked PNGs alone) | `results/figures/*.png` |
 | Figures | earlier study figures | `python scripts/make_figures.py --all` | `results/figures/*.png` |
-| Tests | full suite | `pytest tests/ -q` | 504 tests |
+| Tests | full suite | `pytest tests/ -q -rs` | 511 tests; those needing `reports/` or matplotlib skip without them |
 | Lint | ruff | `ruff check scripts/ src/ tests/` | clean |
 
-## Provenance recorded in every report
+## Provenance recorded in every run report
 
 UTC timestamp, git commit and dirty flag, raw-file SHA-256, split, sample size, chunk
 size, top-k, embedder and generator identity, taxonomy version and threshold
-fingerprint, Python version, platform, package versions.
+fingerprint, Python version, platform, package versions. This is the block the
+evaluation runner writes; which files under `results/` carry which of these fields is
+stated in the README's Reproducibility section.
 
 ## Known reproducibility limits
 

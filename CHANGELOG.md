@@ -1,6 +1,49 @@
 # Changelog
 
-## v1.1.0 — 22 September 2026 — completed gold-span adjudication
+## Unreleased — documentation and reproducibility corrections
+
+No result file and no reported number changes; tag `v1.1.0` is untouched and remains the state
+the manuscript reports. The entries for v1.1.0 and v1.0.0 below are kept as written at the time,
+except for the v1.1.0 date.
+
+- **Manuscript status.** Submitted to *Language Resources and Evaluation* on 23 September 2026;
+  passed technical checks on 28 September 2026; awaiting editorial assignment (as of 9 October
+  2026). Updated in the README, `CITATION.cff`, `.zenodo.json`, `docs/paper/README.md`,
+  `docs/paper/reproducibility.md` and `docs/paper/literature_review.md`.
+- **Identifiers.** The README and `CITATION.cff` now list separately the Git tag `v1.1.0` (no
+  Zenodo deposit), the v1.0.0 code archive (10.5281/zenodo.22879358), the annotation package
+  (10.5281/zenodo.22879569) and the concept DOI (10.5281/zenodo.22879357), which currently
+  resolves to the annotation package. The BibTeX entry points at the tag.
+- **Dates.** v1.1.0 is dated 23 September 2026, the date of the tag and its commit; the README,
+  this file and `CITATION.cff` said 22 September.
+- **Stale statements corrected.** Script count 38, not 36. `docs/EXPERIMENTS.md`,
+  `docs/TAXONOMY.md` and `docs/EVALUATION.md` still said no human labels had been collected; they
+  now summarise the 200-label study and its one-annotator limitation. `docs/SAMPLE_EVALUATION.md`
+  said three corpora and 740 questions (four and 890). `docs/QUICKSTART.md` described
+  sentence-transformer embeddings and a two-minute offline run (hash embedder, seconds). The
+  README's provenance paragraph said every report embeds the commit, raw-file checksum and
+  package versions; it now states which result files carry which fields, and that the eleven with
+  a provenance block were written from a working tree with uncommitted changes.
+- **Reproducibility.** `docs/DATASETS.md` gains download commands for HotpotQA and
+  2WikiMultihopQA and the SHA-256 of the HotpotQA file and of the extracted QASPER JSON, each
+  matching the checksum the results record. New `requirements-lock.txt`: the exact environment the
+  results were produced with. The README's reproduction section is split into what runs from a
+  clone alone (verified on 9 October 2026), what needs the annotation package and what needs the
+  corpora and models. `docs/ARCHITECTURE.md` gains the study's end-to-end data flow.
+- **`scripts/make_paper_figures.py`.** The gold-span figure reads the tracked copy of its input,
+  byte-identical to the one in the annotation package; a figure whose inputs are missing is
+  skipped with a message naming the annotation package instead of stopping with a traceback;
+  new `--out-dir`. All four figures still render byte-identically to the committed PNGs.
+- **`src/evaluation/provenance.py`.** Future run reports also record the torch, transformers and
+  scipy versions.
+- **Tests: 511** (7 new). Two gold-span tests failed in a fresh clone once the annotation package
+  was unpacked and the second-round sheet regenerated as documented: one compared the tracked
+  copies byte for byte, line endings included, and the other expected the regenerated sheet to
+  hold the author's labels. They now compare content and run the label checks only once the
+  second round has been scored. A class-scoped fixture written as a method, deprecated in
+  pytest 9 and an error in pytest 10, is now module-level.
+
+## v1.1.0 — 23 September 2026 — completed gold-span adjudication
 
 Tag `v1.1.0` is the code and result state the manuscript reports. It is a GitHub tag, not a
 new Zenodo deposit: everything it adds is tracked in the repository, so no archive is needed.

@@ -3,10 +3,23 @@ message: "If you use this software or its result files, please cite it as below.
 type: software
 title: "TrustRAG: evidence localisation and failure attribution for retrieval-augmented generation evaluation"
 version: 1.1.0
-date-released: 2026-09-22
+date-released: 2026-09-23
 license: MIT
 repository-code: "https://github.com/pouyapd/TrustRAG"
 doi: 10.5281/zenodo.22879357
+identifiers:
+  - type: url
+    value: "https://github.com/pouyapd/TrustRAG/tree/v1.1.0"
+    description: "Git tag v1.1.0, the code and result state the manuscript reports; not deposited on Zenodo"
+  - type: doi
+    value: 10.5281/zenodo.22879358
+    description: "Zenodo version DOI: code archive of release v1.0.0"
+  - type: doi
+    value: 10.5281/zenodo.22879569
+    description: "Zenodo version DOI: human annotation package (CC BY 4.0)"
+  - type: doi
+    value: 10.5281/zenodo.22879357
+    description: "Zenodo concept DOI of the record holding both deposits; resolves to the latest version in the record"
 authors:
   - family-names: "Bathaei Pourmand"
     given-names: "Pouya"
@@ -28,8 +41,10 @@ abstract: >-
   bootstrap; union and rank-correlation analyses; admission-budget and chunk-size sweeps;
   and the scripts behind a human-reviewed failure-attribution study and a gold-span
   completeness adjudication, whose labels and estimates are in results/goldspan_adjudication.
-  The human annotation package is deposited as a separate archive in the same Zenodo
-  record; the DOI below is the concept DOI, which always resolves to that record.
+  The human annotation package is deposited as a separate version of the same Zenodo
+  record. The DOI above is the concept DOI of that record; it resolves to the latest
+  version in the record, currently the annotation package. Version 1.1.0 is a Git tag and
+  is not deposited on Zenodo; the archived code release is v1.0.0 (10.5281/zenodo.22879358).
 preferred-citation:
   type: article
   title: "Right document, wrong passage: evidence localisation in retrieval-augmented generation evaluation on QASPER and Natural Questions"
@@ -37,4 +52,4 @@ preferred-citation:
     - family-names: "Bathaei Pourmand"
       given-names: "Pouya"
   year: 2026
-  notes: "Manuscript prepared for submission to Language Resources and Evaluation (not yet submitted); cite the software release until the article is published."
+  notes: "Submitted to Language Resources and Evaluation on 23 September 2026; passed technical checks on 28 September 2026; awaiting editorial assignment (status as of 9 October 2026). Not peer-reviewed, accepted or published; cite the software release until the article is published."
