@@ -236,6 +236,14 @@ class TestProvenance:
         assert "chromadb" in prov["packages"]
         assert prov["dataset"]["size"] == 20
 
+    def test_numerical_backends_are_recorded(self):
+        """Embeddings, cross-encoder scores and the scipy tests depend on these versions."""
+        from src.evaluation.provenance import package_versions
+
+        versions = package_versions()
+        for name in ("torch", "transformers", "scipy"):
+            assert name in versions
+
     def test_git_lookup_never_raises_outside_a_repo(self, tmp_path):
         from src.evaluation.provenance import git_info
 

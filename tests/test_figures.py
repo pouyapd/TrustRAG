@@ -91,3 +91,54 @@ class TestEndToEnd:
         assert make_figures.figure_abc(plt) is True
         assert (tmp_path / "figures" / "abc_decomposition.png").exists()
         assert (tmp_path / "figures" / "abc_decomposition.pdf").exists()
+
+
+class TestPaperFigureInputs:
+    """make_paper_figures: what a clone can draw, and what happens without reports/."""
+
+    def test_every_figure_declares_its_inputs(self):
+        from scripts import make_paper_figures
+
+        assert set(make_paper_figures.SOURCES) == set(make_paper_figures.BUILDERS)
+
+    def test_bm25_and_goldspan_build_from_tracked_files(self):
+        """These two must not depend on the annotation package."""
+        from scripts import make_paper_figures
+
+        for name in ("bm25", "goldspan"):
+            assert all(p.startswith("results/") for p in make_paper_figures.SOURCES[name])
+            assert make_paper_figures.missing_inputs(name) == []
+
+    def test_oracle_and_human_read_the_annotation_package(self):
+        from scripts import make_paper_figures
+
+        for name in ("oracle", "human"):
+            assert all(p.startswith("reports/") for p in make_paper_figures.SOURCES[name])
+
+    def test_missing_inputs_lists_every_absent_file(self, tmp_path):
+        from scripts import make_paper_figures
+
+        assert make_paper_figures.missing_inputs("bm25", repo=tmp_path) == list(
+            make_paper_figures.SOURCES["bm25"])
+
+    def test_missing_package_is_reported_not_raised(self, tmp_path, monkeypatch, capsys):
+        """A clone without reports/ gets a message naming the archive, not a traceback."""
+        from scripts import make_paper_figures
+
+        monkeypatch.setattr(make_paper_figures, "REPO", tmp_path)
+        out = tmp_path / "out"
+        assert make_paper_figures.main(["--figure", "oracle", "--out-dir", str(out)]) == 1
+        err = capsys.readouterr().err
+        assert "skipped oracle" in err
+        assert make_paper_figures.ANNOTATION_PACKAGE_DOI in err
+        assert not out.exists()
+
+    def test_out_dir_leaves_the_tracked_figures_alone(self, tmp_path):
+        pytest.importorskip("matplotlib")
+        from scripts import make_paper_figures
+
+        tracked = make_paper_figures.OUT / "gold_span_validity.png"
+        before = tracked.read_bytes()
+        assert make_paper_figures.main(["--figure", "goldspan", "--out-dir", str(tmp_path)]) == 0
+        assert (tmp_path / "gold_span_validity.png").exists()
+        assert tracked.read_bytes() == before

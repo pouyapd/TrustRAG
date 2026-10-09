@@ -19,7 +19,9 @@ from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as pkg_version
 from pathlib import Path
 
-#: Packages whose versions materially affect results.
+#: Packages whose versions materially affect results. torch and transformers
+#: compute every embedding and cross-encoder score; scipy computes the sign tests,
+#: Fisher's exact test and the rank correlations in the localisation scripts.
 TRACKED_PACKAGES: tuple[str, ...] = (
     "chromadb",
     "numpy",
@@ -29,6 +31,9 @@ TRACKED_PACKAGES: tuple[str, ...] = (
     "tiktoken",
     "pydantic",
     "fastapi",
+    "torch",
+    "transformers",
+    "scipy",
 )
 
 UNAVAILABLE = "unavailable"
