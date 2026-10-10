@@ -192,7 +192,8 @@ def score(args: argparse.Namespace) -> int:
         spec = EMBEDDERS[key]
         if key == "minilm":
             import chromadb
-            index_dir, collection = args.minilm_chroma.split(":", 1)
+            # rsplit: a Windows path has a drive-letter colon; a collection name has none.
+            index_dir, collection = args.minilm_chroma.rsplit(":", 1)
             got = chromadb.PersistentClient(path=index_dir).get_collection(collection).get(
                 include=["metadatas", "embeddings"])
             by_id = {i: (np.asarray(e, dtype=np.float32), m)
