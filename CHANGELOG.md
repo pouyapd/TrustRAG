@@ -10,10 +10,15 @@ except for the v1.1.0 date.
   passed technical checks on 28 September 2026; awaiting editorial assignment (as of 9 October
   2026). Updated in the README, `CITATION.cff`, `.zenodo.json`, `docs/paper/README.md`,
   `docs/paper/reproducibility.md` and `docs/paper/literature_review.md`.
-- **Identifiers.** The README and `CITATION.cff` now list separately the Git tag `v1.1.0` (no
-  Zenodo deposit), the v1.0.0 code archive (10.5281/zenodo.22879358), the annotation package
-  (10.5281/zenodo.22879569) and the concept DOI (10.5281/zenodo.22879357), which currently
-  resolves to the annotation package. The BibTeX entry points at the tag.
+- **Identifiers and citation.** The README and `CITATION.cff` now separate the Git tag `v1.1.0`
+  (no Zenodo deposit, so no DOI), the v1.0.0 code archive (10.5281/zenodo.22879358), the
+  annotation package (10.5281/zenodo.22879569) and the concept DOI (10.5281/zenodo.22879357),
+  which resolves to the annotation package and which DataCite registers as a CC BY 4.0 dataset.
+  The software citation therefore no longer carries the concept DOI; it points at the tag, and
+  the DOIs are named in the abstract rather than listed as identifiers, because citation tools
+  attach the first listed DOI to the citation. `preferred-citation` is removed: GitHub's "Cite
+  this repository" showed only the unpublished article, without venue or status, in place of
+  the software. It should return, with journal and DOI, if the article is published.
 - **Dates.** v1.1.0 is dated 23 September 2026, the date of the tag and its commit; the README,
   this file and `CITATION.cff` said 22 September.
 - **Stale statements corrected.** Script count 38, not 36. `docs/EXPERIMENTS.md`,

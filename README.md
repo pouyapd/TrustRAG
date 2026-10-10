@@ -40,7 +40,7 @@ they point to different things:
 | Git tag [`v1.1.0`](https://github.com/pouyapd/TrustRAG/tree/v1.1.0) (23 September 2026) | The code and result state the manuscript reports. It adds the completed gold-span adjudication to v1.0.0. It exists on GitHub only: it has no Zenodo deposit and no DOI of its own, because everything it adds is tracked in the repository. |
 | [10.5281/zenodo.22879358](https://doi.org/10.5281/zenodo.22879358) | Zenodo version DOI of the **code archive of release v1.0.0** (21 September 2026). |
 | [10.5281/zenodo.22879569](https://doi.org/10.5281/zenodo.22879569) | Zenodo version DOI of the **human annotation package** (SHA-256 `d6d84ecb155853939be2b6d482caedb808915e29aa54498fb78c7d09502ea44d`), under CC BY 4.0 because it excerpts QASPER text (see [Reproducibility](#reproducibility)). |
-| [10.5281/zenodo.22879357](https://doi.org/10.5281/zenodo.22879357) | Zenodo **concept DOI** of the record that holds both deposits. It resolves to the latest version in the record, which is currently the annotation package, not the code archive. |
+| [10.5281/zenodo.22879357](https://doi.org/10.5281/zenodo.22879357) | Zenodo **concept DOI** of the record that holds both deposits. It resolves to the latest version in the record, which is currently the annotation package, and the DOI registry (DataCite) lists it as a CC BY 4.0 dataset, so it is not a DOI for the code. |
 
 **In one paragraph.** Every chunk of the document that holds the gold evidence is ranked against
 the question by seven localisers — BM25, four dense bi-encoders and two cross-encoder rerankers,
@@ -508,7 +508,7 @@ would be tagged again. Release notes: [CHANGELOG.md](CHANGELOG.md).
 ## Citation
 
 `CITATION.cff` is the source of truth (GitHub's "Cite this repository" reads it). Until the article
-exists, cite the software release:
+exists, cite the software release. Version 1.1.0 has no DOI of its own, so the entry carries none:
 
 ```bibtex
 @software{bathaeipourmand_trustrag_2026,
@@ -517,11 +517,13 @@ exists, cite the software release:
   version = {1.1.0},
   year    = {2026},
   url     = {https://github.com/pouyapd/TrustRAG/tree/v1.1.0},
-  doi     = {10.5281/zenodo.22879357},
-  note    = {Git tag v1.1.0, not deposited on Zenodo. The DOI is the Zenodo concept DOI; the
-             archived code release is v1.0.0, doi:10.5281/zenodo.22879358}
+  note    = {Git tag v1.1.0, not deposited on Zenodo. Archived code release v1.0.0:
+             doi:10.5281/zenodo.22879358. Annotation package: doi:10.5281/zenodo.22879569}
 }
 ```
+
+To cite the annotation package itself, use its version DOI,
+[10.5281/zenodo.22879569](https://doi.org/10.5281/zenodo.22879569).
 
 The manuscript *Right document, wrong passage: evidence localisation in retrieval-augmented
 generation evaluation on QASPER and Natural Questions* was submitted to *Language Resources and
