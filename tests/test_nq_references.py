@@ -136,6 +136,51 @@ class TestRankArithmetic:
             assert union == reference_rank(ranks, list(sets)) == min(ranks.values())
 
 
+# --- the summary, on a synthetic per-question file --------------------------------
+
+def _question(qid, doc, annotations, ranks):
+    return {"question_id": qid, "example_id": qid, "doc_id": doc, "D": 10,
+            "annotations": annotations, "ranks": ranks, "rank_source": {}}
+
+
+class TestSummary:
+    def test_span_relations(self):
+        import nq_reference_sensitivity as analysis
+
+        assert analysis.span_relation((10, 20), (10, 20)) == "identical"
+        assert analysis.span_relation((10, 20), (20, 30)) == "disjoint"      # touching
+        assert analysis.span_relation((10, 20), (12, 15)) == "inside_first"
+        assert analysis.span_relation((10, 20), (5, 25)) == "contains_first"
+        assert analysis.span_relation((10, 20), (15, 25)) == "partial_overlap"
+
+    def test_schemes_on_a_synthetic_file(self):
+        import nq_reference_sensitivity as analysis
+
+        a = {**ok(0, 0, 10), "gold_chunks": [0]}
+        b = {**ok(1, 50, 60), "gold_chunks": [5]}
+        questions = [
+            # annotators disagree: the first annotator's chunk is ranked 4th, the other's 1st
+            _question("q1", "d1", [a, b], {"x": {"0": 4, "1": 1}, "y": {"0": 1, "1": 3}}),
+            # one annotator only: below NQ's official threshold
+            _question("q2", "d2", [a, null(1)], {"x": {"0": 2}, "y": {"0": 2}}),
+            # two annotators on the same span
+            _question("q3", "d3", [a, {**ok(1, 0, 10), "gold_chunks": [0]}],
+                      {"x": {"0": 1, "1": 1}, "y": {"0": 5, "1": 5}}),
+        ]
+        out = analysis.summarise_questions(questions, ["x", "y"], n_boot=20, n_draws=10)
+        first, union = out["schemes"]["first"], out["schemes"]["union"]
+        assert first["n_questions"] == union["n_questions"] == 3
+        assert first["models"]["x"]["hit@1"] == round(1 / 3, 4)              # only q3
+        assert union["models"]["x"]["hit@1"] == round(2 / 3, 4)              # q1 and q3
+        assert out["schemes"]["official"]["n_questions"] == 2                # q2 dropped
+        assert out["schemes"]["agreement_subset"]["n_questions"] == 2        # q2 and q3
+        assert out["union_vs_first"]["x"]["hit@1_gained"] == 1
+        profile = out["annotation_profile"]
+        assert profile["questions_where_spans_cover_different_chunks"] == 1
+        assert profile["questions_by_most_consequential_relation"] == {
+            "disjoint": 1, "identical": 1, "single_annotator": 1}
+
+
 # --- the loader's opt-in record of every annotator -------------------------------
 
 TOKENS = ["<P>", "Alpha", "beta", "</P>", "<P>", "Gamma", "delta", "</P>", "<Table>", "</Table>"]

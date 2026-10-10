@@ -463,7 +463,37 @@ def summarise_questions(questions: list[dict], models: list[str], n_boot: int = 
     return summary
 
 
+def span_relation(first: tuple[int, int], other: tuple[int, int]) -> str:
+    """How another annotator's long answer relates to the first annotator's."""
+    (a0, a1), (b0, b1) = first, other
+    if (a0, a1) == (b0, b1):
+        return "identical"
+    if min(a1, b1) - max(a0, b0) <= 0:
+        return "disjoint"
+    if a0 <= b0 and b1 <= a1:
+        return "inside_first"
+    if b0 <= a0 and a1 <= b1:
+        return "contains_first"
+    return "partial_overlap"
+
+
+#: For a question-level label, the most consequential relation wins.
+_RELATION_ORDER = ("disjoint", "partial_overlap", "contains_first", "inside_first", "identical")
+
+
 def annotation_profile(questions: list[dict]) -> dict:
+    pair_relations: dict[str, int] = {}
+    question_relations: dict[str, int] = {}
+    for q in questions:
+        usable = usable_annotations(q["annotations"])
+        first_id = reference_annotators(q["annotations"], "first")[0]
+        first = next((a["start_char"], a["end_char"]) for a in usable if a["annotator"] == first_id)
+        relations = [span_relation(first, (a["start_char"], a["end_char"]))
+                     for a in usable if a["annotator"] != first_id]
+        for relation in relations:
+            pair_relations[relation] = pair_relations.get(relation, 0) + 1
+        label = next((r for r in _RELATION_ORDER if r in relations), "single_annotator")
+        question_relations[label] = question_relations.get(label, 0) + 1
     nonnull = [non_null_count(q["annotations"]) for q in questions]
     usable = [len(usable_annotations(q["annotations"])) for q in questions]
     distinct_spans = [len({(a["start_char"], a["end_char"]) for a in usable_annotations(q["annotations"])})
@@ -475,6 +505,8 @@ def annotation_profile(questions: list[dict]) -> dict:
         "questions_with_more_than_one_distinct_span": sum(1 for d in distinct_spans if d > 1),
         "questions_where_spans_cover_different_chunks": sum(1 for q in questions if not reference_invariant(q)),
         "questions_below_the_official_threshold": sum(1 for k in nonnull if k < 2),
+        "other_annotator_vs_first_span_pairs": dict(sorted(pair_relations.items())),
+        "questions_by_most_consequential_relation": dict(sorted(question_relations.items())),
     }
 
 
