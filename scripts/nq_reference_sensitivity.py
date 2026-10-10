@@ -81,6 +81,16 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def sha256_lf(path: Path) -> str:
+    """SHA-256 of a text file with LF line endings: the bytes git stores, on any platform."""
+    return hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+
+
+def write_lf(path: Path, text: str) -> None:
+    """Write UTF-8 text with LF line endings everywhere, so hashes agree across platforms."""
+    path.write_text(text, encoding="utf-8", newline="\n")
+
+
 def sha256_tree(root: Path) -> str:
     """One digest over every file under ``root``: relative path and content, sorted by path."""
     digest = hashlib.sha256()
@@ -292,7 +302,7 @@ def score(args: argparse.Namespace) -> int:
             "rank_source": {m: source[m][x["q"].question_id] for m in MODELS},
         } for x in questions],
     }
-    (out_dir / PER_QUESTION).write_text(json.dumps(per_question, indent=1) + "\n", encoding="utf-8")
+    write_lf(out_dir / PER_QUESTION, json.dumps(per_question, indent=1) + "\n")
 
     models = {m: {"identity": MODEL_INFO[m][0], "family": MODEL_INFO[m][1],
                   "cached_revision": cached_revision(MODEL_INFO[m][0]) if m != "bm25" else None}
@@ -313,7 +323,7 @@ def score(args: argparse.Namespace) -> int:
         "runtime_seconds": {**runtime, "total": round(time.time() - t0, 1)},
         "provenance": provenance,
     }
-    (out_dir / SCORE_CONFIG).write_text(json.dumps(config, indent=1) + "\n", encoding="utf-8")
+    write_lf(out_dir / SCORE_CONFIG, json.dumps(config, indent=1) + "\n")
     print(f"wrote {out_dir / PER_QUESTION} and {out_dir / SCORE_CONFIG}", flush=True)
     return 0
 
@@ -525,15 +535,15 @@ def summarise(args: argparse.Namespace) -> int:
     summary = {
         "status": "exploratory; not part of the submitted manuscript",
         "schemes_defined_in": "src/evaluation/references.py",
-        "input": {"path": per_question.as_posix(), "sha256": sha256_file(per_question)},
+        "input": {"path": per_question.as_posix(), "sha256_lf": sha256_lf(per_question)},
         "settings": {"n_boot": args.n_boot, "bootstrap_seed": 0, "n_draws": args.n_draws,
                      "resampling_seed": args.seed},
         **summarise_questions(data["questions"], models, args.n_boot, args.n_draws, args.seed),
         "manuscript_check": manuscript_check(data["questions"], models, Path(args.frozen_dir)),
         "provenance": provenance,
     }
-    (out_dir / SUMMARY_JSON).write_text(json.dumps(summary, indent=1) + "\n", encoding="utf-8")
-    (out_dir / SUMMARY_MD).write_text(render_markdown(summary, models), encoding="utf-8")
+    write_lf(out_dir / SUMMARY_JSON, json.dumps(summary, indent=1) + "\n")
+    write_lf(out_dir / SUMMARY_MD, render_markdown(summary, models))
     print(f"wrote {out_dir / SUMMARY_JSON} and {out_dir / SUMMARY_MD}")
     return 0
 
