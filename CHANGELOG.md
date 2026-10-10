@@ -41,6 +41,15 @@ except for the v1.1.0 date.
   new `--out-dir`. All four figures still render byte-identically to the committed PNGs.
 - **`src/evaluation/provenance.py`.** Future run reports also record the torch, transformers and
   scipy versions.
+- **Exploratory, not in the manuscript: NQ reference sensitivity.** The NQ loader scores
+  against the first annotator's long answer; QASPER against the union of its annotators.
+  `results/exploratory/nq_reference_sensitivity/` re-scores the seven NQ localisers against
+  every annotator (union, NQ's official rule, plurality, single-annotator resampling) after
+  reproducing the manuscript's NQ ranks and tests exactly under the first annotator. The
+  loader gains an opt-in `keep_annotator_spans` (records unchanged when off), with
+  `src/evaluation/references.py`, `scripts/nq_reference_sensitivity.py` and
+  `tests/test_nq_references.py` (27 tests; 538 in all). The README's limitations name the
+  finding.
 - **Tests: 511** (7 new). Two gold-span tests failed in a fresh clone once the annotation package
   was unpacked and the second-round sheet regenerated as documented: one compared the tracked
   copies byte for byte, line endings included, and the other expected the regenerated sheet to
