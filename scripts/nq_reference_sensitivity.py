@@ -194,6 +194,9 @@ def score(args: argparse.Namespace) -> int:
             import chromadb
             # rsplit: a Windows path has a drive-letter colon; a collection name has none.
             index_dir, collection = args.minilm_chroma.rsplit(":", 1)
+            # Hash before opening: Chroma rewrites part of chroma.sqlite3 when it opens an index,
+            # so point --minilm-chroma at a copy rather than at data/build itself.
+            index_hash = sha256_tree(Path(index_dir))
             got = chromadb.PersistentClient(path=index_dir).get_collection(collection).get(
                 include=["metadatas", "embeddings"])
             by_id = {i: (np.asarray(e, dtype=np.float32), m)
@@ -205,7 +208,7 @@ def score(args: argparse.Namespace) -> int:
                     raise SystemExit(f"stored MiniLM index disagrees with chunk {chunk.chunk_id}")
                 emb[i] = vector
             vector_inputs[key] = {"chroma_collection": collection,
-                                  "chroma_index_sha256_tree": sha256_tree(Path(index_dir))}
+                                  "chroma_index_sha256_tree_before_opening": index_hash}
         else:
             npy = Path(args.load_embeddings) / f"{key}.npy"
             emb = np.load(npy).astype(np.float32)
