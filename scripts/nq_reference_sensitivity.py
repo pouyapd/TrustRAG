@@ -447,6 +447,9 @@ def summarise_questions(questions: list[dict], models: list[str], n_boot: int = 
             "models": {m: model_metrics(rows, m) for m in models},
             "pairwise": pairwise(rows, models, n_boot=n_boot, seed=0),
             "best_at_hit@1": max(models, key=lambda m, rows=rows: sum(r["rank"][m] == 1 for r in rows)),
+            # the manuscript's union analysis: some localiser ranks the gold chunk first
+            "any_localiser_hit@1": round(sum(any(r["rank"][m] == 1 for m in models) for r in rows)
+                                         / len(rows), 4),
         }
     first = {r["question_id"]: r for r in references["first"]}
     summary["union_vs_first"] = {m: {
@@ -543,6 +546,9 @@ def manuscript_check(questions: list[dict], models: list[str], frozen_dir: Path)
     test_diffs = {f"{pair}.{k}": [tests[pair][k], stored["pairwise"][pair][k]] for pair in tests
                   for k in ("mcnemar_exact_p", "mcnemar_holm_adjusted_p")
                   if tests[pair][k] != stored["pairwise"][pair][k]}
+    any_hit = round(sum(any(r["rank"][m] == 1 for m in models) for r in rows) / len(rows), 4)
+    if any_hit != stored["union"]["any_hit@1"]:
+        metric_diffs["any_localiser_hit@1"] = [any_hit, stored["union"]["any_hit@1"]]
     return {"compared_with": (frozen_dir / "summary_nq.json").as_posix(),
             "metrics_identical": not metric_diffs, "pairwise_tests_identical": not test_diffs,
             "differences": {**metric_diffs, **test_diffs}}
@@ -567,6 +573,8 @@ def render_markdown(summary: dict, models: list[str]) -> str:
               "| chance hit@1 (random order) | " + " | ".join(
                   f"{summary['schemes'][s]['models'][models[0]]['chance_hit@1']:.3f}" for s in names) + " |",
               "| best at hit@1 | " + " | ".join(summary["schemes"][s]["best_at_hit@1"] for s in names) + " |",
+              "| some localiser at rank 1 | " + " | ".join(
+                  f"{summary['schemes'][s]['any_localiser_hit@1']:.3f}" for s in names) + " |",
               "| Holm-significant pairs | " + " | ".join(
                   str(len(summary["holm_significant_pairs"][s])) for s in names) + " |", "",
               "## Holm-significant pairs (hit@1, exact McNemar, alpha 0.05)", ""]

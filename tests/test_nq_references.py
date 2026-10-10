@@ -175,6 +175,8 @@ class TestSummary:
         assert out["schemes"]["official"]["n_questions"] == 2                # q2 dropped
         assert out["schemes"]["agreement_subset"]["n_questions"] == 2        # q2 and q3
         assert out["union_vs_first"]["x"]["hit@1_gained"] == 1
+        assert first["any_localiser_hit@1"] == round(2 / 3, 4)               # y on q1, x on q3
+        assert union["any_localiser_hit@1"] == round(2 / 3, 4)
         profile = out["annotation_profile"]
         assert profile["questions_where_spans_cover_different_chunks"] == 1
         assert profile["questions_by_most_consequential_relation"] == {
