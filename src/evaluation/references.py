@@ -25,6 +25,9 @@ the annotators instead:
 Annotations are the entries the NQ loader writes with ``keep_annotator_spans`` on: dicts
 with ``annotator``, ``status`` (``"ok"``, ``"null"`` or ``"not_representable"``) and, when
 ``status`` is ``"ok"``, ``start_char`` and ``end_char``.
+
+QASPER annotators each mark a set of paragraphs instead of one span; the schemes for
+that case are in the "evidence sets" section below.
 """
 from __future__ import annotations
 
@@ -107,3 +110,72 @@ def reference_rank(ranks_by_annotator: dict[int, int], annotators: Iterable[int]
     first positions, so the reference rank is their minimum.
     """
     return min(ranks_by_annotator[a] for a in annotators)
+
+
+# --------------------------------------------------------------------------- evidence sets
+#
+# A QASPER annotator marks a *set* of evidence paragraphs rather than one span, and the
+# study's QASPER loader already makes every annotator's evidence count (the union). The
+# schemes below rebuild narrower references from the same annotations:
+#
+# ``union``
+#     every annotator's evidence: the reference the study used. QASPER's own evaluator
+#     scores a prediction against each annotator and keeps the best score, which for
+#     hit@k is the same thing.
+# ``first``
+#     the first annotator who gave evidence, as the NQ study reference does: excluded when
+#     none of that annotator's evidence is in the text.
+# ``plurality``
+#     the paragraphs marked by the most annotators; ties all count, so when no paragraph
+#     is shared this is the union.
+# ``agreement``
+#     the paragraphs marked by at least two annotators; questions with none are excluded.
+#
+# Annotations are the entries the QASPER loader writes with ``keep_annotator_spans`` on:
+# dicts with ``annotator``, ``status`` (``"ok"``, ``"not_representable"``,
+# ``"unanswerable"`` or ``"no_evidence"``) and, when ``status`` is ``"ok"``, ``spans``.
+
+EVIDENCE_SET_SCHEMES: tuple[str, ...] = ("union", "first", "plurality", "agreement")
+
+_GAVE_EVIDENCE = ("ok", "not_representable")
+
+
+def evidence_spans(annotation: dict) -> list[tuple[int, int]]:
+    """One annotator's located evidence as (start, end) pairs; empty unless ``"ok"``."""
+    if annotation.get("status") != "ok":
+        return []
+    return [(int(s), int(e)) for s, e in annotation["spans"]]
+
+
+def reference_spans(annotations: Sequence[dict], scheme: str) -> list[tuple[int, int]] | None:
+    """The evidence spans that make up the reference under ``scheme``, sorted.
+
+    Returns None when the question has no evidence under the scheme: for ``first`` when
+    the first annotator who gave evidence gave none that is in the text, for
+    ``agreement`` when no paragraph was marked twice, and for every scheme when no
+    annotation is usable.
+    """
+    if scheme not in EVIDENCE_SET_SCHEMES:
+        raise ValueError(f"unknown reference scheme {scheme!r}; expected one of {EVIDENCE_SET_SCHEMES}")
+    usable = usable_annotations(annotations)
+    if not usable:
+        return None
+    if scheme == "first":
+        first = next((a for a in annotations if a.get("status") in _GAVE_EVIDENCE), None)
+        return sorted(evidence_spans(first)) if first is not None and first["status"] == "ok" else None
+    counts = Counter(span for a in usable for span in set(evidence_spans(a)))
+    if scheme == "union":
+        return sorted(counts)
+    if scheme == "plurality":
+        top = max(counts.values())
+        return sorted(span for span, count in counts.items() if count == top)
+    agreed = sorted(span for span, count in counts.items() if count >= 2)
+    return agreed or None
+
+
+def draw_single_evidence(annotations: Sequence[dict], rng: random.Random) -> list[tuple[int, int]]:
+    """The evidence of one usable annotator, drawn uniformly (the ``single`` scheme)."""
+    usable = usable_annotations(annotations)
+    if not usable:
+        raise ValueError("no usable annotation to draw from")
+    return sorted(evidence_spans(rng.choice(usable)))

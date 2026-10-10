@@ -57,6 +57,12 @@ class QasperLoader(DatasetLoader):
     license_spdx = "CC-BY-4.0"
     source_url = "https://allenai.org/data/qasper"
 
+    #: When true, each annotator's own evidence is also kept, as character ranges in the
+    #: paper body, in ``metadata["annotator_evidence"]``. Off by default, so the records
+    #: the study was run on are unchanged; the evidence reference (``supporting_spans``)
+    #: is the union of every annotator's evidence either way.
+    keep_annotator_spans: bool = False
+
     def load(self, path: Path, limit: int | None = None, split: str = "test") -> LoadResult:
         raw = self.read_json(path)
         self.require(
@@ -177,6 +183,15 @@ class QasperLoader(DatasetLoader):
             skipped[reason] += 1
             return None
 
+        metadata = {
+            "paper_id": paper_id,
+            "n_annotations": len(answer_blocks),
+            "n_evidence_spans": len(spans),
+            "unresolved_float_evidence": unresolved["float"],
+            "unresolved_unmatched_evidence": unresolved["unmatched"],
+        }
+        if self.keep_annotator_spans:
+            metadata["annotator_evidence"] = _annotator_evidence(answer_blocks, body, paragraph_offsets)
         return QuestionRecord(
             question_id=self.make_question_id(item_id),
             corpus_id=self.corpus_id,
@@ -191,13 +206,7 @@ class QasperLoader(DatasetLoader):
             hops=1,
             source=source,
             split=split,
-            metadata={
-                "paper_id": paper_id,
-                "n_annotations": len(answer_blocks),
-                "n_evidence_spans": len(spans),
-                "unresolved_float_evidence": unresolved["float"],
-                "unresolved_unmatched_evidence": unresolved["unmatched"],
-            },
+            metadata=metadata,
         )
 
 
@@ -321,17 +330,10 @@ def _evidence_spans(
             if not text:
                 continue
 
-            location = paragraph_offsets.get(text)
-            if location is None:
-                # Some releases normalise whitespace in the evidence field
-                # relative to full_text. This is an exact containment check on
-                # the paper body, not a fuzzy match.
-                index = body.find(text)
-                if index < 0:
-                    key = "float" if text.startswith(FLOAT_PREFIX) else "unmatched"
-                    unresolved[key] += 1
-                    continue
-                location = (index, index + len(text))
+            location = _locate_evidence(text, body, paragraph_offsets)
+            if isinstance(location, str):
+                unresolved[location] += 1
+                continue
 
             if location in seen:
                 continue
@@ -345,3 +347,73 @@ def _evidence_spans(
                 )
             )
     return spans, unresolved
+
+
+def _locate_evidence(
+    text: str,
+    body: str,
+    paragraph_offsets: dict[str, tuple[int, int]],
+) -> tuple[int, int] | str:
+    """Character range of one evidence string in the body, or why it has none.
+
+    Returns ``"float"`` or ``"unmatched"`` (the two kinds `_evidence_spans` counts) when
+    the string has no exact position in the body.
+    """
+    location = paragraph_offsets.get(text)
+    if location is not None:
+        return location
+    # Some releases normalise whitespace in the evidence field relative to
+    # full_text. This is an exact containment check on the paper body, not a
+    # fuzzy match.
+    index = body.find(text)
+    if index < 0:
+        return "float" if text.startswith(FLOAT_PREFIX) else "unmatched"
+    return index, index + len(text)
+
+
+def _annotator_evidence(
+    answer_blocks: list[dict],
+    body: str,
+    paragraph_offsets: dict[str, tuple[int, int]],
+) -> list[dict]:
+    """Every annotator's own evidence, in answer order, as character ranges in the body.
+
+    One entry per answer block, so the list position is the annotator. ``status`` is
+    ``"ok"`` (at least one evidence string located; ``spans`` lists the distinct ranges
+    in the order given), ``"unanswerable"`` (marked unanswerable, no evidence located),
+    ``"no_evidence"`` (answered without evidence) or ``"not_representable"`` (gave
+    evidence, none of it locatable: figure or table captions, or text that matches no
+    paragraph). The union of the ``"ok"`` spans is exactly the set `_evidence_spans`
+    makes the question's evidence.
+    """
+    entries: list[dict] = []
+    for index, block in enumerate(answer_blocks):
+        texts = [str(e).strip() for e in block.get("evidence", []) or []]
+        texts = [t for t in texts if t]
+        spans: list[list[int]] = []
+        unresolved = {"float": 0, "unmatched": 0}
+        for text in texts:
+            location = _locate_evidence(text, body, paragraph_offsets)
+            if isinstance(location, str):
+                unresolved[location] += 1
+            elif list(location) not in spans:
+                spans.append(list(location))
+        if spans:
+            status = "ok"
+        elif block.get("unanswerable"):
+            status = "unanswerable"
+        elif not texts:
+            status = "no_evidence"
+        else:
+            status = "not_representable"
+        entry: dict = {
+            "annotator": index,
+            "status": status,
+            "n_evidence": len(texts),
+            "unresolved_float": unresolved["float"],
+            "unresolved_unmatched": unresolved["unmatched"],
+        }
+        if spans:
+            entry["spans"] = spans
+        entries.append(entry)
+    return entries
