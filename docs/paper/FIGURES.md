@@ -5,6 +5,11 @@
 > here is the automated (language-model) annotation pass, not the human labels; the human
 > study in [human_validation_final.md](human_validation_final.md) supersedes it as the
 > reported number. Stage and status of every document: [README.md](README.md) in this folder.
+>
+> Two statements below no longer describe the repository: `docs/figures/` is tracked, and the
+> root README no longer shows Figure 5. The figures the root README shows are drawn by
+> `scripts/make_paper_figures.py` and `scripts/localisation_figure.py`
+> ([reproducibility.md](reproducibility.md)).
 
 Five figures exist as files. `results/figures/` is tracked by git;
 `docs/figures/` is new in the working tree and not gitignored. Each entry gives what it shows, what it is

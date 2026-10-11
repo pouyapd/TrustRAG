@@ -32,13 +32,13 @@
     {
       "identifier": "10.18653/v1/2021.naacl-main.365",
       "relation": "isDerivedFrom",
-      "resource_type": "dataset",
+      "resource_type": "publication-conferencepaper",
       "scheme": "doi"
     },
     {
       "identifier": "10.1162/tacl_a_00276",
       "relation": "isDerivedFrom",
-      "resource_type": "dataset",
+      "resource_type": "publication-article",
       "scheme": "doi"
     }
   ],

@@ -4,7 +4,8 @@
 ![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Tag v1.1.0](https://img.shields.io/badge/tag-v1.1.0-blue)](https://github.com/pouyapd/TrustRAG/tree/v1.1.0)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22879357.svg)](https://doi.org/10.5281/zenodo.22879357)
+[![Code archive v1.0.0: DOI 10.5281/zenodo.22879358](https://img.shields.io/badge/code%20archive%20v1.0.0-10.5281%2Fzenodo.22879358-blue)](https://doi.org/10.5281/zenodo.22879358)
+[![Annotation package: DOI 10.5281/zenodo.22879569](https://img.shields.io/badge/annotation%20package-10.5281%2Fzenodo.22879569-blue)](https://doi.org/10.5281/zenodo.22879569)
 
 **TrustRAG is a research framework for evaluating retrieval-augmented generation (RAG) at the
 level of evidence rather than documents.** A document-level retrieval metric counts any retrieved
@@ -428,7 +429,7 @@ docs/
   EXPERIMENTS.md     decomposition protocol, all results, threats to validity
   TAXONOMY.md, EVALUATION.md, ANNOTATION_GUIDELINES.md, DATASETS.md, ARCHITECTURE.md, QUICKSTART.md
   paper/             supporting documents for the manuscript, with the stage of each (docs/paper/README.md)
-tests/               24 test modules, 511 tests
+tests/               25 test modules, 514 tests
 data/documents/, data/eval/   the small sample corpus used by the offline pipeline smoke test
 CITATION.cff, .zenodo.json, LICENSE, pyproject.toml, CHANGELOG.md
 ```
@@ -456,7 +457,7 @@ service (`uvicorn src.api.main:app`) and the Docker setup are the pipeline the e
 ## Tests
 
 ```bash
-pytest tests/ -q -rs                 # 511 tests; -rs lists any skipped test and why
+pytest tests/ -q -rs                 # 514 tests; -rs lists any skipped test and why
 ruff check src/ tests/ scripts/      # clean
 ```
 

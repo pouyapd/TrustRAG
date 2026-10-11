@@ -25,18 +25,35 @@ RUN pip install --index-url https://download.pytorch.org/whl/cpu torch
 
 RUN pip install -r requirements.txt
 
+# Non-root user, created before the model download so that it owns the model cache.
+RUN useradd --create-home --uid 1000 appuser
+
+# Without an OpenAI key the service embeds with the local sentence-transformers model
+# (LocalEmbeddings in src/rag/providers.py), and it loads that model before it answers
+# /health. Fetching it at container start took minutes on a first start, and every new
+# container fetched it again, so it is downloaded once here, into the image. The service
+# then runs offline by default, so startup does not depend on the network; set
+# HF_HUB_OFFLINE=0 to let it fetch other models. This layer comes before the source copy,
+# so a code change does not download the model again.
+ENV HF_HOME=/home/appuser/.cache/huggingface
+USER appuser
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
+ENV HF_HUB_OFFLINE=1 \
+    TRANSFORMERS_OFFLINE=1
+USER root
+
 COPY src/ ./src/
 COPY data/documents/ ./data/documents/
 
-# Non-root user
-RUN useradd --create-home --uid 1000 appuser \
-    && mkdir -p /app/data/chroma /app/reports \
+RUN mkdir -p /app/data/chroma /app/reports \
     && chown -R appuser:appuser /app
 USER appuser
 
 EXPOSE 8000
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+# Startup imports torch and loads the model from the image: healthy after 20-30 s on a laptop
+# CPU, measured with networking disabled.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
     CMD curl -fsS http://localhost:8000/health || exit 1
 
 CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
