@@ -49,9 +49,9 @@ This starts:
 
 Without an OpenAI key the API embeds with the local `all-MiniLM-L6-v2` model. The image
 already contains it and the container runs with `HF_HUB_OFFLINE=1`, so a new container
-starts without downloading anything: it was healthy after 20–30 s on a laptop CPU with
-networking disabled, and the healthcheck allows 60 s. Set `HF_HUB_OFFLINE=0` to let the
-container fetch models that are not in the image.
+starts without downloading anything. With networking disabled it was healthy after 25–55 s on
+an idle laptop CPU and after 122 s with the CPU busy; the healthcheck allows 180 s. Set
+`HF_HUB_OFFLINE=0` to let the container fetch models that are not in the image.
 
 ## Try it
 

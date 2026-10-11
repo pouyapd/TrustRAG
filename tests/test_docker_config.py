@@ -35,4 +35,4 @@ def test_the_model_is_fetched_before_the_source_is_copied_and_then_used_offline(
 def test_dockerfile_and_compose_allow_the_same_startup_time():
     dockerfile = _seconds(re.search(r"--start-period=(\w+)", DOCKERFILE).group(1))
     compose = _seconds(re.search(r"start_period:\s*(\w+)", COMPOSE).group(1))
-    assert dockerfile == compose >= 60
+    assert dockerfile == compose >= 120   # a busy first start took 122 s

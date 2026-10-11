@@ -51,9 +51,11 @@ USER appuser
 
 EXPOSE 8000
 
-# Startup imports torch and loads the model from the image: healthy after 20-30 s on a laptop
-# CPU, measured with networking disabled.
-HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+# Startup imports torch and loads the model from the image. With networking disabled it was
+# healthy after 25-55 s on an idle laptop CPU and after 122 s while another container kept the
+# CPU busy; the start period leaves room for that. Docker still reports the container healthy
+# as soon as /health answers.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=180s --retries=3 \
     CMD curl -fsS http://localhost:8000/health || exit 1
 
 CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -41,16 +41,17 @@ except for the v1.1.0 date.
   new `--out-dir`. All four figures still render byte-identically to the committed PNGs.
 - **`src/evaluation/provenance.py`.** Future run reports also record the torch, transformers and
   scipy versions.
-- **Docker: a new container starts offline and is healthy in 20–30 s.** Without an OpenAI key
+- **Docker: a new container starts offline, without downloading a model.** Without an OpenAI key
   the service loads the local `all-MiniLM-L6-v2` model before it answers `/health`, and the image
   did not contain it. Every new container downloaded it: a first start took 203 s against a 20 s
   healthcheck start period, long enough for Docker to mark a starting container unhealthy.
   Without network access the old image answered after 87 s, stayed unhealthy, and silently fell
   back to hash embeddings. The Dockerfile now downloads the model at build time (before the
-  source copy, owned by the non-root user), runs the service with `HF_HUB_OFFLINE=1`, and allows
-  a 60 s start period, which `docker-compose.yml` now states too. With networking disabled the
-  new image was healthy after 20–30 s and used the model. `tests/test_docker_config.py` keeps
-  the image's model in step with `LocalEmbeddings`.
+  source copy, owned by the non-root user) and runs the service with `HF_HUB_OFFLINE=1`. With
+  networking disabled the new image used the model and was healthy after 25–55 s on an idle
+  laptop CPU and after 122 s with the CPU busy, so the start period is now 180 s, in the
+  Dockerfile and in `docker-compose.yml`. `tests/test_docker_config.py` keeps the image's model
+  and the two start periods in step with the code.
 - **Images.** `docs/screenshots/api-docs.png` and `docs/screenshots/ci-pipeline.png` are removed:
   no file has referenced them since the README was rewritten on 6 September 2026, and they showed
   API version 0.1.0 and a CI run of an old commit. Every other image is referenced by the
