@@ -41,6 +41,25 @@ except for the v1.1.0 date.
   new `--out-dir`. All four figures still render byte-identically to the committed PNGs.
 - **`src/evaluation/provenance.py`.** Future run reports also record the torch, transformers and
   scipy versions.
+- **Docker: a new container starts offline and is healthy in 20–30 s.** Without an OpenAI key
+  the service loads the local `all-MiniLM-L6-v2` model before it answers `/health`, and the image
+  did not contain it. Every new container downloaded it: a first start took 203 s against a 20 s
+  healthcheck start period, long enough for Docker to mark a starting container unhealthy.
+  Without network access the old image answered after 87 s, stayed unhealthy, and silently fell
+  back to hash embeddings. The Dockerfile now downloads the model at build time (before the
+  source copy, owned by the non-root user), runs the service with `HF_HUB_OFFLINE=1`, and allows
+  a 60 s start period, which `docker-compose.yml` now states too. With networking disabled the
+  new image was healthy after 20–30 s and used the model. `tests/test_docker_config.py` keeps
+  the image's model in step with `LocalEmbeddings`.
+- **Images.** `docs/screenshots/api-docs.png` and `docs/screenshots/ci-pipeline.png` are removed:
+  no file has referenced them since the README was rewritten on 6 September 2026, and they showed
+  API version 0.1.0 and a CI run of an old commit. Every other image is referenced by the
+  documentation or written by a script and is kept.
+- **Badges and metadata.** The README's DOI badge pointed at the concept DOI, which resolves to
+  the annotation package; it is replaced by one badge for the v1.0.0 code archive and one for
+  the annotation package. In `.zenodo.json` the QASPER and Natural Questions DOIs are typed as
+  the conference paper and journal article they are, not as datasets.
+  `docs/paper/FIGURES.md` notes two statements that no longer describe the repository.
 - **Exploratory, not in the manuscript: NQ reference sensitivity.** The NQ loader scores
   against the first annotator's long answer; QASPER against the union of its annotators.
   `results/exploratory/nq_reference_sensitivity/` re-scores the seven NQ localisers against
@@ -61,12 +80,14 @@ except for the v1.1.0 date.
   `results/localisation/README.md` with both corpora scored against the union, against the
   first annotator, and by each dataset's own evaluator
   (`results/exploratory/reference_sensitivity_claims.md`; `tests/test_reference_claims.py`).
-- **Tests: 511** (7 new). Two gold-span tests failed in a fresh clone once the annotation package
-  was unpacked and the second-round sheet regenerated as documented: one compared the tracked
+- **Tests: 514** (10 new) without the exploratory analyses, 573 with them. Two gold-span tests
+  failed in a fresh clone once the annotation package was unpacked and the second-round sheet
+  regenerated as documented: one compared the tracked
   copies byte for byte, line endings included, and the other expected the regenerated sheet to
   hold the author's labels. They now compare content and run the label checks only once the
   second round has been scored. A class-scoped fixture written as a method, deprecated in
-  pytest 9 and an error in pytest 10, is now module-level.
+  pytest 9 and an error in pytest 10, is now module-level. Three Docker configuration tests
+  are new (above).
 
 ## v1.1.0 — 23 September 2026 — completed gold-span adjudication
 
