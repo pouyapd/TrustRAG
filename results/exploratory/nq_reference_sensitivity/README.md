@@ -142,7 +142,10 @@ ms-marco cross-encoder's lead over MiniLM becomes significant under `official`.
 - One NQ shard, 300 questions, 256/32 chunking, the manuscript's seven localisers.
   Holm correction is applied within each scheme; comparisons across schemes are
   descriptive.
-- QASPER was not re-examined per annotator; its loader merges annotators.
+- QASPER is re-examined per annotator in
+  [`../qasper_reference_sensitivity/`](../qasper_reference_sensitivity/README.md), and the two
+  corpora are compared under matching references in
+  [`../reference_sensitivity_claims.md`](../reference_sensitivity_claims.md).
 - Post hoc: the analysis was designed after the 104/300 disagreement figure was seen,
   and was not pre-registered.
 - `score_config.json` records the MiniLM index hash of a scratch copy *after* Chroma had

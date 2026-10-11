@@ -1,0 +1,126 @@
+{
+ "status": "exploratory; not part of the submitted manuscript",
+ "raw_file": {
+  "path": "data/raw/qasper-dev-v0.3.json",
+  "sha256": "2ae7ee62a65b1c4225791c70de80c2aad4e8998cf1fd4f09a53103db4f21af93"
+ },
+ "limit": 300,
+ "split": "dev",
+ "chunking": {
+  "size": 256,
+  "overlap": 32,
+  "n_chunks": 2272
+ },
+ "localisers": {
+  "bm25": {
+   "identity": "BM25 (Okapi, k1=1.5, b=0.75)",
+   "family": "lexical",
+   "cached_revision": null
+  },
+  "minilm": {
+   "identity": "sentence-transformers/all-MiniLM-L6-v2",
+   "family": "dense bi-encoder",
+   "cached_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
+  },
+  "bge": {
+   "identity": "BAAI/bge-small-en-v1.5",
+   "family": "dense bi-encoder",
+   "cached_revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a"
+  },
+  "e5": {
+   "identity": "intfloat/e5-small-v2",
+   "family": "dense bi-encoder",
+   "cached_revision": "ffb93f3bd4047442299a41ebb6fa998a38507c52"
+  },
+  "mpnet": {
+   "identity": "sentence-transformers/all-mpnet-base-v2",
+   "family": "dense bi-encoder",
+   "cached_revision": "e8c3b32edf5434bc2275fc9bab85f82640a19130"
+  },
+  "ce_msmarco_minilm": {
+   "identity": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+   "family": "cross-encoder",
+   "cached_revision": "233902d25c440f23af6f7d6e94d2946bac0bee0a"
+  },
+  "bge_reranker_base": {
+   "identity": "BAAI/bge-reranker-base",
+   "family": "cross-encoder",
+   "cached_revision": "2cfc18c9415c912f9d8155881c133215df768a70"
+  }
+ },
+ "vector_inputs": {
+  "minilm": {
+   "chroma_index": "index_qasper_dev_300_emb_minilm",
+   "chroma_collection": "exp_qasper_dev",
+   "chroma_index_sha256_tree_before_opening": "62f92c03bdb017e61f9f076f61ddc4f6c1d52f571968234ddef987a192489ba0"
+  },
+  "bge": {
+   "chroma_index": "index_qasper_dev_300_emb_bge",
+   "chroma_collection": "exp_qasper_dev",
+   "chroma_index_sha256_tree_before_opening": "f744f93cf3befa4f9353001e6aa30db87f392631dc38deb19bfa5f81017aec1f"
+  },
+  "e5": {
+   "chroma_index": "index_qasper_dev_300_emb_e5",
+   "chroma_collection": "exp_qasper_dev",
+   "chroma_index_sha256_tree_before_opening": "fb72327cbca419042afc51c8c229e9c287fd9966ccde80ff1ac9588aadd8fe93"
+  },
+  "mpnet": {
+   "chroma_index": "index_qasper_dev_300_emb_mpnet",
+   "chroma_collection": "exp_qasper_dev",
+   "chroma_index_sha256_tree_before_opening": "f97335f1d3dcb492f0c65afd314589e62ed10659df11302c68d3ed2f2ca7c3b4"
+  }
+ },
+ "cross_encoder_scope": {
+  "ce_msmarco_minilm": "affected",
+  "bge_reranker_base": "affected"
+ },
+ "checks": {
+  "question_ids_and_order_match_study": true,
+  "D_and_union_m_match_study": true,
+  "union_of_annotator_evidence_equals_loader_evidence": true,
+  "union_ranks_match_study": {
+   "bm25": "290 recomputed, 0 mismatches",
+   "minilm": "290 recomputed, 0 mismatches",
+   "bge": "290 recomputed, 0 mismatches",
+   "e5": "290 recomputed, 0 mismatches",
+   "mpnet": "290 recomputed, 0 mismatches",
+   "ce_msmarco_minilm": "103 recomputed, 0 mismatches",
+   "bge_reranker_base": "103 recomputed, 0 mismatches"
+  },
+  "questions_where_some_reference_differs_from_union": 103
+ },
+ "runtime_seconds": {
+  "bm25": 0.1,
+  "minilm": 0.1,
+  "bge": 0.0,
+  "e5": 0.0,
+  "mpnet": 0.0,
+  "ce_msmarco_minilm": 164.9,
+  "bge_reranker_base": 1036.0,
+  "total": 1258.9
+ },
+ "provenance": {
+  "timestamp_utc": "2026-10-10T18:49:28+00:00",
+  "git": {
+   "commit": "86b640c3e6dbd018e94de56d90a414d48c284984",
+   "branch": "research/nq-reference-sensitivity",
+   "dirty": false
+  },
+  "python": "3.12.7",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "packages": {
+   "chromadb": "1.5.8",
+   "numpy": "2.4.4",
+   "openai": "2.33.0",
+   "anthropic": "0.97.0",
+   "sentence-transformers": "5.4.1",
+   "tiktoken": "0.12.0",
+   "pydantic": "2.13.3",
+   "fastapi": "0.136.1",
+   "torch": "2.11.0",
+   "transformers": "5.7.0",
+   "scipy": "1.17.1"
+  },
+  "script": "scripts/qasper_reference_sensitivity.py --score"
+ }
+}

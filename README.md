@@ -418,7 +418,7 @@ src/
   rag/               chunker, embedders (query prefixes per model), vector store, providers, local LLM
   evaluation/        evidence coverage, metrics, statistics, failure taxonomy, records, provenance, runner
   api/, monitoring/  the FastAPI service and Prometheus metrics of the pipeline (not used by the study)
-scripts/             39 scripts: localisation_*.py, run_*.py, build_*/audit_*/score_*.py, reproduce_study.py,
+scripts/             41 scripts: localisation_*.py, run_*.py, build_*/audit_*/score_*.py, reproduce_study.py,
                      threshold_ablation.py, make_*figures.py, report_tables.py, curate_results.py
 results/
   localisation/      per-question rows, summaries, tests, bootstrap, sweeps, contrasts, hit@k, figure, README
@@ -429,7 +429,7 @@ docs/
   EXPERIMENTS.md     decomposition protocol, all results, threats to validity
   TAXONOMY.md, EVALUATION.md, ANNOTATION_GUIDELINES.md, DATASETS.md, ARCHITECTURE.md, QUICKSTART.md
   paper/             supporting documents for the manuscript, with the stage of each (docs/paper/README.md)
-tests/               25 test modules, 538 tests
+tests/               27 test modules, 570 tests
 data/documents/, data/eval/   the small sample corpus used by the offline pipeline smoke test
 CITATION.cff, .zenodo.json, LICENSE, pyproject.toml, CHANGELOG.md
 ```
@@ -457,7 +457,7 @@ service (`uvicorn src.api.main:app`) and the Docker setup are the pipeline the e
 ## Tests
 
 ```bash
-pytest tests/ -q -rs                 # 538 tests; -rs lists any skipped test and why
+pytest tests/ -q -rs                 # 570 tests; -rs lists any skipped test and why
 ruff check src/ tests/ scripts/      # clean
 ```
 
@@ -489,13 +489,17 @@ Read before quoting any number above.
 - **Two corpora, one chunking, small models.** Seven localisers with one reranker per size class,
   revisions recorded after the fact; no claim is made about other corpora, chunkers or larger
   models, and the corpus contrasts are descriptive, not causal.
-- **NQ is scored against one annotator's long answer.** The NQ loader keeps the first
-  annotator who marked a long answer, while QASPER's reference is the union of its annotators.
-  An exploratory re-scoring against all NQ annotators, made after submission and not in the
-  manuscript ([results/exploratory/nq_reference_sensitivity/](results/exploratory/nq_reference_sensitivity/README.md)),
-  leaves bge-reranker-base the best NQ localiser and BM25 the weakest, but under the union of
-  annotators NQ hit@1 rises by 4–9 pp (to 0.39–0.58) and bge-reranker-base's lead over
-  MPNet-base is no longer significant.
+- **The two corpora build their evidence reference differently.** The NQ loader keeps the
+  first annotator who marked a long answer; QASPER's reference is the union of its annotators.
+  Exploratory re-scorings made after submission and not in the manuscript
+  ([NQ](results/exploratory/nq_reference_sensitivity/README.md),
+  [QASPER](results/exploratory/qasper_reference_sensitivity/README.md),
+  [both under matching references](results/exploratory/reference_sensitivity_claims.md)) leave
+  the cross-encoder reversal, the partly shared failures and the bi-encoder comparisons in
+  place. The numbers move: under the union of annotators NQ hit@1 rises by 4–9 pp (to
+  0.39–0.58, four localisers above 0.5, median rank 1 for four), and bge-reranker-base's lead
+  over MPNet-base is no longer significant; with the first annotator on QASPER too, no QASPER
+  pair survives Holm correction and BM25 is no longer the weakest QASPER localiser.
 - **Reach × localisation** was tested on QASPER only (NQ reach is saturated) with limited power.
 - **The oracle control** has n = 150, one small reader, no sham control, and two strata with too
   few discordant pairs.

@@ -377,7 +377,7 @@ def scheme_summary(rows: list[dict], models: list[str], n_boot: int) -> dict:
         "models": {m: model_metrics(rows, m) for m in models},
         "pairwise": pairwise(rows, models, n_boot=n_boot, seed=0),
         "best_at_hit@1": max(models, key=lambda m: hit1[m]),
-        "worst_neural_at_hit@1": min(neural, key=lambda m: hit1[m]),
+        "worst_neural_at_hit@1": min(neural, key=lambda m: hit1[m]) if neural else None,
         # the manuscript's union analysis: some localiser ranks the gold chunk first
         "any_localiser_hit@1": round(sum(any(r["rank"][m] == 1 for m in models) for r in rows) / len(rows), 4),
         "no_localiser_hit@1": round(sum(all(r["rank"][m] != 1 for m in models) for r in rows) / len(rows), 4),
@@ -409,10 +409,11 @@ def single_annotator_resampling(questions: list[dict], models: list[str], n_draw
         winners = [m for m in models if h1[m] == top]
         for m in winners:
             best[m] += 1 / len(winners)
-        bottom = min(h1[m] for m in neural)
-        losers = [m for m in neural if h1[m] == bottom]
-        for m in losers:
-            worst_neural[m] += 1 / len(losers)
+        if neural:
+            bottom = min(h1[m] for m in neural)
+            losers = [m for m in neural if h1[m] == bottom]
+            for m in losers:
+                worst_neural[m] += 1 / len(losers)
         for pair, sign in _holm_significant(rows, models).items():
             same_conclusion[pair] += sign == reference_signs[pair]
     return {
@@ -536,9 +537,9 @@ def render_markdown(summary: dict, models: list[str]) -> str:
         lines.append(f"| {m} | " + " | ".join(cells) + " |")
     lines += ["", "| | " + " | ".join(names[s] for s in names) + " |", "|---|" + "---:|" * len(names),
               "| gold paragraphs per question | " + " | ".join(
-                  f"{schemes[s]['mean_gold_spans_per_question']:.2f}" for s in names) + " |",
+                  f"{schemes[s]['mean_gold_spans_per_question']:.3f}" for s in names) + " |",
               "| gold chunks per question | " + " | ".join(
-                  f"{schemes[s]['mean_gold_chunks_per_question']:.2f}" for s in names) + " |",
+                  f"{schemes[s]['mean_gold_chunks_per_question']:.3f}" for s in names) + " |",
               "| chance hit@1 (random order) | " + " | ".join(
                   f"{schemes[s]['models'][models[0]]['chance_hit@1']:.3f}" for s in names) + " |",
               "| best at hit@1 | " + " | ".join(schemes[s]["best_at_hit@1"] for s in names) + " |",

@@ -11,3 +11,5 @@ them, and what they do and do not show.
 | Directory | Question |
 |---|---|
 | [`nq_reference_sensitivity/`](nq_reference_sensitivity/README.md) | How far do the NQ localisation results depend on scoring against the first annotator's long answer only? |
+| [`qasper_reference_sensitivity/`](qasper_reference_sensitivity/README.md) | How far do the QASPER localisation results depend on merging every annotator's evidence? |
+| [`reference_sensitivity_claims.md`](reference_sensitivity_claims.md) | Which claims of `results/localisation/README.md` hold when both corpora are scored against the same kind of reference? (`scripts/reference_sensitivity_claims.py`) |
