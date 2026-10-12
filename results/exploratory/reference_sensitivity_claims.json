@@ -1,0 +1,2122 @@
+{
+ "status": "exploratory; not part of the submitted manuscript",
+ "inputs": {
+  "results/exploratory/nq_reference_sensitivity/per_question.json": "9b378eb67dd311972aaccafa9cc98313df844dbaa47d81f09dfb906d52ad52b5",
+  "results/exploratory/qasper_reference_sensitivity/per_question.json": "9c785be4786b4e29eb868e982865a99af27ebef2fa3cb9af0320f7a9e8f50b6a",
+  "results/exploratory/nq_reference_sensitivity/summary.json": "121b5d3dfde8ddcd7f3dcbc5f83b8bd952880a8da0c34fe53cbd0f9e92a6fd0e",
+  "results/exploratory/qasper_reference_sensitivity/summary.json": "0b58479c80c88c3f7e8c1143c32e3d6f74d697d8f30d4fd4235604b40af16dae"
+ },
+ "settings": {
+  "n_boot": 4000,
+  "bootstrap_seed": 0
+ },
+ "models": [
+  "bm25",
+  "minilm",
+  "bge",
+  "e5",
+  "mpnet",
+  "ce_msmarco_minilm",
+  "bge_reranker_base"
+ ],
+ "manuscript_pairing_reproduces_summaries": {
+  "qasper": true,
+  "nq": true
+ },
+ "views": {
+  "manuscript": {
+   "label": "manuscript: QASPER union, NQ first annotator",
+   "references": {
+    "qasper": "union",
+    "nq": "first"
+   },
+   "profiles": {
+    "qasper": {
+     "n_questions": 290,
+     "mean_gold_spans_per_question": 2.09,
+     "mean_gold_chunks_per_question": 2.79,
+     "chance_hit@1": 0.1572,
+     "hit@1": {
+      "bm25": 0.2897,
+      "minilm": 0.3759,
+      "bge": 0.4,
+      "e5": 0.3586,
+      "mpnet": 0.3345,
+      "ce_msmarco_minilm": 0.3862,
+      "bge_reranker_base": 0.3103
+     },
+     "hit@5": {
+      "bm25": 0.7552,
+      "minilm": 0.8448,
+      "bge": 0.8448,
+      "e5": 0.8207,
+      "mpnet": 0.7966,
+      "ce_msmarco_minilm": 0.8552,
+      "bge_reranker_base": 0.7966
+     },
+     "lift@1": {
+      "bm25": 1.842,
+      "minilm": 2.391,
+      "bge": 2.544,
+      "e5": 2.281,
+      "mpnet": 2.127,
+      "ce_msmarco_minilm": 2.456,
+      "bge_reranker_base": 1.974
+     },
+     "median_rank": {
+      "bm25": 3.0,
+      "minilm": 2.0,
+      "bge": 2.0,
+      "e5": 2.0,
+      "mpnet": 3.0,
+      "ce_msmarco_minilm": 2.0,
+      "bge_reranker_base": 2.0
+     },
+     "share_ranks_2_to_5": {
+      "bm25": 0.4655,
+      "minilm": 0.469,
+      "bge": 0.4449,
+      "e5": 0.4621,
+      "mpnet": 0.462,
+      "ce_msmarco_minilm": 0.4689,
+      "bge_reranker_base": 0.4862
+     },
+     "best": "bge",
+     "worst_neural": "bge_reranker_base",
+     "neural_spread_pp": 9.0,
+     "any_localiser_hit@1": 0.769,
+     "no_localiser_hit@1": 0.231,
+     "no_localiser_hit@1_under_independence": 0.0481,
+     "gold_outside_every_top5": 0.0103,
+     "holm_significant": {
+      "bm25_vs_bge": -1,
+      "bm25_vs_ce_msmarco_minilm": -1
+     },
+     "cluster_bootstrap_ci95": {
+      "bm25_vs_minilm": [
+       -0.1521,
+       -0.0209
+      ],
+      "bm25_vs_bge": [
+       -0.1747,
+       -0.05
+      ],
+      "bm25_vs_e5": [
+       -0.1322,
+       -0.007
+      ],
+      "bm25_vs_mpnet": [
+       -0.1129,
+       0.023
+      ],
+      "bm25_vs_ce_msmarco_minilm": [
+       -0.1519,
+       -0.0411
+      ],
+      "bm25_vs_bge_reranker_base": [
+       -0.0951,
+       0.0542
+      ],
+      "minilm_vs_bge": [
+       -0.0863,
+       0.0357
+      ],
+      "minilm_vs_e5": [
+       -0.0473,
+       0.0811
+      ],
+      "minilm_vs_mpnet": [
+       -0.0189,
+       0.0994
+      ],
+      "minilm_vs_ce_msmarco_minilm": [
+       -0.0733,
+       0.0515
+      ],
+      "minilm_vs_bge_reranker_base": [
+       -0.0072,
+       0.1377
+      ],
+      "bge_vs_e5": [
+       -0.0145,
+       0.1004
+      ],
+      "bge_vs_mpnet": [
+       0.0069,
+       0.1254
+      ],
+      "bge_vs_ce_msmarco_minilm": [
+       -0.05,
+       0.0781
+      ],
+      "bge_vs_bge_reranker_base": [
+       0.0103,
+       0.1685
+      ],
+      "e5_vs_mpnet": [
+       -0.0418,
+       0.0855
+      ],
+      "e5_vs_ce_msmarco_minilm": [
+       -0.0861,
+       0.0318
+      ],
+      "e5_vs_bge_reranker_base": [
+       -0.0208,
+       0.1192
+      ],
+      "mpnet_vs_ce_msmarco_minilm": [
+       -0.1108,
+       0.011
+      ],
+      "mpnet_vs_bge_reranker_base": [
+       -0.0464,
+       0.0949
+      ],
+      "ce_msmarco_minilm_vs_bge_reranker_base": [
+       0.0068,
+       0.1442
+      ]
+     },
+     "mcnemar_holm_adjusted_p": {
+      "bm25_vs_minilm": 0.2734,
+      "bm25_vs_bge": 0.0233,
+      "bm25_vs_e5": 0.5251,
+      "bm25_vs_mpnet": 1.0,
+      "bm25_vs_ce_msmarco_minilm": 0.0259,
+      "bm25_vs_bge_reranker_base": 1.0,
+      "minilm_vs_bge": 1.0,
+      "minilm_vs_e5": 1.0,
+      "minilm_vs_mpnet": 1.0,
+      "minilm_vs_ce_msmarco_minilm": 1.0,
+      "minilm_vs_bge_reranker_base": 1.0,
+      "bge_vs_e5": 1.0,
+      "bge_vs_mpnet": 0.7129,
+      "bge_vs_ce_msmarco_minilm": 1.0,
+      "bge_vs_bge_reranker_base": 0.5251,
+      "e5_vs_mpnet": 1.0,
+      "e5_vs_ce_msmarco_minilm": 1.0,
+      "e5_vs_bge_reranker_base": 1.0,
+      "mpnet_vs_ce_msmarco_minilm": 1.0,
+      "mpnet_vs_bge_reranker_base": 1.0,
+      "ce_msmarco_minilm_vs_bge_reranker_base": 0.5931
+     }
+    },
+    "nq": {
+     "n_questions": 300,
+     "mean_gold_spans_per_question": 1.0,
+     "mean_gold_chunks_per_question": 2.83,
+     "chance_hit@1": 0.1157,
+     "hit@1": {
+      "bm25": 0.3533,
+      "minilm": 0.3867,
+      "bge": 0.4633,
+      "e5": 0.4567,
+      "mpnet": 0.4033,
+      "ce_msmarco_minilm": 0.46,
+      "bge_reranker_base": 0.5067
+     },
+     "hit@5": {
+      "bm25": 0.69,
+      "minilm": 0.7733,
+      "bge": 0.8167,
+      "e5": 0.8033,
+      "mpnet": 0.7933,
+      "ce_msmarco_minilm": 0.8133,
+      "bge_reranker_base": 0.8367
+     },
+     "lift@1": {
+      "bm25": 3.054,
+      "minilm": 3.343,
+      "bge": 4.005,
+      "e5": 3.948,
+      "mpnet": 3.487,
+      "ce_msmarco_minilm": 3.976,
+      "bge_reranker_base": 4.38
+     },
+     "median_rank": {
+      "bm25": 3.0,
+      "minilm": 2.0,
+      "bge": 2.0,
+      "e5": 2.0,
+      "mpnet": 2.0,
+      "ce_msmarco_minilm": 2.0,
+      "bge_reranker_base": 1.0
+     },
+     "share_ranks_2_to_5": {
+      "bm25": 0.3366,
+      "minilm": 0.3866,
+      "bge": 0.3534,
+      "e5": 0.3467,
+      "mpnet": 0.39,
+      "ce_msmarco_minilm": 0.3533,
+      "bge_reranker_base": 0.33
+     },
+     "best": "bge_reranker_base",
+     "worst_neural": "minilm",
+     "neural_spread_pp": 12.0,
+     "any_localiser_hit@1": 0.78,
+     "no_localiser_hit@1": 0.22,
+     "no_localiser_hit@1_under_independence": 0.0184,
+     "gold_outside_every_top5": 0.0433,
+     "holm_significant": {
+      "bm25_vs_bge": -1,
+      "bm25_vs_e5": -1,
+      "bm25_vs_ce_msmarco_minilm": -1,
+      "bm25_vs_bge_reranker_base": -1,
+      "minilm_vs_bge_reranker_base": -1,
+      "mpnet_vs_bge_reranker_base": -1
+     },
+     "cluster_bootstrap_ci95": {
+      "bm25_vs_minilm": [
+       -0.0933,
+       0.0268
+      ],
+      "bm25_vs_bge": [
+       -0.1706,
+       -0.0493
+      ],
+      "bm25_vs_e5": [
+       -0.1667,
+       -0.0401
+      ],
+      "bm25_vs_mpnet": [
+       -0.1159,
+       0.0134
+      ],
+      "bm25_vs_ce_msmarco_minilm": [
+       -0.1623,
+       -0.05
+      ],
+      "bm25_vs_bge_reranker_base": [
+       -0.2226,
+       -0.0833
+      ],
+      "minilm_vs_bge": [
+       -0.1371,
+       -0.0167
+      ],
+      "minilm_vs_e5": [
+       -0.1316,
+       -0.01
+      ],
+      "minilm_vs_mpnet": [
+       -0.0757,
+       0.0436
+      ],
+      "minilm_vs_ce_msmarco_minilm": [
+       -0.1367,
+       -0.0098
+      ],
+      "minilm_vs_bge_reranker_base": [
+       -0.1867,
+       -0.0533
+      ],
+      "bge_vs_e5": [
+       -0.0462,
+       0.057
+      ],
+      "bge_vs_mpnet": [
+       0.0033,
+       0.1167
+      ],
+      "bge_vs_ce_msmarco_minilm": [
+       -0.0569,
+       0.0635
+      ],
+      "bge_vs_bge_reranker_base": [
+       -0.102,
+       0.0168
+      ],
+      "e5_vs_mpnet": [
+       -0.0033,
+       0.1111
+      ],
+      "e5_vs_ce_msmarco_minilm": [
+       -0.066,
+       0.06
+      ],
+      "e5_vs_bge_reranker_base": [
+       -0.1126,
+       0.0165
+      ],
+      "mpnet_vs_ce_msmarco_minilm": [
+       -0.1208,
+       0.0098
+      ],
+      "mpnet_vs_bge_reranker_base": [
+       -0.1672,
+       -0.0369
+      ],
+      "ce_msmarco_minilm_vs_bge_reranker_base": [
+       -0.107,
+       0.0133
+      ]
+     },
+     "mcnemar_holm_adjusted_p": {
+      "bm25_vs_minilm": 1.0,
+      "bm25_vs_bge": 0.0146,
+      "bm25_vs_e5": 0.0366,
+      "bm25_vs_mpnet": 1.0,
+      "bm25_vs_ce_msmarco_minilm": 0.009,
+      "bm25_vs_bge_reranker_base": 0.0004,
+      "minilm_vs_bge": 0.2878,
+      "minilm_vs_e5": 0.4608,
+      "minilm_vs_mpnet": 1.0,
+      "minilm_vs_ce_msmarco_minilm": 0.4167,
+      "minilm_vs_bge_reranker_base": 0.0146,
+      "bge_vs_e5": 1.0,
+      "bge_vs_mpnet": 0.5325,
+      "bge_vs_ce_msmarco_minilm": 1.0,
+      "bge_vs_bge_reranker_base": 1.0,
+      "e5_vs_mpnet": 0.9766,
+      "e5_vs_ce_msmarco_minilm": 1.0,
+      "e5_vs_bge_reranker_base": 1.0,
+      "mpnet_vs_ce_msmarco_minilm": 1.0,
+      "mpnet_vs_bge_reranker_base": 0.0383,
+      "ce_msmarco_minilm_vs_bge_reranker_base": 1.0
+     }
+    }
+   },
+   "claims": [
+    {
+     "id": "C1",
+     "where": "What replicates 1",
+     "claim": "No model exceeds hit@1 = 0.51 on either corpus",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "highest hit@1 0.507"
+    },
+    {
+     "id": "C2",
+     "where": "Claim",
+     "claim": "Rank 1 for about half of questions or fewer (0.29\u20130.51), top five for 0.69\u20130.86",
+     "kind": "numeric",
+     "holds": true,
+     "detail": "hit@1 QASPER 0.290\u20130.400, NQ 0.353\u20130.507; hit@5 QASPER 0.755\u20130.855, NQ 0.690\u20130.837"
+    },
+    {
+     "id": "C3",
+     "where": "What replicates 1; Claim",
+     "claim": "Median rank 2 for almost every model (near-miss structure)",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "models with median rank 2: QASPER 5/7, NQ 5/7; median 1: QASPER 0, NQ 1"
+    },
+    {
+     "id": "C4",
+     "where": "What replicates 1; Claim",
+     "claim": "Gold chunk at ranks 2\u20135 for a third to a half of questions",
+     "kind": "numeric",
+     "holds": true,
+     "detail": "QASPER 0.445\u20130.486, NQ 0.330\u20130.390"
+    },
+    {
+     "id": "C5",
+     "where": "What replicates 2; Claim",
+     "claim": "Failures only partly shared: some model ranks the gold first for 0.77\u20130.78, best single model 0.40\u20130.51",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "some model: QASPER 0.769, NQ 0.780; best single: QASPER 0.400, NQ 0.507; no model vs independence: 4.8x, 12.0x"
+    },
+    {
+     "id": "C6",
+     "where": "What replicates 3",
+     "claim": "BM25 is the weakest localiser on both corpora",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "weakest: QASPER bm25, NQ bm25"
+    },
+    {
+     "id": "C7",
+     "where": "What replicates 3",
+     "claim": "BM25 is the only model with a Holm-significant deficit on both corpora",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "models losing a Holm-significant pair on both corpora: ['bm25']"
+    },
+    {
+     "id": "C8",
+     "where": "What replicates 4; Claim",
+     "claim": "MPNet-base (110M) below both 33M bi-encoders on both corpora, never significantly different",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "MPNet/BGE/E5 hit@1: QASPER 0.335/0.400/0.359, NQ 0.403/0.463/0.457; Holm-significant: none"
+    },
+    {
+     "id": "C8b",
+     "where": "Parameter count does not order the bi-encoders; Claim",
+     "claim": "Differences among the four bi-encoders are not significant after correction, on either corpus",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "Holm-significant bi-encoder pairs: none"
+    },
+    {
+     "id": "C9a",
+     "where": "What does not replicate; Claim",
+     "claim": "On QASPER bge-reranker-base is the worst neural model",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "worst neural on QASPER: bge_reranker_base"
+    },
+    {
+     "id": "C9b",
+     "where": "What does not replicate",
+     "claim": "On QASPER bge-reranker-base is indistinguishable from BM25",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "Holm-adjusted p 1.0"
+    },
+    {
+     "id": "C9c",
+     "where": "What does not replicate; Claim",
+     "claim": "On NQ bge-reranker-base is the best model",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "best on NQ: bge_reranker_base"
+    },
+    {
+     "id": "C9d",
+     "where": "What does not replicate",
+     "claim": "On NQ bge-reranker-base is significantly above BM25, MiniLM and MPNet after correction",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "Holm-significant above: bm25, minilm, mpnet"
+    },
+    {
+     "id": "C9e",
+     "where": "What does not replicate",
+     "claim": "On NQ the reranker's lead over BGE-small is not significant",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "Holm-adjusted p 1.0"
+    },
+    {
+     "id": "C9f",
+     "where": "What does not replicate",
+     "claim": "On QASPER the 22M ms-marco cross-encoder matches the best bi-encoder",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "ms-marco 0.386 vs bge 0.400, not significant"
+    },
+    {
+     "id": "C9g",
+     "where": "Claim (what it does not license)",
+     "claim": "On NQ the reranker stage is worth +4 to +12 points at rank 1 over the bi-encoders",
+     "kind": "numeric",
+     "holds": true,
+     "detail": "reranker minus bi-encoders on NQ: +4.3 to +12.0 points"
+    },
+    {
+     "id": "C10",
+     "where": "Why the corpora differ",
+     "claim": "Every NQ lift over chance is higher than the QASPER lift",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "lift@1 QASPER 1.842\u20132.544, NQ 3.054\u20134.380"
+    },
+    {
+     "id": "C11",
+     "where": "QASPER against NQ",
+     "claim": "Holm-significant pairs: 2 on QASPER (both BM25 vs neural), 6 on NQ",
+     "kind": "numeric",
+     "holds": true,
+     "detail": "QASPER 2, NQ 6"
+    },
+    {
+     "id": "C12",
+     "where": "Robustness checks",
+     "claim": "Every Holm-significant pair keeps an interval excluding zero under the document-cluster bootstrap",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "all intervals exclude zero"
+    },
+    {
+     "id": "C13",
+     "where": "QASPER against NQ",
+     "claim": "Gold spans per question: 2.09 on QASPER, 1.00 on NQ",
+     "kind": "numeric",
+     "holds": true,
+     "detail": "QASPER 2.09, NQ 1.00"
+    }
+   ]
+  },
+  "both_union": {
+   "label": "both corpora: union of annotators",
+   "references": {
+    "qasper": "union",
+    "nq": "union"
+   },
+   "profiles": {
+    "qasper": {
+     "n_questions": 290,
+     "mean_gold_spans_per_question": 2.09,
+     "mean_gold_chunks_per_question": 2.79,
+     "chance_hit@1": 0.1572,
+     "hit@1": {
+      "bm25": 0.2897,
+      "minilm": 0.3759,
+      "bge": 0.4,
+      "e5": 0.3586,
+      "mpnet": 0.3345,
+      "ce_msmarco_minilm": 0.3862,
+      "bge_reranker_base": 0.3103
+     },
+     "hit@5": {
+      "bm25": 0.7552,
+      "minilm": 0.8448,
+      "bge": 0.8448,
+      "e5": 0.8207,
+      "mpnet": 0.7966,
+      "ce_msmarco_minilm": 0.8552,
+      "bge_reranker_base": 0.7966
+     },
+     "lift@1": {
+      "bm25": 1.842,
+      "minilm": 2.391,
+      "bge": 2.544,
+      "e5": 2.281,
+      "mpnet": 2.127,
+      "ce_msmarco_minilm": 2.456,
+      "bge_reranker_base": 1.974
+     },
+     "median_rank": {
+      "bm25": 3.0,
+      "minilm": 2.0,
+      "bge": 2.0,
+      "e5": 2.0,
+      "mpnet": 3.0,
+      "ce_msmarco_minilm": 2.0,
+      "bge_reranker_base": 2.0
+     },
+     "share_ranks_2_to_5": {
+      "bm25": 0.4655,
+      "minilm": 0.469,
+      "bge": 0.4449,
+      "e5": 0.4621,
+      "mpnet": 0.462,
+      "ce_msmarco_minilm": 0.4689,
+      "bge_reranker_base": 0.4862
+     },
+     "best": "bge",
+     "worst_neural": "bge_reranker_base",
+     "neural_spread_pp": 9.0,
+     "any_localiser_hit@1": 0.769,
+     "no_localiser_hit@1": 0.231,
+     "no_localiser_hit@1_under_independence": 0.0481,
+     "gold_outside_every_top5": 0.0103,
+     "holm_significant": {
+      "bm25_vs_bge": -1,
+      "bm25_vs_ce_msmarco_minilm": -1
+     },
+     "cluster_bootstrap_ci95": {
+      "bm25_vs_minilm": [
+       -0.1521,
+       -0.0209
+      ],
+      "bm25_vs_bge": [
+       -0.1747,
+       -0.05
+      ],
+      "bm25_vs_e5": [
+       -0.1322,
+       -0.007
+      ],
+      "bm25_vs_mpnet": [
+       -0.1129,
+       0.023
+      ],
+      "bm25_vs_ce_msmarco_minilm": [
+       -0.1519,
+       -0.0411
+      ],
+      "bm25_vs_bge_reranker_base": [
+       -0.0951,
+       0.0542
+      ],
+      "minilm_vs_bge": [
+       -0.0863,
+       0.0357
+      ],
+      "minilm_vs_e5": [
+       -0.0473,
+       0.0811
+      ],
+      "minilm_vs_mpnet": [
+       -0.0189,
+       0.0994
+      ],
+      "minilm_vs_ce_msmarco_minilm": [
+       -0.0733,
+       0.0515
+      ],
+      "minilm_vs_bge_reranker_base": [
+       -0.0072,
+       0.1377
+      ],
+      "bge_vs_e5": [
+       -0.0145,
+       0.1004
+      ],
+      "bge_vs_mpnet": [
+       0.0069,
+       0.1254
+      ],
+      "bge_vs_ce_msmarco_minilm": [
+       -0.05,
+       0.0781
+      ],
+      "bge_vs_bge_reranker_base": [
+       0.0103,
+       0.1685
+      ],
+      "e5_vs_mpnet": [
+       -0.0418,
+       0.0855
+      ],
+      "e5_vs_ce_msmarco_minilm": [
+       -0.0861,
+       0.0318
+      ],
+      "e5_vs_bge_reranker_base": [
+       -0.0208,
+       0.1192
+      ],
+      "mpnet_vs_ce_msmarco_minilm": [
+       -0.1108,
+       0.011
+      ],
+      "mpnet_vs_bge_reranker_base": [
+       -0.0464,
+       0.0949
+      ],
+      "ce_msmarco_minilm_vs_bge_reranker_base": [
+       0.0068,
+       0.1442
+      ]
+     },
+     "mcnemar_holm_adjusted_p": {
+      "bm25_vs_minilm": 0.2734,
+      "bm25_vs_bge": 0.0233,
+      "bm25_vs_e5": 0.5251,
+      "bm25_vs_mpnet": 1.0,
+      "bm25_vs_ce_msmarco_minilm": 0.0259,
+      "bm25_vs_bge_reranker_base": 1.0,
+      "minilm_vs_bge": 1.0,
+      "minilm_vs_e5": 1.0,
+      "minilm_vs_mpnet": 1.0,
+      "minilm_vs_ce_msmarco_minilm": 1.0,
+      "minilm_vs_bge_reranker_base": 1.0,
+      "bge_vs_e5": 1.0,
+      "bge_vs_mpnet": 0.7129,
+      "bge_vs_ce_msmarco_minilm": 1.0,
+      "bge_vs_bge_reranker_base": 0.5251,
+      "e5_vs_mpnet": 1.0,
+      "e5_vs_ce_msmarco_minilm": 1.0,
+      "e5_vs_bge_reranker_base": 1.0,
+      "mpnet_vs_ce_msmarco_minilm": 1.0,
+      "mpnet_vs_bge_reranker_base": 1.0,
+      "ce_msmarco_minilm_vs_bge_reranker_base": 0.5931
+     }
+    },
+    "nq": {
+     "n_questions": 300,
+     "mean_gold_spans_per_question": 1.43,
+     "mean_gold_chunks_per_question": 3.45,
+     "chance_hit@1": 0.1397,
+     "hit@1": {
+      "bm25": 0.3933,
+      "minilm": 0.4633,
+      "bge": 0.5467,
+      "e5": 0.5433,
+      "mpnet": 0.4867,
+      "ce_msmarco_minilm": 0.55,
+      "bge_reranker_base": 0.5767
+     },
+     "hit@5": {
+      "bm25": 0.7433,
+      "minilm": 0.8067,
+      "bge": 0.8667,
+      "e5": 0.86,
+      "mpnet": 0.8433,
+      "ce_msmarco_minilm": 0.8733,
+      "bge_reranker_base": 0.87
+     },
+     "lift@1": {
+      "bm25": 2.815,
+      "minilm": 3.316,
+      "bge": 3.913,
+      "e5": 3.889,
+      "mpnet": 3.483,
+      "ce_msmarco_minilm": 3.937,
+      "bge_reranker_base": 4.128
+     },
+     "median_rank": {
+      "bm25": 2.0,
+      "minilm": 2.0,
+      "bge": 1.0,
+      "e5": 1.0,
+      "mpnet": 2.0,
+      "ce_msmarco_minilm": 1.0,
+      "bge_reranker_base": 1.0
+     },
+     "share_ranks_2_to_5": {
+      "bm25": 0.35,
+      "minilm": 0.3433,
+      "bge": 0.32,
+      "e5": 0.3167,
+      "mpnet": 0.3566,
+      "ce_msmarco_minilm": 0.3233,
+      "bge_reranker_base": 0.2934
+     },
+     "best": "bge_reranker_base",
+     "worst_neural": "minilm",
+     "neural_spread_pp": 11.3,
+     "any_localiser_hit@1": 0.8367,
+     "no_localiser_hit@1": 0.1633,
+     "no_localiser_hit@1_under_independence": 0.0066,
+     "gold_outside_every_top5": 0.0333,
+     "holm_significant": {
+      "bm25_vs_bge": -1,
+      "bm25_vs_e5": -1,
+      "bm25_vs_ce_msmarco_minilm": -1,
+      "bm25_vs_bge_reranker_base": -1,
+      "minilm_vs_bge_reranker_base": -1
+     },
+     "cluster_bootstrap_ci95": {
+      "bm25_vs_minilm": [
+       -0.1329,
+       -0.0067
+      ],
+      "bm25_vs_bge": [
+       -0.2159,
+       -0.0924
+      ],
+      "bm25_vs_e5": [
+       -0.214,
+       -0.0864
+      ],
+      "bm25_vs_mpnet": [
+       -0.1584,
+       -0.03
+      ],
+      "bm25_vs_ce_msmarco_minilm": [
+       -0.2141,
+       -0.097
+      ],
+      "bm25_vs_bge_reranker_base": [
+       -0.2492,
+       -0.1158
+      ],
+      "minilm_vs_bge": [
+       -0.1462,
+       -0.0232
+      ],
+      "minilm_vs_e5": [
+       -0.1448,
+       -0.0167
+      ],
+      "minilm_vs_mpnet": [
+       -0.082,
+       0.0334
+      ],
+      "minilm_vs_ce_msmarco_minilm": [
+       -0.149,
+       -0.0234
+      ],
+      "minilm_vs_bge_reranker_base": [
+       -0.18,
+       -0.0468
+      ],
+      "bge_vs_e5": [
+       -0.0497,
+       0.0563
+      ],
+      "bge_vs_mpnet": [
+       0.0033,
+       0.1133
+      ],
+      "bge_vs_ce_msmarco_minilm": [
+       -0.0638,
+       0.0569
+      ],
+      "bge_vs_bge_reranker_base": [
+       -0.0876,
+       0.0301
+      ],
+      "e5_vs_mpnet": [
+       -0.0033,
+       0.1163
+      ],
+      "e5_vs_ce_msmarco_minilm": [
+       -0.0698,
+       0.0567
+      ],
+      "e5_vs_bge_reranker_base": [
+       -0.096,
+       0.0333
+      ],
+      "mpnet_vs_ce_msmarco_minilm": [
+       -0.1258,
+       0.0
+      ],
+      "mpnet_vs_bge_reranker_base": [
+       -0.1538,
+       -0.0227
+      ],
+      "ce_msmarco_minilm_vs_bge_reranker_base": [
+       -0.087,
+       0.0336
+      ]
+     },
+     "mcnemar_holm_adjusted_p": {
+      "bm25_vs_minilm": 0.4231,
+      "bm25_vs_bge": 0.0001,
+      "bm25_vs_e5": 0.0003,
+      "bm25_vs_mpnet": 0.1062,
+      "bm25_vs_ce_msmarco_minilm": 0.0,
+      "bm25_vs_bge_reranker_base": 0.0,
+      "minilm_vs_bge": 0.1612,
+      "minilm_vs_e5": 0.2517,
+      "minilm_vs_mpnet": 1.0,
+      "minilm_vs_ce_msmarco_minilm": 0.1207,
+      "minilm_vs_bge_reranker_base": 0.0261,
+      "bge_vs_e5": 1.0,
+      "bge_vs_mpnet": 0.4231,
+      "bge_vs_ce_msmarco_minilm": 1.0,
+      "bge_vs_bge_reranker_base": 1.0,
+      "e5_vs_mpnet": 0.5983,
+      "e5_vs_ce_msmarco_minilm": 1.0,
+      "e5_vs_bge_reranker_base": 1.0,
+      "mpnet_vs_ce_msmarco_minilm": 0.5525,
+      "mpnet_vs_bge_reranker_base": 0.1209,
+      "ce_msmarco_minilm_vs_bge_reranker_base": 1.0
+     }
+    }
+   },
+   "claims": [
+    {
+     "id": "C1",
+     "where": "What replicates 1",
+     "claim": "No model exceeds hit@1 = 0.51 on either corpus",
+     "kind": "qualitative",
+     "holds": false,
+     "detail": "highest hit@1 0.577"
+    },
+    {
+     "id": "C2",
+     "where": "Claim",
+     "claim": "Rank 1 for about half of questions or fewer (0.29\u20130.51), top five for 0.69\u20130.86",
+     "kind": "numeric",
+     "holds": false,
+     "detail": "hit@1 QASPER 0.290\u20130.400, NQ 0.393\u20130.577; hit@5 QASPER 0.755\u20130.855, NQ 0.743\u20130.873"
+    },
+    {
+     "id": "C3",
+     "where": "What replicates 1; Claim",
+     "claim": "Median rank 2 for almost every model (near-miss structure)",
+     "kind": "qualitative",
+     "holds": false,
+     "detail": "models with median rank 2: QASPER 5/7, NQ 3/7; median 1: QASPER 0, NQ 4"
+    },
+    {
+     "id": "C4",
+     "where": "What replicates 1; Claim",
+     "claim": "Gold chunk at ranks 2\u20135 for a third to a half of questions",
+     "kind": "numeric",
+     "holds": false,
+     "detail": "QASPER 0.445\u20130.486, NQ 0.293\u20130.357"
+    },
+    {
+     "id": "C5",
+     "where": "What replicates 2; Claim",
+     "claim": "Failures only partly shared: some model ranks the gold first for 0.77\u20130.78, best single model 0.40\u20130.51",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "some model: QASPER 0.769, NQ 0.837; best single: QASPER 0.400, NQ 0.577; no model vs independence: 4.8x, 24.7x"
+    },
+    {
+     "id": "C6",
+     "where": "What replicates 3",
+     "claim": "BM25 is the weakest localiser on both corpora",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "weakest: QASPER bm25, NQ bm25"
+    },
+    {
+     "id": "C7",
+     "where": "What replicates 3",
+     "claim": "BM25 is the only model with a Holm-significant deficit on both corpora",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "models losing a Holm-significant pair on both corpora: ['bm25']"
+    },
+    {
+     "id": "C8",
+     "where": "What replicates 4; Claim",
+     "claim": "MPNet-base (110M) below both 33M bi-encoders on both corpora, never significantly different",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "MPNet/BGE/E5 hit@1: QASPER 0.335/0.400/0.359, NQ 0.487/0.547/0.543; Holm-significant: none"
+    },
+    {
+     "id": "C8b",
+     "where": "Parameter count does not order the bi-encoders; Claim",
+     "claim": "Differences among the four bi-encoders are not significant after correction, on either corpus",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "Holm-significant bi-encoder pairs: none"
+    },
+    {
+     "id": "C9a",
+     "where": "What does not replicate; Claim",
+     "claim": "On QASPER bge-reranker-base is the worst neural model",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "worst neural on QASPER: bge_reranker_base"
+    },
+    {
+     "id": "C9b",
+     "where": "What does not replicate",
+     "claim": "On QASPER bge-reranker-base is indistinguishable from BM25",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "Holm-adjusted p 1.0"
+    },
+    {
+     "id": "C9c",
+     "where": "What does not replicate; Claim",
+     "claim": "On NQ bge-reranker-base is the best model",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "best on NQ: bge_reranker_base"
+    },
+    {
+     "id": "C9d",
+     "where": "What does not replicate",
+     "claim": "On NQ bge-reranker-base is significantly above BM25, MiniLM and MPNet after correction",
+     "kind": "qualitative",
+     "holds": false,
+     "detail": "Holm-significant above: bm25, minilm"
+    },
+    {
+     "id": "C9e",
+     "where": "What does not replicate",
+     "claim": "On NQ the reranker's lead over BGE-small is not significant",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "Holm-adjusted p 1.0"
+    },
+    {
+     "id": "C9f",
+     "where": "What does not replicate",
+     "claim": "On QASPER the 22M ms-marco cross-encoder matches the best bi-encoder",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "ms-marco 0.386 vs bge 0.400, not significant"
+    },
+    {
+     "id": "C9g",
+     "where": "Claim (what it does not license)",
+     "claim": "On NQ the reranker stage is worth +4 to +12 points at rank 1 over the bi-encoders",
+     "kind": "numeric",
+     "holds": false,
+     "detail": "reranker minus bi-encoders on NQ: +3.0 to +11.3 points"
+    },
+    {
+     "id": "C10",
+     "where": "Why the corpora differ",
+     "claim": "Every NQ lift over chance is higher than the QASPER lift",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "lift@1 QASPER 1.842\u20132.544, NQ 2.815\u20134.128"
+    },
+    {
+     "id": "C11",
+     "where": "QASPER against NQ",
+     "claim": "Holm-significant pairs: 2 on QASPER (both BM25 vs neural), 6 on NQ",
+     "kind": "numeric",
+     "holds": false,
+     "detail": "QASPER 2, NQ 5"
+    },
+    {
+     "id": "C12",
+     "where": "Robustness checks",
+     "claim": "Every Holm-significant pair keeps an interval excluding zero under the document-cluster bootstrap",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "all intervals exclude zero"
+    },
+    {
+     "id": "C13",
+     "where": "QASPER against NQ",
+     "claim": "Gold spans per question: 2.09 on QASPER, 1.00 on NQ",
+     "kind": "numeric",
+     "holds": false,
+     "detail": "QASPER 2.09, NQ 1.43"
+    }
+   ]
+  },
+  "both_first": {
+   "label": "both corpora: first annotator",
+   "references": {
+    "qasper": "first",
+    "nq": "first"
+   },
+   "profiles": {
+    "qasper": {
+     "n_questions": 275,
+     "mean_gold_spans_per_question": 1.63,
+     "mean_gold_chunks_per_question": 2.2,
+     "chance_hit@1": 0.1268,
+     "hit@1": {
+      "bm25": 0.2691,
+      "minilm": 0.3309,
+      "bge": 0.36,
+      "e5": 0.3164,
+      "mpnet": 0.2836,
+      "ce_msmarco_minilm": 0.3382,
+      "bge_reranker_base": 0.2618
+     },
+     "hit@5": {
+      "bm25": 0.6691,
+      "minilm": 0.7855,
+      "bge": 0.7782,
+      "e5": 0.7745,
+      "mpnet": 0.7345,
+      "ce_msmarco_minilm": 0.7855,
+      "bge_reranker_base": 0.7382
+     },
+     "lift@1": {
+      "bm25": 2.122,
+      "minilm": 2.61,
+      "bge": 2.839,
+      "e5": 2.495,
+      "mpnet": 2.237,
+      "ce_msmarco_minilm": 2.667,
+      "bge_reranker_base": 2.065
+     },
+     "median_rank": {
+      "bm25": 3.0,
+      "minilm": 2.0,
+      "bge": 2.0,
+      "e5": 3.0,
+      "mpnet": 3.0,
+      "ce_msmarco_minilm": 3.0,
+      "bge_reranker_base": 3.0
+     },
+     "share_ranks_2_to_5": {
+      "bm25": 0.4,
+      "minilm": 0.4545,
+      "bge": 0.4181,
+      "e5": 0.4582,
+      "mpnet": 0.4509,
+      "ce_msmarco_minilm": 0.4473,
+      "bge_reranker_base": 0.4763
+     },
+     "best": "bge",
+     "worst_neural": "bge_reranker_base",
+     "neural_spread_pp": 9.8,
+     "any_localiser_hit@1": 0.6982,
+     "no_localiser_hit@1": 0.3018,
+     "no_localiser_hit@1_under_independence": 0.0749,
+     "gold_outside_every_top5": 0.0327,
+     "holm_significant": {},
+     "cluster_bootstrap_ci95": {
+      "bm25_vs_minilm": [
+       -0.1255,
+       0.0
+      ],
+      "bm25_vs_bge": [
+       -0.1541,
+       -0.03
+      ],
+      "bm25_vs_e5": [
+       -0.1135,
+       0.0141
+      ],
+      "bm25_vs_mpnet": [
+       -0.0795,
+       0.0483
+      ],
+      "bm25_vs_ce_msmarco_minilm": [
+       -0.1197,
+       -0.0199
+      ],
+      "bm25_vs_bge_reranker_base": [
+       -0.0639,
+       0.0775
+      ],
+      "minilm_vs_bge": [
+       -0.0867,
+       0.0252
+      ],
+      "minilm_vs_e5": [
+       -0.0506,
+       0.0786
+      ],
+      "minilm_vs_mpnet": [
+       -0.0181,
+       0.1091
+      ],
+      "minilm_vs_ce_msmarco_minilm": [
+       -0.0691,
+       0.0532
+      ],
+      "minilm_vs_bge_reranker_base": [
+       0.0036,
+       0.1353
+      ],
+      "bge_vs_e5": [
+       -0.014,
+       0.1032
+      ],
+      "bge_vs_mpnet": [
+       0.0177,
+       0.1338
+      ],
+      "bge_vs_ce_msmarco_minilm": [
+       -0.0364,
+       0.0827
+      ],
+      "bge_vs_bge_reranker_base": [
+       0.0286,
+       0.1706
+      ],
+      "e5_vs_mpnet": [
+       -0.029,
+       0.0899
+      ],
+      "e5_vs_ce_msmarco_minilm": [
+       -0.0809,
+       0.0375
+      ],
+      "e5_vs_bge_reranker_base": [
+       -0.0116,
+       0.1206
+      ],
+      "mpnet_vs_ce_msmarco_minilm": [
+       -0.1119,
+       0.0072
+      ],
+      "mpnet_vs_bge_reranker_base": [
+       -0.0436,
+       0.0866
+      ],
+      "ce_msmarco_minilm_vs_bge_reranker_base": [
+       0.0112,
+       0.1394
+      ]
+     },
+     "mcnemar_holm_adjusted_p": {
+      "bm25_vs_minilm": 1.0,
+      "bm25_vs_bge": 0.1856,
+      "bm25_vs_e5": 1.0,
+      "bm25_vs_mpnet": 1.0,
+      "bm25_vs_ce_msmarco_minilm": 0.3301,
+      "bm25_vs_bge_reranker_base": 1.0,
+      "minilm_vs_bge": 1.0,
+      "minilm_vs_e5": 1.0,
+      "minilm_vs_mpnet": 1.0,
+      "minilm_vs_ce_msmarco_minilm": 1.0,
+      "minilm_vs_bge_reranker_base": 1.0,
+      "bge_vs_e5": 1.0,
+      "bge_vs_mpnet": 0.2647,
+      "bge_vs_ce_msmarco_minilm": 1.0,
+      "bge_vs_bge_reranker_base": 0.2647,
+      "e5_vs_mpnet": 1.0,
+      "e5_vs_ce_msmarco_minilm": 1.0,
+      "e5_vs_bge_reranker_base": 1.0,
+      "mpnet_vs_ce_msmarco_minilm": 1.0,
+      "mpnet_vs_bge_reranker_base": 1.0,
+      "ce_msmarco_minilm_vs_bge_reranker_base": 0.5008
+     }
+    },
+    "nq": {
+     "n_questions": 300,
+     "mean_gold_spans_per_question": 1.0,
+     "mean_gold_chunks_per_question": 2.83,
+     "chance_hit@1": 0.1157,
+     "hit@1": {
+      "bm25": 0.3533,
+      "minilm": 0.3867,
+      "bge": 0.4633,
+      "e5": 0.4567,
+      "mpnet": 0.4033,
+      "ce_msmarco_minilm": 0.46,
+      "bge_reranker_base": 0.5067
+     },
+     "hit@5": {
+      "bm25": 0.69,
+      "minilm": 0.7733,
+      "bge": 0.8167,
+      "e5": 0.8033,
+      "mpnet": 0.7933,
+      "ce_msmarco_minilm": 0.8133,
+      "bge_reranker_base": 0.8367
+     },
+     "lift@1": {
+      "bm25": 3.054,
+      "minilm": 3.343,
+      "bge": 4.005,
+      "e5": 3.948,
+      "mpnet": 3.487,
+      "ce_msmarco_minilm": 3.976,
+      "bge_reranker_base": 4.38
+     },
+     "median_rank": {
+      "bm25": 3.0,
+      "minilm": 2.0,
+      "bge": 2.0,
+      "e5": 2.0,
+      "mpnet": 2.0,
+      "ce_msmarco_minilm": 2.0,
+      "bge_reranker_base": 1.0
+     },
+     "share_ranks_2_to_5": {
+      "bm25": 0.3366,
+      "minilm": 0.3866,
+      "bge": 0.3534,
+      "e5": 0.3467,
+      "mpnet": 0.39,
+      "ce_msmarco_minilm": 0.3533,
+      "bge_reranker_base": 0.33
+     },
+     "best": "bge_reranker_base",
+     "worst_neural": "minilm",
+     "neural_spread_pp": 12.0,
+     "any_localiser_hit@1": 0.78,
+     "no_localiser_hit@1": 0.22,
+     "no_localiser_hit@1_under_independence": 0.0184,
+     "gold_outside_every_top5": 0.0433,
+     "holm_significant": {
+      "bm25_vs_bge": -1,
+      "bm25_vs_e5": -1,
+      "bm25_vs_ce_msmarco_minilm": -1,
+      "bm25_vs_bge_reranker_base": -1,
+      "minilm_vs_bge_reranker_base": -1,
+      "mpnet_vs_bge_reranker_base": -1
+     },
+     "cluster_bootstrap_ci95": {
+      "bm25_vs_minilm": [
+       -0.0933,
+       0.0268
+      ],
+      "bm25_vs_bge": [
+       -0.1706,
+       -0.0493
+      ],
+      "bm25_vs_e5": [
+       -0.1667,
+       -0.0401
+      ],
+      "bm25_vs_mpnet": [
+       -0.1159,
+       0.0134
+      ],
+      "bm25_vs_ce_msmarco_minilm": [
+       -0.1623,
+       -0.05
+      ],
+      "bm25_vs_bge_reranker_base": [
+       -0.2226,
+       -0.0833
+      ],
+      "minilm_vs_bge": [
+       -0.1371,
+       -0.0167
+      ],
+      "minilm_vs_e5": [
+       -0.1316,
+       -0.01
+      ],
+      "minilm_vs_mpnet": [
+       -0.0757,
+       0.0436
+      ],
+      "minilm_vs_ce_msmarco_minilm": [
+       -0.1367,
+       -0.0098
+      ],
+      "minilm_vs_bge_reranker_base": [
+       -0.1867,
+       -0.0533
+      ],
+      "bge_vs_e5": [
+       -0.0462,
+       0.057
+      ],
+      "bge_vs_mpnet": [
+       0.0033,
+       0.1167
+      ],
+      "bge_vs_ce_msmarco_minilm": [
+       -0.0569,
+       0.0635
+      ],
+      "bge_vs_bge_reranker_base": [
+       -0.102,
+       0.0168
+      ],
+      "e5_vs_mpnet": [
+       -0.0033,
+       0.1111
+      ],
+      "e5_vs_ce_msmarco_minilm": [
+       -0.066,
+       0.06
+      ],
+      "e5_vs_bge_reranker_base": [
+       -0.1126,
+       0.0165
+      ],
+      "mpnet_vs_ce_msmarco_minilm": [
+       -0.1208,
+       0.0098
+      ],
+      "mpnet_vs_bge_reranker_base": [
+       -0.1672,
+       -0.0369
+      ],
+      "ce_msmarco_minilm_vs_bge_reranker_base": [
+       -0.107,
+       0.0133
+      ]
+     },
+     "mcnemar_holm_adjusted_p": {
+      "bm25_vs_minilm": 1.0,
+      "bm25_vs_bge": 0.0146,
+      "bm25_vs_e5": 0.0366,
+      "bm25_vs_mpnet": 1.0,
+      "bm25_vs_ce_msmarco_minilm": 0.009,
+      "bm25_vs_bge_reranker_base": 0.0004,
+      "minilm_vs_bge": 0.2878,
+      "minilm_vs_e5": 0.4608,
+      "minilm_vs_mpnet": 1.0,
+      "minilm_vs_ce_msmarco_minilm": 0.4167,
+      "minilm_vs_bge_reranker_base": 0.0146,
+      "bge_vs_e5": 1.0,
+      "bge_vs_mpnet": 0.5325,
+      "bge_vs_ce_msmarco_minilm": 1.0,
+      "bge_vs_bge_reranker_base": 1.0,
+      "e5_vs_mpnet": 0.9766,
+      "e5_vs_ce_msmarco_minilm": 1.0,
+      "e5_vs_bge_reranker_base": 1.0,
+      "mpnet_vs_ce_msmarco_minilm": 1.0,
+      "mpnet_vs_bge_reranker_base": 0.0383,
+      "ce_msmarco_minilm_vs_bge_reranker_base": 1.0
+     }
+    }
+   },
+   "claims": [
+    {
+     "id": "C1",
+     "where": "What replicates 1",
+     "claim": "No model exceeds hit@1 = 0.51 on either corpus",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "highest hit@1 0.507"
+    },
+    {
+     "id": "C2",
+     "where": "Claim",
+     "claim": "Rank 1 for about half of questions or fewer (0.29\u20130.51), top five for 0.69\u20130.86",
+     "kind": "numeric",
+     "holds": false,
+     "detail": "hit@1 QASPER 0.262\u20130.360, NQ 0.353\u20130.507; hit@5 QASPER 0.669\u20130.785, NQ 0.690\u20130.837"
+    },
+    {
+     "id": "C3",
+     "where": "What replicates 1; Claim",
+     "claim": "Median rank 2 for almost every model (near-miss structure)",
+     "kind": "qualitative",
+     "holds": false,
+     "detail": "models with median rank 2: QASPER 2/7, NQ 5/7; median 1: QASPER 0, NQ 1"
+    },
+    {
+     "id": "C4",
+     "where": "What replicates 1; Claim",
+     "claim": "Gold chunk at ranks 2\u20135 for a third to a half of questions",
+     "kind": "numeric",
+     "holds": true,
+     "detail": "QASPER 0.400\u20130.476, NQ 0.330\u20130.390"
+    },
+    {
+     "id": "C5",
+     "where": "What replicates 2; Claim",
+     "claim": "Failures only partly shared: some model ranks the gold first for 0.77\u20130.78, best single model 0.40\u20130.51",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "some model: QASPER 0.698, NQ 0.780; best single: QASPER 0.360, NQ 0.507; no model vs independence: 4.0x, 12.0x"
+    },
+    {
+     "id": "C6",
+     "where": "What replicates 3",
+     "claim": "BM25 is the weakest localiser on both corpora",
+     "kind": "qualitative",
+     "holds": false,
+     "detail": "weakest: QASPER bge_reranker_base, NQ bm25"
+    },
+    {
+     "id": "C7",
+     "where": "What replicates 3",
+     "claim": "BM25 is the only model with a Holm-significant deficit on both corpora",
+     "kind": "qualitative",
+     "holds": false,
+     "detail": "models losing a Holm-significant pair on both corpora: none"
+    },
+    {
+     "id": "C8",
+     "where": "What replicates 4; Claim",
+     "claim": "MPNet-base (110M) below both 33M bi-encoders on both corpora, never significantly different",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "MPNet/BGE/E5 hit@1: QASPER 0.284/0.360/0.316, NQ 0.403/0.463/0.457; Holm-significant: none"
+    },
+    {
+     "id": "C8b",
+     "where": "Parameter count does not order the bi-encoders; Claim",
+     "claim": "Differences among the four bi-encoders are not significant after correction, on either corpus",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "Holm-significant bi-encoder pairs: none"
+    },
+    {
+     "id": "C9a",
+     "where": "What does not replicate; Claim",
+     "claim": "On QASPER bge-reranker-base is the worst neural model",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "worst neural on QASPER: bge_reranker_base"
+    },
+    {
+     "id": "C9b",
+     "where": "What does not replicate",
+     "claim": "On QASPER bge-reranker-base is indistinguishable from BM25",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "Holm-adjusted p 1.0"
+    },
+    {
+     "id": "C9c",
+     "where": "What does not replicate; Claim",
+     "claim": "On NQ bge-reranker-base is the best model",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "best on NQ: bge_reranker_base"
+    },
+    {
+     "id": "C9d",
+     "where": "What does not replicate",
+     "claim": "On NQ bge-reranker-base is significantly above BM25, MiniLM and MPNet after correction",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "Holm-significant above: bm25, minilm, mpnet"
+    },
+    {
+     "id": "C9e",
+     "where": "What does not replicate",
+     "claim": "On NQ the reranker's lead over BGE-small is not significant",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "Holm-adjusted p 1.0"
+    },
+    {
+     "id": "C9f",
+     "where": "What does not replicate",
+     "claim": "On QASPER the 22M ms-marco cross-encoder matches the best bi-encoder",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "ms-marco 0.338 vs bge 0.360, not significant"
+    },
+    {
+     "id": "C9g",
+     "where": "Claim (what it does not license)",
+     "claim": "On NQ the reranker stage is worth +4 to +12 points at rank 1 over the bi-encoders",
+     "kind": "numeric",
+     "holds": true,
+     "detail": "reranker minus bi-encoders on NQ: +4.3 to +12.0 points"
+    },
+    {
+     "id": "C10",
+     "where": "Why the corpora differ",
+     "claim": "Every NQ lift over chance is higher than the QASPER lift",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "lift@1 QASPER 2.065\u20132.839, NQ 3.054\u20134.380"
+    },
+    {
+     "id": "C11",
+     "where": "QASPER against NQ",
+     "claim": "Holm-significant pairs: 2 on QASPER (both BM25 vs neural), 6 on NQ",
+     "kind": "numeric",
+     "holds": false,
+     "detail": "QASPER 0, NQ 6"
+    },
+    {
+     "id": "C12",
+     "where": "Robustness checks",
+     "claim": "Every Holm-significant pair keeps an interval excluding zero under the document-cluster bootstrap",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "all intervals exclude zero"
+    },
+    {
+     "id": "C13",
+     "where": "QASPER against NQ",
+     "claim": "Gold spans per question: 2.09 on QASPER, 1.00 on NQ",
+     "kind": "numeric",
+     "holds": false,
+     "detail": "QASPER 1.63, NQ 1.00"
+    }
+   ]
+  },
+  "each_official": {
+   "label": "each corpus by its own evaluator's rule",
+   "references": {
+    "qasper": "union",
+    "nq": "official"
+   },
+   "profiles": {
+    "qasper": {
+     "n_questions": 290,
+     "mean_gold_spans_per_question": 2.09,
+     "mean_gold_chunks_per_question": 2.79,
+     "chance_hit@1": 0.1572,
+     "hit@1": {
+      "bm25": 0.2897,
+      "minilm": 0.3759,
+      "bge": 0.4,
+      "e5": 0.3586,
+      "mpnet": 0.3345,
+      "ce_msmarco_minilm": 0.3862,
+      "bge_reranker_base": 0.3103
+     },
+     "hit@5": {
+      "bm25": 0.7552,
+      "minilm": 0.8448,
+      "bge": 0.8448,
+      "e5": 0.8207,
+      "mpnet": 0.7966,
+      "ce_msmarco_minilm": 0.8552,
+      "bge_reranker_base": 0.7966
+     },
+     "lift@1": {
+      "bm25": 1.842,
+      "minilm": 2.391,
+      "bge": 2.544,
+      "e5": 2.281,
+      "mpnet": 2.127,
+      "ce_msmarco_minilm": 2.456,
+      "bge_reranker_base": 1.974
+     },
+     "median_rank": {
+      "bm25": 3.0,
+      "minilm": 2.0,
+      "bge": 2.0,
+      "e5": 2.0,
+      "mpnet": 3.0,
+      "ce_msmarco_minilm": 2.0,
+      "bge_reranker_base": 2.0
+     },
+     "share_ranks_2_to_5": {
+      "bm25": 0.4655,
+      "minilm": 0.469,
+      "bge": 0.4449,
+      "e5": 0.4621,
+      "mpnet": 0.462,
+      "ce_msmarco_minilm": 0.4689,
+      "bge_reranker_base": 0.4862
+     },
+     "best": "bge",
+     "worst_neural": "bge_reranker_base",
+     "neural_spread_pp": 9.0,
+     "any_localiser_hit@1": 0.769,
+     "no_localiser_hit@1": 0.231,
+     "no_localiser_hit@1_under_independence": 0.0481,
+     "gold_outside_every_top5": 0.0103,
+     "holm_significant": {
+      "bm25_vs_bge": -1,
+      "bm25_vs_ce_msmarco_minilm": -1
+     },
+     "cluster_bootstrap_ci95": {
+      "bm25_vs_minilm": [
+       -0.1521,
+       -0.0209
+      ],
+      "bm25_vs_bge": [
+       -0.1747,
+       -0.05
+      ],
+      "bm25_vs_e5": [
+       -0.1322,
+       -0.007
+      ],
+      "bm25_vs_mpnet": [
+       -0.1129,
+       0.023
+      ],
+      "bm25_vs_ce_msmarco_minilm": [
+       -0.1519,
+       -0.0411
+      ],
+      "bm25_vs_bge_reranker_base": [
+       -0.0951,
+       0.0542
+      ],
+      "minilm_vs_bge": [
+       -0.0863,
+       0.0357
+      ],
+      "minilm_vs_e5": [
+       -0.0473,
+       0.0811
+      ],
+      "minilm_vs_mpnet": [
+       -0.0189,
+       0.0994
+      ],
+      "minilm_vs_ce_msmarco_minilm": [
+       -0.0733,
+       0.0515
+      ],
+      "minilm_vs_bge_reranker_base": [
+       -0.0072,
+       0.1377
+      ],
+      "bge_vs_e5": [
+       -0.0145,
+       0.1004
+      ],
+      "bge_vs_mpnet": [
+       0.0069,
+       0.1254
+      ],
+      "bge_vs_ce_msmarco_minilm": [
+       -0.05,
+       0.0781
+      ],
+      "bge_vs_bge_reranker_base": [
+       0.0103,
+       0.1685
+      ],
+      "e5_vs_mpnet": [
+       -0.0418,
+       0.0855
+      ],
+      "e5_vs_ce_msmarco_minilm": [
+       -0.0861,
+       0.0318
+      ],
+      "e5_vs_bge_reranker_base": [
+       -0.0208,
+       0.1192
+      ],
+      "mpnet_vs_ce_msmarco_minilm": [
+       -0.1108,
+       0.011
+      ],
+      "mpnet_vs_bge_reranker_base": [
+       -0.0464,
+       0.0949
+      ],
+      "ce_msmarco_minilm_vs_bge_reranker_base": [
+       0.0068,
+       0.1442
+      ]
+     },
+     "mcnemar_holm_adjusted_p": {
+      "bm25_vs_minilm": 0.2734,
+      "bm25_vs_bge": 0.0233,
+      "bm25_vs_e5": 0.5251,
+      "bm25_vs_mpnet": 1.0,
+      "bm25_vs_ce_msmarco_minilm": 0.0259,
+      "bm25_vs_bge_reranker_base": 1.0,
+      "minilm_vs_bge": 1.0,
+      "minilm_vs_e5": 1.0,
+      "minilm_vs_mpnet": 1.0,
+      "minilm_vs_ce_msmarco_minilm": 1.0,
+      "minilm_vs_bge_reranker_base": 1.0,
+      "bge_vs_e5": 1.0,
+      "bge_vs_mpnet": 0.7129,
+      "bge_vs_ce_msmarco_minilm": 1.0,
+      "bge_vs_bge_reranker_base": 0.5251,
+      "e5_vs_mpnet": 1.0,
+      "e5_vs_ce_msmarco_minilm": 1.0,
+      "e5_vs_bge_reranker_base": 1.0,
+      "mpnet_vs_ce_msmarco_minilm": 1.0,
+      "mpnet_vs_bge_reranker_base": 1.0,
+      "ce_msmarco_minilm_vs_bge_reranker_base": 0.5931
+     }
+    },
+    "nq": {
+     "n_questions": 268,
+     "mean_gold_spans_per_question": 1.49,
+     "mean_gold_chunks_per_question": 3.5,
+     "chance_hit@1": 0.1383,
+     "hit@1": {
+      "bm25": 0.3993,
+      "minilm": 0.4664,
+      "bge": 0.5448,
+      "e5": 0.5522,
+      "mpnet": 0.4963,
+      "ce_msmarco_minilm": 0.5746,
+      "bge_reranker_base": 0.5933
+     },
+     "hit@5": {
+      "bm25": 0.7463,
+      "minilm": 0.8134,
+      "bge": 0.8731,
+      "e5": 0.8694,
+      "mpnet": 0.847,
+      "ce_msmarco_minilm": 0.8769,
+      "bge_reranker_base": 0.8806
+     },
+     "lift@1": {
+      "bm25": 2.888,
+      "minilm": 3.374,
+      "bge": 3.94,
+      "e5": 3.994,
+      "mpnet": 3.59,
+      "ce_msmarco_minilm": 4.156,
+      "bge_reranker_base": 4.291
+     },
+     "median_rank": {
+      "bm25": 2.0,
+      "minilm": 2.0,
+      "bge": 1.0,
+      "e5": 1.0,
+      "mpnet": 2.0,
+      "ce_msmarco_minilm": 1.0,
+      "bge_reranker_base": 1.0
+     },
+     "share_ranks_2_to_5": {
+      "bm25": 0.347,
+      "minilm": 0.347,
+      "bge": 0.3284,
+      "e5": 0.3172,
+      "mpnet": 0.3507,
+      "ce_msmarco_minilm": 0.3022,
+      "bge_reranker_base": 0.2874
+     },
+     "best": "bge_reranker_base",
+     "worst_neural": "minilm",
+     "neural_spread_pp": 12.7,
+     "any_localiser_hit@1": 0.847,
+     "no_localiser_hit@1": 0.153,
+     "no_localiser_hit@1_under_independence": 0.0057,
+     "gold_outside_every_top5": 0.0224,
+     "holm_significant": {
+      "bm25_vs_bge": -1,
+      "bm25_vs_e5": -1,
+      "bm25_vs_ce_msmarco_minilm": -1,
+      "bm25_vs_bge_reranker_base": -1,
+      "minilm_vs_ce_msmarco_minilm": -1,
+      "minilm_vs_bge_reranker_base": -1
+     },
+     "cluster_bootstrap_ci95": {
+      "bm25_vs_minilm": [
+       -0.1353,
+       0.0037
+      ],
+      "bm25_vs_bge": [
+       -0.2135,
+       -0.0784
+      ],
+      "bm25_vs_e5": [
+       -0.221,
+       -0.0855
+      ],
+      "bm25_vs_mpnet": [
+       -0.1679,
+       -0.0262
+      ],
+      "bm25_vs_ce_msmarco_minilm": [
+       -0.2397,
+       -0.1119
+      ],
+      "bm25_vs_bge_reranker_base": [
+       -0.2649,
+       -0.1227
+      ],
+      "minilm_vs_bge": [
+       -0.1445,
+       -0.0112
+      ],
+      "minilm_vs_e5": [
+       -0.1567,
+       -0.015
+      ],
+      "minilm_vs_mpnet": [
+       -0.0926,
+       0.0336
+      ],
+      "minilm_vs_ce_msmarco_minilm": [
+       -0.1723,
+       -0.0449
+      ],
+      "minilm_vs_bge_reranker_base": [
+       -0.1978,
+       -0.0562
+      ],
+      "bge_vs_e5": [
+       -0.0634,
+       0.0487
+      ],
+      "bge_vs_mpnet": [
+       -0.0111,
+       0.1053
+      ],
+      "bge_vs_ce_msmarco_minilm": [
+       -0.0936,
+       0.0336
+      ],
+      "bge_vs_bge_reranker_base": [
+       -0.109,
+       0.0149
+      ],
+      "e5_vs_mpnet": [
+       -0.0075,
+       0.1199
+      ],
+      "e5_vs_ce_msmarco_minilm": [
+       -0.0892,
+       0.0414
+      ],
+      "e5_vs_bge_reranker_base": [
+       -0.1045,
+       0.0259
+      ],
+      "mpnet_vs_ce_msmarco_minilm": [
+       -0.1455,
+       -0.0112
+      ],
+      "mpnet_vs_bge_reranker_base": [
+       -0.1648,
+       -0.0262
+      ],
+      "ce_msmarco_minilm_vs_bge_reranker_base": [
+       -0.0824,
+       0.0448
+      ]
+     },
+     "mcnemar_holm_adjusted_p": {
+      "bm25_vs_minilm": 0.7255,
+      "bm25_vs_bge": 0.0012,
+      "bm25_vs_e5": 0.0006,
+      "bm25_vs_mpnet": 0.1337,
+      "bm25_vs_ce_msmarco_minilm": 0.0,
+      "bm25_vs_bge_reranker_base": 0.0,
+      "minilm_vs_bge": 0.3304,
+      "minilm_vs_e5": 0.2494,
+      "minilm_vs_mpnet": 1.0,
+      "minilm_vs_ce_msmarco_minilm": 0.0235,
+      "minilm_vs_bge_reranker_base": 0.0168,
+      "bge_vs_e5": 1.0,
+      "bge_vs_mpnet": 0.9899,
+      "bge_vs_ce_msmarco_minilm": 1.0,
+      "bge_vs_bge_reranker_base": 1.0,
+      "e5_vs_mpnet": 0.9481,
+      "e5_vs_ce_msmarco_minilm": 1.0,
+      "e5_vs_bge_reranker_base": 1.0,
+      "mpnet_vs_ce_msmarco_minilm": 0.3304,
+      "mpnet_vs_bge_reranker_base": 0.1207,
+      "ce_msmarco_minilm_vs_bge_reranker_base": 1.0
+     }
+    }
+   },
+   "claims": [
+    {
+     "id": "C1",
+     "where": "What replicates 1",
+     "claim": "No model exceeds hit@1 = 0.51 on either corpus",
+     "kind": "qualitative",
+     "holds": false,
+     "detail": "highest hit@1 0.593"
+    },
+    {
+     "id": "C2",
+     "where": "Claim",
+     "claim": "Rank 1 for about half of questions or fewer (0.29\u20130.51), top five for 0.69\u20130.86",
+     "kind": "numeric",
+     "holds": false,
+     "detail": "hit@1 QASPER 0.290\u20130.400, NQ 0.399\u20130.593; hit@5 QASPER 0.755\u20130.855, NQ 0.746\u20130.881"
+    },
+    {
+     "id": "C3",
+     "where": "What replicates 1; Claim",
+     "claim": "Median rank 2 for almost every model (near-miss structure)",
+     "kind": "qualitative",
+     "holds": false,
+     "detail": "models with median rank 2: QASPER 5/7, NQ 3/7; median 1: QASPER 0, NQ 4"
+    },
+    {
+     "id": "C4",
+     "where": "What replicates 1; Claim",
+     "claim": "Gold chunk at ranks 2\u20135 for a third to a half of questions",
+     "kind": "numeric",
+     "holds": false,
+     "detail": "QASPER 0.445\u20130.486, NQ 0.287\u20130.351"
+    },
+    {
+     "id": "C5",
+     "where": "What replicates 2; Claim",
+     "claim": "Failures only partly shared: some model ranks the gold first for 0.77\u20130.78, best single model 0.40\u20130.51",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "some model: QASPER 0.769, NQ 0.847; best single: QASPER 0.400, NQ 0.593; no model vs independence: 4.8x, 26.8x"
+    },
+    {
+     "id": "C6",
+     "where": "What replicates 3",
+     "claim": "BM25 is the weakest localiser on both corpora",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "weakest: QASPER bm25, NQ bm25"
+    },
+    {
+     "id": "C7",
+     "where": "What replicates 3",
+     "claim": "BM25 is the only model with a Holm-significant deficit on both corpora",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "models losing a Holm-significant pair on both corpora: ['bm25']"
+    },
+    {
+     "id": "C8",
+     "where": "What replicates 4; Claim",
+     "claim": "MPNet-base (110M) below both 33M bi-encoders on both corpora, never significantly different",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "MPNet/BGE/E5 hit@1: QASPER 0.335/0.400/0.359, NQ 0.496/0.545/0.552; Holm-significant: none"
+    },
+    {
+     "id": "C8b",
+     "where": "Parameter count does not order the bi-encoders; Claim",
+     "claim": "Differences among the four bi-encoders are not significant after correction, on either corpus",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "Holm-significant bi-encoder pairs: none"
+    },
+    {
+     "id": "C9a",
+     "where": "What does not replicate; Claim",
+     "claim": "On QASPER bge-reranker-base is the worst neural model",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "worst neural on QASPER: bge_reranker_base"
+    },
+    {
+     "id": "C9b",
+     "where": "What does not replicate",
+     "claim": "On QASPER bge-reranker-base is indistinguishable from BM25",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "Holm-adjusted p 1.0"
+    },
+    {
+     "id": "C9c",
+     "where": "What does not replicate; Claim",
+     "claim": "On NQ bge-reranker-base is the best model",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "best on NQ: bge_reranker_base"
+    },
+    {
+     "id": "C9d",
+     "where": "What does not replicate",
+     "claim": "On NQ bge-reranker-base is significantly above BM25, MiniLM and MPNet after correction",
+     "kind": "qualitative",
+     "holds": false,
+     "detail": "Holm-significant above: bm25, minilm"
+    },
+    {
+     "id": "C9e",
+     "where": "What does not replicate",
+     "claim": "On NQ the reranker's lead over BGE-small is not significant",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "Holm-adjusted p 1.0"
+    },
+    {
+     "id": "C9f",
+     "where": "What does not replicate",
+     "claim": "On QASPER the 22M ms-marco cross-encoder matches the best bi-encoder",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "ms-marco 0.386 vs bge 0.400, not significant"
+    },
+    {
+     "id": "C9g",
+     "where": "Claim (what it does not license)",
+     "claim": "On NQ the reranker stage is worth +4 to +12 points at rank 1 over the bi-encoders",
+     "kind": "numeric",
+     "holds": false,
+     "detail": "reranker minus bi-encoders on NQ: +4.1 to +12.7 points"
+    },
+    {
+     "id": "C10",
+     "where": "Why the corpora differ",
+     "claim": "Every NQ lift over chance is higher than the QASPER lift",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "lift@1 QASPER 1.842\u20132.544, NQ 2.888\u20134.291"
+    },
+    {
+     "id": "C11",
+     "where": "QASPER against NQ",
+     "claim": "Holm-significant pairs: 2 on QASPER (both BM25 vs neural), 6 on NQ",
+     "kind": "numeric",
+     "holds": true,
+     "detail": "QASPER 2, NQ 6"
+    },
+    {
+     "id": "C12",
+     "where": "Robustness checks",
+     "claim": "Every Holm-significant pair keeps an interval excluding zero under the document-cluster bootstrap",
+     "kind": "qualitative",
+     "holds": true,
+     "detail": "all intervals exclude zero"
+    },
+    {
+     "id": "C13",
+     "where": "QASPER against NQ",
+     "claim": "Gold spans per question: 2.09 on QASPER, 1.00 on NQ",
+     "kind": "numeric",
+     "holds": false,
+     "detail": "QASPER 2.09, NQ 1.49"
+    }
+   ]
+  }
+ },
+ "single_annotator_resampling": {
+  "qasper_reranker_worst_neural": 0.6723,
+  "qasper_draws": 2000,
+  "nq_reranker_best": 0.9887,
+  "nq_draws": 2000
+ },
+ "provenance": {
+  "timestamp_utc": "2026-10-11T13:02:33+00:00",
+  "git": {
+   "commit": "0c0f4a39d4f4c3468d3ed13a076599a40ca968e2",
+   "branch": "research/nq-reference-sensitivity",
+   "dirty": false
+  },
+  "python": "3.12.7",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "packages": {
+   "chromadb": "1.5.8",
+   "numpy": "2.4.4",
+   "openai": "2.33.0",
+   "anthropic": "0.97.0",
+   "sentence-transformers": "5.4.1",
+   "tiktoken": "0.12.0",
+   "pydantic": "2.13.3",
+   "fastapi": "0.136.1",
+   "torch": "2.11.0",
+   "transformers": "5.7.0",
+   "scipy": "1.17.1"
+  },
+  "script": "scripts/reference_sensitivity_claims.py"
+ }
+}

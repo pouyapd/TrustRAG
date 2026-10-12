@@ -89,8 +89,31 @@ except for the v1.1.0 date.
   figures. `.dockerignore` keeps the raw corpora, built indices and private manuscript material
   out of the Docker build context (about 1.4 GB on the author's machine); the image's contents
   do not change.
-- **Tests: 514** (10 new). Two gold-span tests failed in a fresh clone once the annotation package
-  was unpacked and the second-round sheet regenerated as documented: one compared the tracked
+- **Exploratory, not in the manuscript: NQ reference sensitivity.** The NQ loader scores
+  against the first annotator's long answer; QASPER against the union of its annotators.
+  `results/exploratory/nq_reference_sensitivity/` re-scores the seven NQ localisers against
+  every annotator (union, NQ's official rule, plurality, single-annotator resampling) after
+  reproducing the manuscript's NQ ranks and tests exactly under the first annotator. The
+  loader gains an opt-in `keep_annotator_spans` (records unchanged when off), with
+  `src/evaluation/references.py`, `scripts/nq_reference_sensitivity.py` and
+  `tests/test_nq_references.py` (27 tests). The README's limitations name the finding.
+- **Exploratory, not in the manuscript: QASPER reference sensitivity and the claims under
+  matching references.** `results/exploratory/qasper_reference_sensitivity/` re-scores the
+  seven QASPER localisers against narrower references (first annotator, plurality, paragraphs
+  marked twice, single-annotator resampling) after reproducing the manuscript's QASPER ranks
+  and tests exactly under the union. The QASPER loader gains the same opt-in
+  `keep_annotator_spans` (records for the whole dev split byte-identical when off), with
+  evidence-set schemes in `src/evaluation/references.py`,
+  `scripts/qasper_reference_sensitivity.py` and `tests/test_qasper_references.py` (26 tests).
+  `scripts/reference_sensitivity_claims.py` re-evaluates the claims of
+  `results/localisation/README.md` with both corpora scored against the union, against the
+  first annotator, and by each dataset's own evaluator
+  (`results/exploratory/reference_sensitivity_claims.md`; `tests/test_reference_claims.py`).
+  The README gains a section, "Exploratory analyses after submission", with what holds, what
+  depends on the reference, the limitations and links to every output.
+- **Tests: 514** (10 new) without the exploratory analyses, 573 with them. Two gold-span tests
+  failed in a fresh clone once the annotation package was unpacked and the second-round sheet
+  regenerated as documented: one compared the tracked
   copies byte for byte, line endings included, and the other expected the regenerated sheet to
   hold the author's labels. They now compare content and run the label checks only once the
   second round has been scored. A class-scoped fixture written as a method, deprecated in

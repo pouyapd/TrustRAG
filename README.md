@@ -27,6 +27,7 @@ of QASPER questions and 0.35–0.51 of NQ questions, against an analytic chance 
 [Main findings](#main-findings) · [Human-reviewed attribution study](#human-reviewed-attribution-study) ·
 [Gold-span completeness audit](#gold-span-completeness-audit) · [Oracle-evidence control](#oracle-evidence-control-a-replication) ·
 [Decomposition and a withdrawn result](#retrieval-decomposition-and-a-withdrawn-result) ·
+[Exploratory analyses after submission](#exploratory-analyses-after-submission) ·
 [Reproducibility](#reproducibility) · [Repository structure](#repository-structure) · [Tests](#tests) ·
 [Limitations](#limitations) · [Version](#version-and-release) · [Citation](#citation) ·
 [Contributing](#contributing) · [License](#license)
@@ -215,7 +216,10 @@ every row, so the comparison runs on the same retrieval output at no extra infer
 
 ## Main findings
 
-The rank distributions are in the figure at the [top of this page](#trustrag).
+The rank distributions are in the figure at the [top of this page](#trustrag). The numbers in
+this section score QASPER against the union of its annotators and NQ against its first
+annotator, as the manuscript does; [Exploratory analyses after submission](#exploratory-analyses-after-submission)
+shows which of them depend on that choice.
 
 | | QASPER (n = 290) | NQ (n = 300) |
 |---|---|---|
@@ -398,6 +402,55 @@ coincidence of the top-*k* cut, not equal ranking skill: BM25 ranks worse inside
 compensates by admitting more chunks from it (3.2 vs 2.7). The withdrawal is kept on record here
 and in the manuscript.
 
+## Exploratory analyses after submission
+
+**Not part of the submitted manuscript, not peer-reviewed, and designed after submission.**
+Everything here is under [`results/exploratory/`](results/exploratory/README.md) and changes no file and no number in
+the sections above.
+
+The two corpora build their evidence reference differently. QASPER's reference is the union of
+its annotators' evidence paragraphs, which matches QASPER's own evaluator; NQ's is the long answer
+of the first annotator who marked one, while NQ's evaluator accepts any annotator's long answer
+once at least two marked one. These analyses re-score the seven localisers under alternative
+references from the same chunk scores, after first reproducing every reported rank, metric and
+test exactly under the original references. Cross-encoders were re-run only on questions whose
+gold chunks change.
+
+| Analysis | Outputs |
+|---|---|
+| NQ against every annotator: union, NQ's official rule, plurality, one annotator drawn per question | [README](results/exploratory/nq_reference_sensitivity/README.md) · [summary](results/exploratory/nq_reference_sensitivity/summary.md) · [`summary.json`](results/exploratory/nq_reference_sensitivity/summary.json) · [`per_question.json`](results/exploratory/nq_reference_sensitivity/per_question.json) |
+| QASPER against narrower references: first annotator, plurality, paragraphs marked by two annotators, one annotator drawn per question | [README](results/exploratory/qasper_reference_sensitivity/README.md) · [summary](results/exploratory/qasper_reference_sensitivity/summary.md) · [`summary.json`](results/exploratory/qasper_reference_sensitivity/summary.json) · [`per_question.json`](results/exploratory/qasper_reference_sensitivity/per_question.json) |
+| Each claim of the localisation study with both corpora scored the same way | [`reference_sensitivity_claims.md`](results/exploratory/reference_sensitivity_claims.md) · [`.json`](results/exploratory/reference_sensitivity_claims.json) |
+
+**Holds under every pairing of references.** bge-reranker-base is the best NQ localiser (and in
+98.9% of 2,000 draws of one annotator per question) and is never the best on QASPER, nor
+significantly different from BM25 there; the localisers fail on partly different questions; no
+pair of bi-encoders differs significantly; every NQ lift over chance stays above the QASPER one.
+
+**Depends on the reference.** Scored against all of its annotators, NQ hit@1 rises by 4–9 points
+(to 0.39–0.58, or 0.40–0.59 under NQ's official rule), the median rank becomes 1 for four
+localisers, and bge-reranker-base's lead over MPNet-base is no longer significant after Holm
+correction. With the first annotator as the reference on QASPER too, QASPER hit@1 falls by 2.9–5.5
+points on the 275 questions where that annotator's evidence is in the text, no QASPER pair
+survives Holm correction, and BM25 is no longer the weakest QASPER localiser. The statements
+"hit@1 at or below about half", "median rank 2 for almost every model" and "BM25 is the only
+model whose deficit survives Holm correction on both corpora" therefore hold under the references
+the manuscript uses, not under every reasonable reference.
+
+**Limitations.** No new human judgement: a union reference counts every annotator's passage as
+sufficient, and a narrower one counts a passage that only one annotator chose as a miss. The
+analyses were designed after the results were known and were not pre-registered. Same corpora,
+chunking and localisers as the study.
+
+The summaries recompute in seconds from the tracked per-question files, without corpora or
+models:
+
+```bash
+python scripts/nq_reference_sensitivity.py --summarise --out-dir results/exploratory/nq_reference_sensitivity
+python scripts/qasper_reference_sensitivity.py --summarise --out-dir results/exploratory/qasper_reference_sensitivity
+python scripts/reference_sensitivity_claims.py
+```
+
 ## Reproducibility
 
 Everything the manuscript reports traces to a file in this repository or to the annotation package
@@ -508,17 +561,18 @@ src/
   rag/               chunker, embedders (query prefixes per model), vector store, providers, local LLM
   evaluation/        evidence coverage, metrics, statistics, failure taxonomy, records, provenance, runner
   api/, monitoring/  the FastAPI service and Prometheus metrics of the pipeline (not used by the study)
-scripts/             38 scripts: localisation_*.py, run_*.py, build_*/audit_*/score_*.py, reproduce_study.py,
+scripts/             41 scripts: localisation_*.py, run_*.py, build_*/audit_*/score_*.py, reproduce_study.py,
                      threshold_ablation.py, make_*figures.py, report_tables.py, curate_results.py
 results/
   localisation/      per-question rows, summaries, tests, bootstrap, sweeps, contrasts, hit@k, figure, README
   figures/           decomposition, oracle, human-validation and gold-span figures
   *.json             A/B/C decomposition, BM25 baseline and sweep outputs
+  exploratory/       analyses made after submission, not in the manuscript (README in each folder)
 docs/
   EXPERIMENTS.md     decomposition protocol, all results, threats to validity
   TAXONOMY.md, EVALUATION.md, ANNOTATION_GUIDELINES.md, DATASETS.md, ARCHITECTURE.md, QUICKSTART.md
   paper/             supporting documents for the manuscript, with the stage of each (docs/paper/README.md)
-tests/               25 test modules, 514 tests
+tests/               28 test modules, 573 tests
 data/documents/, data/eval/   the small sample corpus used by the offline pipeline smoke test
 CITATION.cff, .zenodo.json, LICENSE, pyproject.toml, CHANGELOG.md
 ```
@@ -526,7 +580,7 @@ CITATION.cff, .zenodo.json, LICENSE, pyproject.toml, CHANGELOG.md
 ## Tests
 
 ```bash
-pytest tests/ -q -rs                 # 514 tests; -rs lists any skipped test and why
+pytest tests/ -q -rs                 # 573 tests; -rs lists any skipped test and why
 ruff check src/ tests/ scripts/      # clean
 ```
 
@@ -559,6 +613,18 @@ Read before quoting any number above.
 - **Two corpora, one chunking, small models.** Seven localisers with one reranker per size class,
   revisions recorded after the fact; no claim is made about other corpora, chunkers or larger
   models, and the corpus contrasts are descriptive, not causal.
+- **The two corpora build their evidence reference differently.** The NQ loader keeps the
+  first annotator who marked a long answer; QASPER's reference is the union of its annotators.
+  Exploratory re-scorings made after submission and not in the manuscript
+  ([NQ](results/exploratory/nq_reference_sensitivity/README.md),
+  [QASPER](results/exploratory/qasper_reference_sensitivity/README.md),
+  [both under matching references](results/exploratory/reference_sensitivity_claims.md)) leave
+  the cross-encoder reversal, the partly shared failures and the bi-encoder comparisons in
+  place. The numbers move: under the union of annotators NQ hit@1 rises by 4–9 pp (to
+  0.39–0.58, four localisers above 0.5, median rank 1 for four), and bge-reranker-base's lead
+  over MPNet-base no longer survives Holm correction (uncorrected *p* = 0.009); with the first
+  annotator on QASPER too, no QASPER pair survives Holm correction and BM25 is no longer the
+  weakest QASPER localiser.
 - **Reach × localisation** was tested on QASPER only (NQ reach is saturated) with limited power.
 - **The oracle control** has n = 150, one small reader, no sham control, and two strata with too
   few discordant pairs.

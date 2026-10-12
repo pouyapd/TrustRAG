@@ -57,6 +57,12 @@ class NaturalQuestionsParquetLoader(DatasetLoader):
     license_spdx = "CC-BY-SA-3.0"
     source_url = "https://huggingface.co/datasets/google-research-datasets/natural_questions"
 
+    #: When true, every annotator's long answer is also kept, as clean-text character
+    #: ranges, in ``metadata["annotator_long_answers"]``. Off by default, so the records
+    #: the study was run on are unchanged; the evidence reference (``supporting_spans``)
+    #: is the first non-null annotator's long answer either way.
+    keep_annotator_spans: bool = False
+
     def load(self, path: Path, limit: int | None = None, split: str = "validation") -> LoadResult:
         import pyarrow.parquet as pq
 
@@ -154,6 +160,14 @@ class NaturalQuestionsParquetLoader(DatasetLoader):
 
         example_id = str(item.get("id", "")) or f"h{fingerprint}"
         start_char, end_char = char_span
+        metadata = {
+            "example_id": example_id,
+            "n_annotations": len(long_answers),
+            "n_reference_answers": len(answers),
+            "document_url": url,
+        }
+        if self.keep_annotator_spans:
+            metadata["annotator_long_answers"] = _annotator_long_answers(long_answers, token_spans)
         return QuestionRecord(
             question_id=self.make_question_id(example_id),
             corpus_id=self.corpus_id,
@@ -178,12 +192,7 @@ class NaturalQuestionsParquetLoader(DatasetLoader):
                 license=self.license_spdx,
             ),
             split=split,
-            metadata={
-                "example_id": example_id,
-                "n_annotations": len(long_answers),
-                "n_reference_answers": len(answers),
-                "document_url": url,
-            },
+            metadata=metadata,
         )
 
 
@@ -230,6 +239,34 @@ def _first_long_answer(long_answers: list) -> tuple[int, int] | None:
         if start != NO_ANSWER_TOKEN and end > start:
             return start, end
     return None
+
+
+def _annotator_long_answers(
+    long_answers: list,
+    token_spans: list[tuple[int, int] | None],
+) -> list[dict]:
+    """Every annotator's long answer, in annotation order, as clean-text character ranges.
+
+    One entry per annotation, so the list position is the annotator. ``status`` is
+    ``"ok"`` (with ``start_char``/``end_char``), ``"null"`` (no long answer marked) or
+    ``"not_representable"`` (marked, but every token in the range is markup). The first
+    entry that is not null is the one ``_first_long_answer`` selects as evidence.
+    """
+    entries: list[dict] = []
+    for index, annotation in enumerate(long_answers):
+        entry: dict = {"annotator": index, "status": "null"}
+        if isinstance(annotation, dict):
+            start = int(annotation.get("start_token", NO_ANSWER_TOKEN))
+            end = int(annotation.get("end_token", NO_ANSWER_TOKEN))
+            if start != NO_ANSWER_TOKEN and end > start:
+                entry["token_range"] = [start, end]
+                char_span = _tokens_to_char_span((start, end), token_spans)
+                if char_span is None:
+                    entry["status"] = "not_representable"
+                else:
+                    entry.update(status="ok", start_char=char_span[0], end_char=char_span[1])
+        entries.append(entry)
+    return entries
 
 
 def _tokens_to_char_span(

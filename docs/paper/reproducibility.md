@@ -46,7 +46,7 @@ produced locally rather than shipped with a clone. `results/` is tracked.
 | Annotation package | blinded, stratified package build | `python scripts/build_annotation_package.py --records … --out reports/annotation/qasper_dev_300_full_context --n-units 200` | package + `manifest.json` |
 | Figures | all four paper figures; `bm25` and `goldspan` read tracked files, `oracle` and `human` need the annotation package and are skipped without it | `pip install -r requirements-research.txt && python scripts/make_paper_figures.py --all` (add `--out-dir DIR` to leave the tracked PNGs alone) | `results/figures/*.png` |
 | Figures | earlier study figures | `python scripts/make_figures.py --all` | `results/figures/*.png` |
-| Tests | full suite | `pytest tests/ -q -rs` | 514 tests; those needing `reports/` or matplotlib skip without them |
+| Tests | full suite | `pytest tests/ -q -rs` | 573 tests; those needing `reports/` or matplotlib skip without them |
 | Lint | ruff | `ruff check scripts/ src/ tests/` | clean |
 
 ## Provenance recorded in every run report
