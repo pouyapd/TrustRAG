@@ -16,3 +16,8 @@ notebooks
 .env
 .DS_Store
 tests
+# Never part of the image: raw corpora, built indices, private manuscript material
+data/raw
+data/build
+manuscript_private
+figures_check

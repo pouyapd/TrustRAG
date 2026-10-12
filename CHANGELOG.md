@@ -2,8 +2,10 @@
 
 ## Unreleased — documentation and reproducibility corrections
 
-No result file and no reported number changes; tag `v1.1.0` is untouched and remains the state
-the manuscript reports. The entries for v1.1.0 and v1.0.0 below are kept as written at the time,
+No result file and no number the manuscript reports changes; tag `v1.1.0` is untouched and
+remains the state the manuscript reports. One documentation file in a result folder,
+`results/localisation/README.md`, corrects two rounded table cells to the values the manuscript
+already gives. The entries for v1.1.0 and v1.0.0 below are kept as written at the time,
 except for the v1.1.0 date.
 
 - **Manuscript status.** Submitted to *Language Resources and Evaluation* on 23 September 2026;
@@ -61,6 +63,24 @@ except for the v1.1.0 date.
   the annotation package. In `.zenodo.json` the QASPER and Natural Questions DOIs are typed as
   the conference paper and journal article they are, not as datasets.
   `docs/paper/FIGURES.md` notes two statements that no longer describe the repository.
+- **Rounding in `results/localisation/README.md`.** Two cells of the "QASPER against NQ" table
+  had been rounded from already-rounded values: the lowest NQ lift over chance is BM25's 3.054
+  (3.1, not 3.0) and the lowest QASPER share of gold chunks at ranks 2–5 is BGE-small's
+  129/290 = 0.4448 (0.44, not 0.45). Both were recounted from the per-question ranks; the
+  manuscript already gives 3.1 and 0.44. A dated note in that README records the change.
+- **README layout.** The README now opens with a one-line description, key links, the
+  rank-distribution figure (moved up from "Main findings"), an overview with a summary table
+  (question, contributions, datasets, intended users, requirements, status) and a workflow
+  diagram of the study's three paths, drawn from the module and script names in
+  `docs/ARCHITECTURE.md`. "Installation" becomes "Quickstart", with a command that recomputes a
+  reported table from the committed ranks; a "Contributing" section is new. The findings,
+  numbers and limitations are unchanged. The README said CI runs on every push; it runs on pushes
+  to `main` and `research/**` branches and on pull requests to `main`.
+- **Ignore files.** `.gitignore` also covers other `.env.*` files, `coverage.xml`, patch and
+  backup leftovers, and `figures_check/`, the output folder the README suggests for re-rendered
+  figures. `.dockerignore` keeps the raw corpora, built indices and private manuscript material
+  out of the Docker build context (about 1.4 GB on the author's machine); the image's contents
+  do not change.
 - **Tests: 514** (10 new). Two gold-span tests failed in a fresh clone once the annotation package
   was unpacked and the second-round sheet regenerated as documented: one compared the tracked
   copies byte for byte, line endings included, and the other expected the regenerated sheet to
