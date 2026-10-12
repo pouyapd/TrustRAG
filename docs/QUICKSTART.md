@@ -1,22 +1,24 @@
 # TrustRAG — Quickstart
 
-Three ways to run TrustRAG, in increasing order of fidelity.
+Three ways to run TrustRAG, in increasing order of fidelity. This page covers the pipeline and
+the service; to reproduce the study's results, see the
+[Reproducibility section of the README](../README.md#reproducibility).
 
-## 1. Offline mode (no API key, ~2 min)
+## 1. Offline mode (no API key, seconds once installed)
 
-This runs the full pipeline using a mock extractive LLM and local sentence-transformer embeddings. Useful for: smoke-testing your install, running the eval regression, demos.
+This runs the full pipeline using a deterministic extractive stand-in for the LLM (`MockExtractiveLLM`) and a deterministic hash embedder (`HashEmbeddings`), so no model is downloaded. Useful for: smoke-testing your install, running the eval regression, demos.
 
 ```bash
 git clone https://github.com/pouyapd/TrustRAG.git
 cd TrustRAG
-python -m venv venv && source venv/bin/activate
+python -m venv venv && source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
 # Run the full evaluation pipeline offline
 python scripts/run_offline_eval.py
 ```
 
-Expected output: a `reports/` directory with `summary.json`, `rows.jsonl`, and `report.md`.
+Expected output: `All regression checks passed.` and a `reports/` directory with `summary.json`, `rows.jsonl`, `inference.jsonl` and `report.md`. The numbers are a fixed regression baseline, not evaluation results ([SAMPLE_EVALUATION.md](SAMPLE_EVALUATION.md)).
 
 ## 2. Local Python with a real LLM
 
@@ -44,6 +46,12 @@ docker-compose up --build
 This starts:
 - TrustRAG API on `http://localhost:8000`
 - Prometheus on `http://localhost:9090`
+
+Without an OpenAI key the API embeds with the local `all-MiniLM-L6-v2` model. The image
+already contains it and the container runs with `HF_HUB_OFFLINE=1`, so a new container
+starts without downloading anything. With networking disabled it was healthy after 25–55 s on
+an idle laptop CPU and after 122 s with the CPU busy; the healthcheck allows 180 s. Set
+`HF_HUB_OFFLINE=0` to let the container fetch models that are not in the image.
 
 ## Try it
 

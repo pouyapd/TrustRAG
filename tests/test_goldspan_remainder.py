@@ -137,6 +137,7 @@ def test_remainder_answers_file_lists_every_unit_and_only_valid_labels():
 # --- the completed pass -----------------------------------------------------
 
 @needs_package
+@needs_scored   # a package rebuilt from the scripts has blank labels until someone fills it
 def test_every_remainder_unit_carries_the_authors_label():
     answers = read_answers(REMAINDER / "answers.csv")
     manifest = json.loads((REMAINDER / "manifest.json").read_text(encoding="utf-8"))
@@ -231,15 +232,25 @@ def test_public_copy_carries_the_labels_and_no_qasper_text():
             assert field not in body, f"{name} carries {field}, which holds QASPER text"
 
 
+def _content(path: Path) -> bytes:
+    """File bytes with line endings normalised: git checks the tracked copies out with the
+    platform's line endings, while the packages keep the ones they were written with."""
+    return path.read_bytes().replace(b"\r\n", b"\n")
+
+
 def test_public_copy_matches_the_working_packages():
     """It is a copy, so it must not drift from what was actually adjudicated."""
-    if not (REMAINDER / "answers.csv").exists():
+    pairs = []
+    if (FIRST / "answers.csv").exists():                  # the first pass is in the archive
+        pairs += [(FIRST / "answers.csv", PUBLIC / "first_pass" / "answers.csv"),
+                  (FIRST / "manifest.json", PUBLIC / "first_pass" / "manifest.json")]
+    if (REMAINDER / "estimate_combined.json").exists():   # the second pass, once scored
+        pairs += [(REMAINDER / "answers.csv", PUBLIC / "remaining37" / "answers.csv"),
+                  (REMAINDER / "manifest.json", PUBLIC / "remaining37" / "manifest.json")]
+    if not pairs:
         pytest.skip("the working packages are not present in this checkout")
-    for src, dst in ((FIRST / "answers.csv", PUBLIC / "first_pass" / "answers.csv"),
-                     (REMAINDER / "answers.csv", PUBLIC / "remaining37" / "answers.csv"),
-                     (REMAINDER / "manifest.json", PUBLIC / "remaining37" / "manifest.json"),
-                     (FIRST / "manifest.json", PUBLIC / "first_pass" / "manifest.json")):
-        assert src.read_bytes() == dst.read_bytes(), f"{dst.name} has drifted from {src}"
+    for src, dst in pairs:
+        assert _content(src) == _content(dst), f"{dst.name} has drifted from {src}"
 
 
 def test_table_nine_recomputes_from_the_tracked_files_alone():

@@ -3,15 +3,22 @@ message: "If you use this software or its result files, please cite it as below.
 type: software
 title: "TrustRAG: evidence localisation and failure attribution for retrieval-augmented generation evaluation"
 version: 1.1.0
-date-released: 2026-09-22
+date-released: 2026-09-23
 license: MIT
 repository-code: "https://github.com/pouyapd/TrustRAG"
-doi: 10.5281/zenodo.22879357
+# Version 1.1.0 has no DOI of its own: it is a Git tag and is not deposited on Zenodo.
+url: "https://github.com/pouyapd/TrustRAG/tree/v1.1.0"
+# The Zenodo DOIs are named in the abstract, not listed as identifiers: none of them
+# identifies version 1.1.0, and citation tools attach the first listed DOI to the citation.
+identifiers:
+  - type: url
+    value: "https://github.com/pouyapd/TrustRAG/tree/v1.1.0"
+    description: "Git tag v1.1.0, the code and result state the manuscript reports; not deposited on Zenodo"
 authors:
   - family-names: "Bathaei Pourmand"
     given-names: "Pouya"
     email: "pouyapd68@gmail.com"
-    # orcid: "https://orcid.org/0000-0000-0000-0000"   <- add if available
+    orcid: "https://orcid.org/0009-0000-6875-6275"
 keywords:
   - retrieval-augmented generation
   - evidence localisation
@@ -28,13 +35,12 @@ abstract: >-
   bootstrap; union and rank-correlation analyses; admission-budget and chunk-size sweeps;
   and the scripts behind a human-reviewed failure-attribution study and a gold-span
   completeness adjudication, whose labels and estimates are in results/goldspan_adjudication.
-  The human annotation package is deposited as a separate archive in the same Zenodo
-  record; the DOI below is the concept DOI, which always resolves to that record.
-preferred-citation:
-  type: article
-  title: "Right document, wrong passage: evidence localisation in retrieval-augmented generation evaluation on QASPER and Natural Questions"
-  authors:
-    - family-names: "Bathaei Pourmand"
-      given-names: "Pouya"
-  year: 2026
-  notes: "Manuscript prepared for submission to Language Resources and Evaluation (not yet submitted); cite the software release until the article is published."
+  Version 1.1.0 is a Git tag and is not deposited on Zenodo, so it has no DOI of its own.
+  The archived code release is v1.0.0 (doi:10.5281/zenodo.22879358); the human annotation
+  package is a separate version of the same Zenodo record (doi:10.5281/zenodo.22879569).
+  The record's concept DOI, 10.5281/zenodo.22879357, resolves to its latest version,
+  currently the annotation package, and DataCite registers it as a CC BY 4.0 dataset, so
+  it is not a DOI for the code. The manuscript "Right document, wrong passage: evidence
+  localisation in retrieval-augmented generation evaluation on QASPER and Natural
+  Questions" was submitted to Language Resources and Evaluation on 23 September 2026 and
+  is not yet peer-reviewed, accepted or published; cite this software release until it is.

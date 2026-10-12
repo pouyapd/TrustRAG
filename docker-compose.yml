@@ -15,6 +15,7 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
+      start_period: 180s
 
   prometheus:
     image: prom/prometheus:latest

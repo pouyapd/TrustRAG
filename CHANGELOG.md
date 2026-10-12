@@ -1,6 +1,103 @@
 # Changelog
 
-## v1.1.0 — 22 September 2026 — completed gold-span adjudication
+## Unreleased — documentation and reproducibility corrections
+
+No result file and no number the manuscript reports changes; tag `v1.1.0` is untouched and
+remains the state the manuscript reports. One documentation file in a result folder,
+`results/localisation/README.md`, corrects two rounded table cells to the values the manuscript
+already gives. The entries for v1.1.0 and v1.0.0 below are kept as written at the time,
+except for the v1.1.0 date.
+
+- **Manuscript status.** Submitted to *Language Resources and Evaluation* on 23 September 2026;
+  passed technical checks on 28 September 2026; awaiting editorial assignment (as of 9 October
+  2026). Updated in the README, `CITATION.cff`, `.zenodo.json`, `docs/paper/README.md`,
+  `docs/paper/reproducibility.md` and `docs/paper/literature_review.md`.
+- **Identifiers and citation.** The README and `CITATION.cff` now separate the Git tag `v1.1.0`
+  (no Zenodo deposit, so no DOI), the v1.0.0 code archive (10.5281/zenodo.22879358), the
+  annotation package (10.5281/zenodo.22879569) and the concept DOI (10.5281/zenodo.22879357),
+  which resolves to the annotation package and which DataCite registers as a CC BY 4.0 dataset.
+  The software citation therefore no longer carries the concept DOI; it points at the tag, and
+  the DOIs are named in the abstract rather than listed as identifiers, because citation tools
+  attach the first listed DOI to the citation. `preferred-citation` is removed: GitHub's "Cite
+  this repository" showed only the unpublished article, without venue or status, in place of
+  the software. It should return, with journal and DOI, if the article is published.
+- **Dates.** v1.1.0 is dated 23 September 2026, the date of the tag and its commit; the README,
+  this file and `CITATION.cff` said 22 September.
+- **Stale statements corrected.** Script count 38, not 36. `docs/EXPERIMENTS.md`,
+  `docs/TAXONOMY.md` and `docs/EVALUATION.md` still said no human labels had been collected; they
+  now summarise the 200-label study and its one-annotator limitation. `docs/SAMPLE_EVALUATION.md`
+  said three corpora and 740 questions (four and 890). `docs/QUICKSTART.md` described
+  sentence-transformer embeddings and a two-minute offline run (hash embedder, seconds). The
+  README's provenance paragraph said every report embeds the commit, raw-file checksum and
+  package versions; it now states which result files carry which fields, and that the eleven with
+  a provenance block were written from a working tree with uncommitted changes.
+- **Reproducibility.** `docs/DATASETS.md` gains download commands for HotpotQA and
+  2WikiMultihopQA and the SHA-256 of the HotpotQA file and of the extracted QASPER JSON, each
+  matching the checksum the results record. New `requirements-lock.txt`: the exact environment the
+  results were produced with. The README's reproduction section is split into what runs from a
+  clone alone (verified on 9 October 2026), what needs the annotation package and what needs the
+  corpora and models. `docs/ARCHITECTURE.md` gains the study's end-to-end data flow.
+- **`scripts/make_paper_figures.py`.** The gold-span figure reads the tracked copy of its input,
+  byte-identical to the one in the annotation package; a figure whose inputs are missing is
+  skipped with a message naming the annotation package instead of stopping with a traceback;
+  new `--out-dir`. All four figures still render byte-identically to the committed PNGs.
+- **`src/evaluation/provenance.py`.** Future run reports also record the torch, transformers and
+  scipy versions.
+- **Docker: a new container starts offline, without downloading a model.** Without an OpenAI key
+  the service loads the local `all-MiniLM-L6-v2` model before it answers `/health`, and the image
+  did not contain it. Every new container downloaded it: a first start took 203 s against a 20 s
+  healthcheck start period, long enough for Docker to mark a starting container unhealthy.
+  Without network access the old image answered after 87 s, stayed unhealthy, and silently fell
+  back to hash embeddings. The Dockerfile now downloads the model at build time (before the
+  source copy, owned by the non-root user) and runs the service with `HF_HUB_OFFLINE=1`. With
+  networking disabled the new image used the model and was healthy after 25–55 s on an idle
+  laptop CPU and after 122 s with the CPU busy, so the start period is now 180 s, in the
+  Dockerfile and in `docker-compose.yml`. `tests/test_docker_config.py` keeps the image's model
+  and the two start periods in step with the code.
+- **Images.** `docs/screenshots/api-docs.png` and `docs/screenshots/ci-pipeline.png` are removed:
+  no file has referenced them since the README was rewritten on 6 September 2026, and they showed
+  API version 0.1.0 and a CI run of an old commit. Every other image is referenced by the
+  documentation or written by a script and is kept.
+- **Badges and metadata.** The README's DOI badge pointed at the concept DOI, which resolves to
+  the annotation package; it is replaced by one badge for the v1.0.0 code archive and one for
+  the annotation package. In `.zenodo.json` the QASPER and Natural Questions DOIs are typed as
+  the conference paper and journal article they are, not as datasets.
+  `docs/paper/FIGURES.md` notes two statements that no longer describe the repository.
+- **Rounding in `results/localisation/README.md`.** Two cells of the "QASPER against NQ" table
+  had been rounded from already-rounded values: the lowest NQ lift over chance is BM25's 3.054
+  (3.1, not 3.0) and the lowest QASPER share of gold chunks at ranks 2–5 is BGE-small's
+  129/290 = 0.4448 (0.44, not 0.45). Both were recounted from the per-question ranks; the
+  manuscript already gives 3.1 and 0.44. A dated note in that README records the change.
+- **README layout.** The README now opens with a one-line description, key links, the
+  rank-distribution figure (moved up from "Main findings"), an overview with a summary table
+  (question, contributions, datasets, intended users, requirements, status) and a workflow
+  diagram of the study's three paths, drawn from the module and script names in
+  `docs/ARCHITECTURE.md`. "Installation" becomes "Quickstart", with a command that recomputes a
+  reported table from the committed ranks; a "Contributing" section is new. The findings,
+  numbers and limitations are unchanged. The README said CI runs on every push; it runs on pushes
+  to `main` and `research/**` branches and on pull requests to `main`.
+- **ORCID.** The author's ORCID, 0009-0000-6875-6275 (checksum valid; the public record names
+  Pouya Bathaei Pourmand), is added to `CITATION.cff`, `.zenodo.json` and the README, replacing a
+  commented-out placeholder.
+- **Figure labels.** The README's three study figures gain visible captions; the gold-span figure's
+  says that it shows the proxies' partition before adjudication, not the result. In
+  `docs/paper/FIGURES.md`, `docs/figures/pipeline_evaluation.png` is labelled historical: its
+  accuracy of 0.74 scores the rules against the automated reference labels of 2 September 2026,
+  not the final human-reviewed labels the manuscript reports.
+- **Ignore files.** `.gitignore` also covers other `.env.*` files, `coverage.xml`, patch and
+  backup leftovers, and `figures_check/`, the output folder the README suggests for re-rendered
+  figures. `.dockerignore` keeps the raw corpora, built indices and private manuscript material
+  out of the Docker build context (about 1.4 GB on the author's machine); the image's contents
+  do not change.
+- **Tests: 514** (10 new). Two gold-span tests failed in a fresh clone once the annotation package
+  was unpacked and the second-round sheet regenerated as documented: one compared the tracked
+  copies byte for byte, line endings included, and the other expected the regenerated sheet to
+  hold the author's labels. They now compare content and run the label checks only once the
+  second round has been scored. A class-scoped fixture written as a method, deprecated in
+  pytest 9 and an error in pytest 10, is now module-level. Three Docker configuration tests
+  are new (above).
+
+## v1.1.0 — 23 September 2026 — completed gold-span adjudication
 
 Tag `v1.1.0` is the code and result state the manuscript reports. It is a GitHub tag, not a
 new Zenodo deposit: everything it adds is tracked in the repository, so no archive is needed.

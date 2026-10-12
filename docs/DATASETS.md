@@ -89,18 +89,40 @@ tar xzf data/raw/qasper-train-dev-v0.3.tgz -C data/raw
 # Natural Questions (CC BY-SA 3.0), validation shard 0 - 189 MB
 curl -L -o data/raw/nq-validation-0.parquet \
   https://huggingface.co/api/datasets/google-research-datasets/natural_questions/parquet/default/validation/0.parquet
+
+# The two multi-hop corpora are used only by the A/B/C decomposition
+# (scripts/reproduce_study.py), not by the localisation study.
+
+# HotpotQA (CC BY-SA 4.0), distractor setting, validation - 27 MB
+curl -L -o data/raw/hotpot-distractor-validation-0.parquet \
+  https://huggingface.co/datasets/hotpotqa/hotpot_qa/resolve/main/distractor/validation-00000-of-00001.parquet
+
+# 2WikiMultihopQA (Apache-2.0), dev - 30 MB
+curl -L -o data/raw/2wiki-dev.parquet \
+  https://huggingface.co/datasets/xanhho/2WikiMultihopQA/resolve/main/dev.parquet
 ```
+
+The Natural Questions URL resolves to Hugging Face's automatic parquet
+conversion of the validation split (`refs/convert/parquet`,
+`default/partial-validation/0000.parquet`). The HotpotQA and 2WikiMultihopQA
+URLs follow the `main` branch of their repositories. Any of these files can
+change upstream, so check the SHA-256 below before using a download.
 
 ### Checksums of the files used in the reported experiments
 
 | File | SHA-256 |
 |---|---|
 | `qasper-train-dev-v0.3.tgz` | `a28fdf966db827bcee3d873107d6b6669864fb7ca8fbf73a192f5e39191bdb5a` |
+| `qasper-dev-v0.3.json` (extracted from the archive) | `2ae7ee62a65b1c4225791c70de80c2aad4e8998cf1fd4f09a53103db4f21af93` |
 | `nq-validation-0.parquet` | `d38ab58b0dc7065992f0175320203dd321cb14a7d29ae6c622f87c8935fb23d1` |
+| `hotpot-distractor-validation-0.parquet` | `c20b638ca82b21d04fe12e14ff417ad05153d4d215a65de54497fca4e972f7c6` |
 | `2wiki-dev.parquet` | `c0d8b60b9026b728fb07ad74c5252a0f188f6942e8ba5c02df4dfa369502ea8d` |
 
-Every experiment report records the SHA-256 of the raw file it read, so a
-result can always be traced to its exact input.
+The decomposition run reports record the SHA-256 of the raw file they read
+(for example the `provenance.dataset` block of `results/qasper_dev_300.json`),
+so those results can be traced to their exact input. The localisation result
+files do not record a checksum; the commands that produce them
+(`results/localisation/README.md`) read the QASPER and NQ files listed here.
 
 `pyarrow` is required to read the NQ parquet distribution.
 

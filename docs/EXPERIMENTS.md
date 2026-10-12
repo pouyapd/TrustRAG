@@ -14,7 +14,7 @@ third-party corpora. Nothing is estimated, projected or illustrative.
 | Multi-hop evidence behaviour | **Real, and replicated.** HotpotQA distractor and 2WikiMultihopQA, 150 questions each, all `all_required`. |
 | Generation-side behaviour of a real language model | **Limited.** Measured with small local open-weight models (0.36B and 0.5B). Enough to test whether evidence status predicts generation failure; **not** enough to characterise any deployed or frontier model. No hosted-API run was possible — no key was available. |
 | Hallucination rates, faithfulness benchmarking, model comparison | **Not supported.** Nothing here licenses a claim about how often a model hallucinates. |
-| Agreement between the taxonomy and human judgement | **Not measured.** The full protocol — package, guidelines, scoring — exists. **Zero human labels have been collected.** |
+| Agreement between the taxonomy and human judgement | **Measured with one annotator.** 200 QASPER units labelled by the author, with a guided review of 43 flagged units: the evidence-gated taxonomy agrees with the final labels at accuracy 0.700 (κ 0.437), the document-gated one at 0.600 (κ 0.375). There is no second annotator and no inter-annotator agreement; see [paper/human_validation_final.md](paper/human_validation_final.md). |
 
 ---
 
@@ -68,8 +68,12 @@ robustness claim is only as strong as the list of things that did *not* change.
 
 H1-H3 are **confirmatory**: the mechanism was stated and the predictions made
 before the runs. H4 is **exploratory** — the generation experiment is
-underpowered by design and uses small local models. H5 is **not yet tested**;
-see the taxonomy-validation section.
+underpowered by design and uses small local models. H5 has been tested only in
+a weaker form than it is stated: the 200-unit human study
+([paper/human_validation_final.md](paper/human_validation_final.md)) has one
+annotator, the author, whose second pass was guided by an audit of the same
+guidelines, so it measures agreement with a guided expert reading rather than
+with independent judgement, on QASPER only.
 
 ### What is held constant, and why it matters
 
@@ -850,12 +854,17 @@ hundred ranking differently. No reported gap, test or conclusion changes, but
 are significant because the discordance is large and one-directional; the *rate*
 estimates carry Wilson intervals and are reported with them.
 
-**The taxonomy is unvalidated against humans.** Its thresholds were tuned by
-inspection on a 20-question fixture, which is therefore development data. The
-A/B/C measurements do not depend on those thresholds — evidence alignment is
-threshold-free apart from `min_overlap_chars = 1` — but every failure-mode
-distribution does. The validation protocol is implemented and **no labels have
-been collected**; this remains the largest open gap.
+**The taxonomy is checked against one human annotator only.** Its thresholds
+were tuned by inspection on a 20-question fixture, which is therefore
+development data. The A/B/C measurements do not depend on those thresholds —
+evidence alignment is threshold-free apart from `min_overlap_chars = 1` — but
+every failure-mode distribution does. The author has since labelled 200 QASPER
+units ([paper/human_validation_final.md](paper/human_validation_final.md)):
+retrieval-side attribution agrees with the human labels (evidence-gated accuracy
+0.700, κ 0.437), the generation-side categories are not reliable, and a
+held-out threshold ablation moves the evidence gate only from 0.730 to 0.750.
+There is still no second annotator and no inter-annotator agreement; this
+remains the largest open gap.
 
 **Confirmatory versus exploratory.** H1-H3 (embedder, depth, second multi-hop
 corpus) were stated with their mechanisms before the runs and are confirmatory.

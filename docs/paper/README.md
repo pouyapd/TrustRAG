@@ -1,10 +1,11 @@
 # docs/paper — supporting documents for the manuscript
 
 The manuscript *Right document, wrong passage: evidence localisation in
-retrieval-augmented generation evaluation on QASPER and Natural Questions* is prepared
-for submission to *Language Resources and Evaluation* (not yet submitted, not accepted,
-not published). The manuscript itself is not in this repository. The documents in this
-folder record, with their source files, the measurements it draws on. They were written
+retrieval-augmented generation evaluation on QASPER and Natural Questions* was submitted
+to *Language Resources and Evaluation* on 23 September 2026; it passed technical checks on
+28 September 2026 and is awaiting editorial assignment (status as of 9 October 2026; not
+peer-reviewed, accepted or published). The manuscript itself is not in this repository.
+The documents in this folder record, with their source files, the measurements it draws on. They were written
 at different stages of the project and are kept as written; the stage of each is stated
 here so that nothing is read as more current than it is.
 

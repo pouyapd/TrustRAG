@@ -243,20 +243,22 @@ diagnostic instrument and not yet a validated one.
    on is exactly the practice this project criticises elsewhere, and it is
    recorded here rather than hidden.
 
-2. **No human validation.** Nothing establishes that these labels agree with
-   what a person would say. Until an annotation study with at least two
-   annotators and a reported agreement statistic exists, the taxonomy is a
-   proposal. This is the single largest gap.
+2. **Human validation by one annotator only.** Until an annotation study with
+   at least two annotators and a reported agreement statistic exists, the
+   taxonomy is a proposal. This is the single largest gap.
 
-   The full validation protocol now exists — package, guidelines and scoring —
-   and is described below, and it has been run: 200 units of the full-context
-   package are labelled and the taxonomy is scored against them
-   (`docs/paper/results.md`). **Those 200 labels were produced by a
-   language-model annotator following the guidelines, not by a person**; 22
-   units in the earlier package carry human labels. So the gap is narrower than
-   it was but not closed: what exists is agreement with an independent reading,
-   not with human judgement. The scorer still refuses to run on empty sheets
-   rather than emitting a plausible-looking table from no data.
+   The validation protocol described below has been run twice: first against a
+   language-model annotator (`docs/paper/results.md`, stage 2), then against 200
+   labels from a person — the author — including a guided review of the 43
+   labels an audit flagged
+   ([paper/human_validation_final.md](paper/human_validation_final.md)).
+   Against the final human labels the evidence-gated variant scores accuracy
+   0.700 (κ 0.437) and the document-gated variant 0.600 (κ 0.375). Agreement
+   holds for retrieval-side attribution; the generation-side categories are not
+   reliable. With one annotator there is no inter-annotator agreement, so this
+   is agreement with a guided expert reading, not independent validation. The
+   scorer still refuses to run on empty sheets rather than emitting a
+   plausible-looking table from no data.
 
 3. **Key-fact recall is lexical.** It cannot recognise a correct paraphrase
    that shares no vocabulary with the reference, and it cannot detect a negation
@@ -357,11 +359,11 @@ Three separate measurements, in this order:
 |---|---|
 | Sampling, blinding, guidelines, scoring | Implemented and tested |
 | Annotation units generated | 200 for `qasper_dev_300` (50 boundary cases) |
-| Human labels collected | **0** |
-| Cohen's kappa | Not computable — no labels |
-| Taxonomy precision/recall against humans | Not computable — no labels |
+| Human labels collected | **200**, one annotator (the author): 135 original full-context labels, 43 guided-review decisions, 22 pilot-era labels |
+| Cohen's kappa between annotators | Not computable — one annotator |
+| Taxonomy against the human labels | Evidence-gated: accuracy 0.700, macro F1 0.482, κ 0.437; document-gated: 0.600, 0.476, 0.375 ([paper/human_validation_final.md](paper/human_validation_final.md)) |
 
-This remains the largest open gap in the project. The headline retrieval and
+A second, independent annotator remains the largest open gap in the project. The headline retrieval and
 evidence results do not depend on the taxonomy's thresholds, but every
 generation-side failure label does.
 

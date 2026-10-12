@@ -5,6 +5,11 @@
 > here is the automated (language-model) annotation pass, not the human labels; the human
 > study in [human_validation_final.md](human_validation_final.md) supersedes it as the
 > reported number. Stage and status of every document: [README.md](README.md) in this folder.
+>
+> Two statements below no longer describe the repository: `docs/figures/` is tracked, and the
+> root README no longer shows Figure 5. The figures the root README shows are drawn by
+> `scripts/make_paper_figures.py` and `scripts/localisation_figure.py`
+> ([reproducibility.md](reproducibility.md)).
 
 Five figures exist as files. `results/figures/` is tracked by git;
 `docs/figures/` is new in the working tree and not gitignored. Each entry gives what it shows, what it is
@@ -61,6 +66,14 @@ not of one retriever. All four models are small and English (`limitations.md` §
 **Placement:** appendix.
 
 ## Figure 5 — Pipeline and evaluation overview
+
+> **Historical figure (note added 12 October 2026).** The taxonomy panel scores the default
+> (document-gated) rules against the automated, language-model reference labels of 2 September 2026
+> (`final_evaluation.json`: accuracy 0.74, macro F1 0.62, n = 200). It does not show the final
+> human-reviewed labels the manuscript reports, against which the document-gated variant scores
+> 0.600 and the evidence-gated variant 0.700 ([human_validation_final.md](human_validation_final.md)).
+> The README no longer shows this figure; it is kept because the command below still regenerates it
+> from the annotation package.
 
 **File:** `docs/figures/pipeline_evaluation.png`
 **Command:**

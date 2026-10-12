@@ -210,21 +210,24 @@ class TestAdjudication:
         assert sorted(pairs[0]["categories"]) == ["incorrect_answer", "ok"]
 
 
+# Module level rather than a method of the class below: pytest deprecates
+# class-scoped fixtures defined as instance methods (an error from pytest 10).
+@pytest.fixture(scope="class")
+def package(tmp_path_factory):
+    records = REPO / "reports" / "experiments" / "qasper_dev_300" / "inference.jsonl"
+    if not records.exists():
+        pytest.skip("needs a finished experiment run")
+    out = tmp_path_factory.mktemp("annotation")
+    subprocess.run(
+        [sys.executable, "scripts/build_annotation_package.py",
+         "--records", str(records), "--out", str(out), "--n-units", "60"],
+        cwd=str(REPO), check=True, capture_output=True,
+    )
+    return out
+
+
 class TestPackageIntegrity:
     """The properties that keep the validation honest."""
-
-    @pytest.fixture(scope="class")
-    def package(self, tmp_path_factory):
-        records = REPO / "reports" / "experiments" / "qasper_dev_300" / "inference.jsonl"
-        if not records.exists():
-            pytest.skip("needs a finished experiment run")
-        out = tmp_path_factory.mktemp("annotation")
-        subprocess.run(
-            [sys.executable, "scripts/build_annotation_package.py",
-             "--records", str(records), "--out", str(out), "--n-units", "60"],
-            cwd=str(REPO), check=True, capture_output=True,
-        )
-        return out
 
     def test_sheet_never_contains_the_proposed_label(self, package):
         """Anchoring the annotator would inflate agreement."""

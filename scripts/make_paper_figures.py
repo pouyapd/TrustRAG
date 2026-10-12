@@ -1,10 +1,16 @@
 #!/usr/bin/env python
-"""Figures for the paper, each drawn from a committed result file.
+"""Figures for the paper, each drawn from a stored result file.
 
 Every number is read at render time. If a source file changes, the figure changes
 with it; nothing here is hard-coded.
 
+Two figures (bm25, goldspan) read files tracked under results/. The other two
+(oracle, human) read files under reports/, which is not in a clone: those files
+come from the annotation package (doi:10.5281/zenodo.22879569). A figure whose
+inputs are missing is skipped with a message, and the exit status is 1.
+
     python scripts/make_paper_figures.py --all
+    python scripts/make_paper_figures.py --all --out-dir /tmp/figures   # leave results/figures alone
 """
 from __future__ import annotations
 
@@ -15,6 +21,29 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 OUT = REPO / "results" / "figures"
+
+ANNOTATION_PACKAGE_DOI = "10.5281/zenodo.22879569"
+
+BM25_CORPORA = (("QASPER dev", "results/decomp_qasper_dev_300.json",
+                 "results/bm25_qasper_dev_300.json"),
+                ("Natural Questions", "results/decomp_nq_val_300_fixed.json",
+                 "results/bm25_nq_val_300.json"),
+                ("HotpotQA", "results/decomp_hotpot_150.json",
+                 "results/bm25_hotpot_150.json"))
+ORACLE_SUMMARY = "reports/experiments/oracle_qasper_qwen/summary.json"
+HUMAN_HEADLINE = ("reports/annotation/qasper_dev_300_full_context/final_human_reviewed/"
+                  "headline_vs_final_human.json")
+# Tracked copy of the proxy partition, byte-identical to the file of the same name
+# under reports/annotation/qasper_dev_300_full_context/audit/ in the annotation package.
+GOLDSPAN_PARTITION = "results/goldspan_adjudication/gold_span_semantic.json"
+
+#: The files each figure reads, relative to the repository root.
+SOURCES: dict[str, tuple[str, ...]] = {
+    "bm25": tuple(p for _, dense, bm25 in BM25_CORPORA for p in (dense, bm25)),
+    "oracle": (ORACLE_SUMMARY,),
+    "human": (HUMAN_HEADLINE,),
+    "goldspan": (GOLDSPAN_PARTITION,),
+}
 
 DENSE = "#2f6fd0"
 LEX = "#a8620a"
@@ -27,6 +56,12 @@ def load(path: str) -> dict:
     return json.loads((REPO / path).read_text(encoding="utf-8"))
 
 
+def missing_inputs(name: str, repo: Path | None = None) -> list[str]:
+    """The input files of figure `name` that do not exist under `repo` (default: REPO)."""
+    root = REPO if repo is None else repo
+    return [p for p in SOURCES[name] if not (root / p).is_file()]
+
+
 def setup(plt):
     plt.rcParams.update({
         "font.size": 9, "font.family": "serif",
@@ -36,14 +71,9 @@ def setup(plt):
     })
 
 
-def figure_bm25(plt) -> bool:
+def figure_bm25(plt, out: Path) -> bool:
     """Dense vs BM25 under document- and span-level definitions."""
-    corpora = [("QASPER dev", "results/decomp_qasper_dev_300.json",
-                "results/bm25_qasper_dev_300.json"),
-               ("Natural Questions", "results/decomp_nq_val_300_fixed.json",
-                "results/bm25_nq_val_300.json"),
-               ("HotpotQA", "results/decomp_hotpot_150.json",
-                "results/bm25_hotpot_150.json")]
+    corpora = BM25_CORPORA
     fig, axes = plt.subplots(1, 2, figsize=(7.2, 2.9))
     for ax, cond, title in zip(
             axes,
@@ -74,14 +104,14 @@ def figure_bm25(plt) -> bool:
     axes[0].annotate("BM25 ahead", xy=(0, 0.60), fontsize=7.5, color=LEX, ha="center")
     axes[1].annotate("dense ahead", xy=(0, 0.36), fontsize=7.5, color=DENSE, ha="center")
     fig.tight_layout()
-    fig.savefig(OUT / "bm25_vs_dense.png", dpi=220, bbox_inches="tight")
+    fig.savefig(out / "bm25_vs_dense.png", dpi=220, bbox_inches="tight")
     plt.close(fig)
     return True
 
 
-def figure_oracle(plt) -> bool:
+def figure_oracle(plt, out: Path) -> bool:
     """Paired oracle-evidence repair rate by evidence stratum."""
-    r = load("reports/experiments/oracle_qasper_qwen/summary.json")
+    r = load(ORACLE_SUMMARY)
     order = ["COMPLETE", "NONE_DOC_HIT", "NONE"]
     pretty = {"COMPLETE": "Evidence complete\nunder retrieval",
               "NONE_DOC_HIT": "Document retrieved,\nspan missing",
@@ -112,15 +142,14 @@ def figure_oracle(plt) -> bool:
                  "decoding; only the context differs",
                  fontsize=8.5, loc="left", color=INK)
     fig.tight_layout()
-    fig.savefig(OUT / "oracle_evidence.png", dpi=220, bbox_inches="tight")
+    fig.savefig(out / "oracle_evidence.png", dpi=220, bbox_inches="tight")
     plt.close(fig)
     return True
 
 
-def figure_human(plt) -> bool:
+def figure_human(plt, out: Path) -> bool:
     """Both gates scored against the final human-reviewed labels."""
-    r = load("reports/annotation/qasper_dev_300_full_context/final_human_reviewed/"
-             "headline_vs_final_human.json")
+    r = load(HUMAN_HEADLINE)
     fig, axes = plt.subplots(1, 2, figsize=(7.2, 2.7),
                              gridspec_kw={"width_ratios": [1.25, 1]})
     ax = axes[0]
@@ -158,14 +187,14 @@ def figure_human(plt) -> bool:
     ax2.set_title(f"Paired — exact McNemar $p$ = {p['mcnemar']['p_value']:.2g}",
                   fontsize=8.5, loc="left", color=INK)
     fig.tight_layout()
-    fig.savefig(OUT / "human_validation.png", dpi=220, bbox_inches="tight")
+    fig.savefig(out / "human_validation.png", dpi=220, bbox_inches="tight")
     plt.close(fig)
     return True
 
 
-def figure_goldspan(plt) -> bool:
+def figure_goldspan(plt, out: Path) -> bool:
     """How far the span-based gold standard can be trusted."""
-    r = load("reports/annotation/qasper_dev_300_full_context/audit/gold_span_semantic.json")
+    r = load(GOLDSPAN_PARTITION)
     order = [("A_genuinely_unsupported", "Both signals agree:\nanswer absent\n(span rule correct)", GOOD),
              ("B_supported_outside_gold_span", "Both agree: answer present\noutside the gold span\n(span rule wrong)", "#b23b3b"),
              ("C_possibly_inferable", "Semantically close,\nlexically different", "#d9a441"),
@@ -190,7 +219,7 @@ def figure_goldspan(plt) -> bool:
     ax.legend(handles, [lab for _, lab, _ in present], frameon=False, fontsize=6.8,
               ncol=5, loc="upper center", bbox_to_anchor=(0.5, 1.42), handlelength=1.1)
     fig.tight_layout()
-    fig.savefig(OUT / "gold_span_validity.png", dpi=220, bbox_inches="tight")
+    fig.savefig(out / "gold_span_validity.png", dpi=220, bbox_inches="tight")
     plt.close(fig)
     return True
 
@@ -199,26 +228,43 @@ BUILDERS = {"bm25": figure_bm25, "oracle": figure_oracle,
             "human": figure_human, "goldspan": figure_goldspan}
 
 
-def main() -> int:
-    ap = argparse.ArgumentParser(description=__doc__)
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(description=__doc__,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--all", action="store_true")
     ap.add_argument("--figure", action="append", default=[], choices=sorted(BUILDERS))
-    args = ap.parse_args()
+    ap.add_argument("--out-dir", default=str(OUT),
+                    help="directory for the PNG files (default: results/figures, the tracked copies)")
+    args = ap.parse_args(argv)
     if not (args.all or args.figure):
         ap.print_help()
         return 1
-    try:
-        import matplotlib
-        matplotlib.use("Agg")
-        import matplotlib.pyplot as plt
-    except ImportError:
-        print("matplotlib missing: pip install -r requirements-research.txt", file=sys.stderr)
-        return 1
-    setup(plt)
-    OUT.mkdir(parents=True, exist_ok=True)
+    skipped, buildable = [], []
     for name in (sorted(BUILDERS) if args.all else args.figure):
-        BUILDERS[name](plt)
-        print(f"  wrote results/figures/{name}")
+        missing = missing_inputs(name)
+        if missing:
+            skipped.append(name)
+            print(f"  skipped {name}: missing {', '.join(missing)}", file=sys.stderr)
+        else:
+            buildable.append(name)
+    if buildable:
+        try:
+            import matplotlib
+            matplotlib.use("Agg")
+            import matplotlib.pyplot as plt
+        except ImportError:
+            print("matplotlib missing: pip install -r requirements-research.txt", file=sys.stderr)
+            return 1
+        setup(plt)
+        out = Path(args.out_dir)
+        out.mkdir(parents=True, exist_ok=True)
+        for name in buildable:
+            BUILDERS[name](plt, out)
+            print(f"  wrote {name} to {out}")
+    if skipped:
+        print(f"Files under reports/ come from the annotation package (doi:{ANNOTATION_PACKAGE_DOI}):"
+              " unzip it and copy its reports/ folder into the repository root.", file=sys.stderr)
+        return 1
     return 0
 
 

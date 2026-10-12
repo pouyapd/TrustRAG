@@ -1,8 +1,10 @@
 # The bundled smoke-test fixture
 
 **This is not the research study.** It documents the tiny fixture that runs in
-CI on every push. For the actual empirical results — three corpora, 740
-questions, statistical tests — see [EXPERIMENTS.md](EXPERIMENTS.md).
+CI on every push. For the actual empirical results — four corpora, 890
+questions, statistical tests — see [EXPERIMENTS.md](EXPERIMENTS.md); for the
+within-document localisation study the manuscript reports, see the
+[root README](../README.md).
 
 An earlier version of this file presented the fixture's numbers as evaluation
 results and drew a conclusion from them. That conclusion was wrong, and the

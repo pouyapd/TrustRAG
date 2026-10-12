@@ -40,6 +40,8 @@ A `MockExtractiveLLM` lives next to the real providers. It's not a toy — it's 
 
 Every `/query` response carries a faithfulness score (LLM-as-judge), not just an answer. This is what lets downstream systems flag low-confidence answers automatically. The score has a clear contract: 1.0 = every claim grounded, 0.0 = unrelated/contradictory.
 
+The judge is the same model that wrote the answer (`RAGPipeline._score_faithfulness` in `src/rag/pipeline.py`), so the score is a self-assessment, not an independent check.
+
 ### 3. Failure mode classification (not just a number)
 
 `src/evaluation/failure_modes.py` is the differentiator. A failure rate of 12% tells you nothing actionable. *"12%, broken down as 6% wrong-retrieval, 4% hallucination, 2% refusal-when-answerable"* tells you exactly where to invest — re-rank? better prompts? better embeddings?
@@ -165,6 +167,51 @@ report contains all three, clearly separated.
 | `src/evaluation/provenance.py` | Git, environment, package and configuration capture |
 | `src/rag/embedders.py` | The embedding models the sweep compares, with prefixes, dimensions and licences |
 | `src/rag/local_llm.py` | Real language models for the generation study — local open weights or a hosted API |
+
+## The study, end to end
+
+The results the manuscript reports come from three paths that share the same
+loaders and chunker. Outputs under `results/` are tracked; outputs under
+`reports/` are not, and the ones the manuscript uses are in the annotation
+package (doi:10.5281/zenodo.22879569).
+
+```
+data/raw/            QASPER, NQ (+ HotpotQA, 2Wiki for path 2); fetched and checksummed, docs/DATASETS.md
+  -> src/data/loaders/   QuestionRecord, gold evidence as character spans
+  -> src/data/corpus.py  DocumentChunker (256 tokens, overlap 32); offset identity verified per chunk
+
+1. Within-document localisation
+   scripts/localisation_probe.py, localisation_extra.py
+       rank every chunk of the gold document against the question, per localiser;
+       keep the rank of the first chunk that overlaps a gold span, and the analytic
+       chance level for that document
+       -> results/localisation/within_document_*.json, localisers_*.json, reranker_*.json
+   scripts/localisation_report.py
+       hit@k, MRR, lift over chance, exact McNemar with Holm, sign tests, Wilson
+       intervals, Spearman, union  -> results/localisation/summary_*.json
+   scripts/localisation_robustness.py, localisation_admission.py, localisation_contrast.py
+       cluster bootstrap, hit@k from stored ranks, reach x localisation, sweeps, contrasts
+
+2. Retrieval decomposition and failure attribution
+   scripts/reproduce_study.py -> scripts/run_experiment.py
+       build_corpus -> ChromaDB; run_inference (retrieve, generate) -> inference.jsonl
+       score_records: evidence coverage (src/evaluation/evidence.py), definitions A/B/C,
+       both taxonomy gates (src/evaluation/taxonomy.py)  -> rows.jsonl, summary.json
+       -> curated into results/*.json
+   scripts/run_bm25_baseline.py  -> results/bm25_*.json
+
+3. Annotation and audits, on the stored QASPER run (reports/experiments/qasper_dev_300/)
+   scripts/build_annotation_package.py -> blinded 200-unit package -> human labels
+       -> audit_human_annotations.py -> build_review_subset.py -> build_final_human_dataset.py
+       -> both gates scored against the final labels
+   scripts/audit_gold_span_coverage.py, audit_gold_span_semantic.py -> proxy partition
+       -> build_goldspan_adjudication.py, build_goldspan_remainder.py -> blind sheets
+       -> score_goldspan_adjudication.py -> results/goldspan_adjudication/
+   scripts/run_oracle_evidence.py -> reports/experiments/oracle_qasper_qwen/
+```
+
+`docs/paper/reproducibility.md` maps each reported analysis to its exact
+command and output file.
 
 ## Two abstractions the robustness experiments needed
 
