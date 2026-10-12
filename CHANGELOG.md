@@ -101,6 +101,8 @@ except for the v1.1.0 date.
   `results/localisation/README.md` with both corpora scored against the union, against the
   first annotator, and by each dataset's own evaluator
   (`results/exploratory/reference_sensitivity_claims.md`; `tests/test_reference_claims.py`).
+  The README gains a section, "Exploratory analyses after submission", with what holds, what
+  depends on the reference, the limitations and links to every output.
 - **Tests: 514** (10 new) without the exploratory analyses, 573 with them. Two gold-span tests
   failed in a fresh clone once the annotation package was unpacked and the second-round sheet
   regenerated as documented: one compared the tracked
