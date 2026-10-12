@@ -18,7 +18,7 @@ authors:
   - family-names: "Bathaei Pourmand"
     given-names: "Pouya"
     email: "pouyapd68@gmail.com"
-    # orcid: "https://orcid.org/0000-0000-0000-0000"   <- add if available
+    orcid: "https://orcid.org/0009-0000-6875-6275"
 keywords:
   - retrieval-augmented generation
   - evidence localisation
