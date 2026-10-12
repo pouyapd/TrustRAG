@@ -36,16 +36,21 @@ uvicorn src.api.main:app --reload --port 8000
 
 Then visit `http://localhost:8000/docs` for interactive API docs.
 
-## 3. Docker (production-like)
+## 3. Docker
 
 ```bash
 cp .env.example .env  # set OPENAI_API_KEY
-docker-compose up --build
+docker compose up --build
 ```
 
 This starts:
 - TrustRAG API on `http://localhost:8000`
 - Prometheus on `http://localhost:9090`
+
+`/query` and `/evaluate` call the language model named by `LLM_PROVIDER` in `.env`, so they need a
+real OpenAI or Anthropic key; `/health` and `/ingest` work without one. The service uses any
+non-empty `OPENAI_API_KEY` for OpenAI embeddings, including the `sk-your-key-here` placeholder
+copied from `.env.example`, so to try ingestion without a key, empty that line.
 
 Without an OpenAI key the API embeds with the local `all-MiniLM-L6-v2` model. The image
 already contains it and the container runs with `HF_HUB_OFFLINE=1`, so a new container

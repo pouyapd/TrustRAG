@@ -642,6 +642,11 @@ combined estimate and the scripts that build and score them
 Anything the manuscript cites is fixed at the `v1.1.0` tag, and a change to a cited result file
 would be tagged again. Release notes: [CHANGELOG.md](CHANGELOG.md).
 
+`main` also carries what came after the tag: the maintenance listed in the CHANGELOG and the
+exploratory analyses in [`results/exploratory/`](results/exploratory/README.md). Neither changes a
+result file the manuscript cites; the only change in a cited folder is the rounding correction in
+`results/localisation/README.md`.
+
 ## Citation
 
 `CITATION.cff` is the source of truth (GitHub's "Cite this repository" reads it). Until the article

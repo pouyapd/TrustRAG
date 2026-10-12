@@ -32,7 +32,7 @@ Client ─▶│  FastAPI     │ ───▶ │   RAG Pipeline    │
 
 ### 1. Pluggable LLM/embedding providers
 
-Why: vendor lock-in is the most common reason production RAG projects rot. The `LLMProvider` and `EmbeddingProvider` abstractions in `src/rag/providers.py` mean that swapping OpenAI for Anthropic for a local model is one config change.
+Why: vendor lock-in is the most common reason production RAG projects rot. The `LLMProvider` and `EmbeddingProvider` abstractions in `src/rag/providers.py` mean that swapping OpenAI for Anthropic in the service is one config change (`LLM_PROVIDER`). Local open-weight generators are wired into the research runner through `build_generator` in `src/rag/local_llm.py`, not into the service; the config accepts `ollama`, but the service has no Ollama client.
 
 A `MockExtractiveLLM` lives next to the real providers. It's not a toy — it's used in CI to run end-to-end evaluation regression without burning API credits, and it doubles as a baseline (extractive QA) to compare against the real LLM.
 

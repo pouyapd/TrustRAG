@@ -1,12 +1,13 @@
 # Changelog
 
-## Unreleased — documentation and reproducibility corrections
+## Unreleased — documentation and reproducibility corrections, exploratory analyses
 
-No result file and no number the manuscript reports changes; tag `v1.1.0` is untouched and
+No existing result file and no number the manuscript reports changes; tag `v1.1.0` is untouched and
 remains the state the manuscript reports. One documentation file in a result folder,
 `results/localisation/README.md`, corrects two rounded table cells to the values the manuscript
-already gives. The entries for v1.1.0 and v1.0.0 below are kept as written at the time,
-except for the v1.1.0 date.
+already gives. New exploratory outputs, made after submission and not part of the manuscript,
+are added under `results/exploratory/`. The entries for v1.1.0 and v1.0.0 below are kept as
+written at the time, except for the v1.1.0 date.
 
 - **Manuscript status.** Submitted to *Language Resources and Evaluation* on 23 September 2026;
   passed technical checks on 28 September 2026; awaiting editorial assignment (as of 9 October
@@ -84,6 +85,12 @@ except for the v1.1.0 date.
   `docs/paper/FIGURES.md`, `docs/figures/pipeline_evaluation.png` is labelled historical: its
   accuracy of 0.74 scores the rules against the automated reference labels of 2 September 2026,
   not the final human-reviewed labels the manuscript reports.
+- **QUICKSTART.** The Docker section says which endpoints need an API key, and that the
+  `sk-your-key-here` placeholder from `.env.example` counts as one for embeddings; it uses
+  `docker compose` and no longer calls the setup production-like. `.env.example` and
+  `docs/ARCHITECTURE.md` no longer suggest the service can run Ollama or another local model:
+  the config accepts `ollama`, but only OpenAI and Anthropic are implemented in the service;
+  local generators are used by the research runner.
 - **Ignore files.** `.gitignore` also covers other `.env.*` files, `coverage.xml`, patch and
   backup leftovers, and `figures_check/`, the output folder the README suggests for re-rendered
   figures. `.dockerignore` keeps the raw corpora, built indices and private manuscript material
