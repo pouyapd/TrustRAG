@@ -91,6 +91,11 @@ written at the time, except for the v1.1.0 date.
   `docs/ARCHITECTURE.md` no longer suggest the service can run Ollama or another local model:
   the config accepts `ollama`, but only OpenAI and Anthropic are implemented in the service;
   local generators are used by the research runner.
+- **README wording on the evidence references.** The one-paragraph summary of findings and the
+  datasets table say which reference each corpus is scored against (QASPER: all annotators'
+  evidence paragraphs pooled; NQ: the first annotator's long answer) and point to the
+  exploratory analyses for the statements that depend on it. "Rarely first" becomes "often not
+  first" (hit@1 reaches 0.51), and Contributing points new analyses to `results/exploratory/`.
 - **Ignore files.** `.gitignore` also covers other `.env.*` files, `coverage.xml`, patch and
   backup leftovers, and `figures_check/`, the output folder the README suggests for re-rendered
   figures. `.dockerignore` keeps the raw corpora, built indices and private manuscript material

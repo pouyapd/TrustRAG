@@ -145,7 +145,10 @@ coverage (accuracy 0.700 against 0.600), and an author-conducted, blind adjudica
 133 zero-coverage units puts the incompleteness of the QASPER span annotations at 0.053, about
 5–7% once the 36 units that were left unadjudicated are allowed for. The results argue for
 reporting localisation against chance and for auditing evidence annotations before they serve as
-a scoring reference.
+a scoring reference. These localisation figures score QASPER against the union of its annotators
+and NQ against its first annotator, as the manuscript does; the hit@1 range, the median rank and
+two significance statements depend on that choice
+([exploratory analyses](#exploratory-analyses-after-submission)).
 
 ## The problem: right document, wrong passage
 
@@ -204,8 +207,8 @@ metadata are committed ([docs/DATASETS.md](docs/DATASETS.md)).
 
 | Dataset | Licence | Structure | Used for |
 |---|---|---|---|
-| QASPER (dev) | CC BY 4.0 | NLP papers, ~20 chunks per gold document, evidence paragraphs (2.09 spans per question) | localisation, human study, gold-span audit, oracle control, decomposition |
-| Natural Questions (validation) | CC BY-SA 3.0 | Wikipedia pages, ~42 chunks per gold document, one long answer | localisation, decomposition |
+| QASPER (dev) | CC BY 4.0 | NLP papers, ~20 chunks per gold document, evidence paragraphs of all annotators pooled (2.09 spans per question) | localisation, human study, gold-span audit, oracle control, decomposition |
+| Natural Questions (validation) | CC BY-SA 3.0 | Wikipedia pages, ~42 chunks per gold document, one long answer (the first annotator who marked one) | localisation, decomposition |
 | HotpotQA, 2WikiMultihopQA | CC BY-SA 4.0, Apache-2.0 | 10 paragraphs, 2–4 gold | the A→B quantifier effect in the decomposition only |
 
 **Failure taxonomy with two retrieval gates.** Nine categories, one rule (R4) that decides whether
@@ -245,7 +248,7 @@ and [`hit_at_k_nq.json`](results/localisation/hit_at_k_nq.json), recomputed from
 | bge-reranker-base (278M) | 0.310 | 0.797 | 0.507 | 0.837 |
 
 **What replicates on both corpora.** Every model places the evidence near the top of its document
-but rarely first: the median rank is 2 for almost every model, a third to a half of gold chunks sit
+but often not first: the median rank is 2 for almost every model, a third to a half of gold chunks sit
 at ranks 2–5, and the misses are only partly shared (union of seven at rank 1 0.77–0.78 against a
 best single model of 0.40–0.51). BM25 is the weakest localiser on both corpora and the only model
 whose deficit survives Holm correction on both; it localises at 0.84–0.89 when the gold chunk is
@@ -683,8 +686,9 @@ broken links or commands, and corrections to the documentation.
   `results/goldspan_adjudication/`, `results/figures/` and `results/*.json` are fixed at tag
   `v1.1.0`. If one of them is wrong, open an issue; a correction is made as a new tagged version
   with a [CHANGELOG](CHANGELOG.md) entry, never by editing the tag.
-- Put a new analysis in a folder of its own, say in its README that it is not part of the
-  manuscript, and record the commit, inputs and configuration it was produced with.
+- Put a new analysis in a folder of its own under [`results/exploratory/`](results/exploratory/README.md),
+  say in its README that it is not part of the manuscript, and record the commit, inputs and
+  configuration it was produced with.
 - Do not commit corpus files or text excerpted from them; the corpora are fetched as described in
   [docs/DATASETS.md](docs/DATASETS.md).
 
