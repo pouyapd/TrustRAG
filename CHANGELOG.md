@@ -76,6 +76,14 @@ except for the v1.1.0 date.
   reported table from the committed ranks; a "Contributing" section is new. The findings,
   numbers and limitations are unchanged. The README said CI runs on every push; it runs on pushes
   to `main` and `research/**` branches and on pull requests to `main`.
+- **ORCID.** The author's ORCID, 0009-0000-6875-6275 (checksum valid; the public record names
+  Pouya Bathaei Pourmand), is added to `CITATION.cff`, `.zenodo.json` and the README, replacing a
+  commented-out placeholder.
+- **Figure labels.** The README's three study figures gain visible captions; the gold-span figure's
+  says that it shows the proxies' partition before adjudication, not the result. In
+  `docs/paper/FIGURES.md`, `docs/figures/pipeline_evaluation.png` is labelled historical: its
+  accuracy of 0.74 scores the rules against the automated reference labels of 2 September 2026,
+  not the final human-reviewed labels the manuscript reports.
 - **Ignore files.** `.gitignore` also covers other `.env.*` files, `coverage.xml`, patch and
   backup leftovers, and `figures_check/`, the output folder the README suggests for re-rendered
   figures. `.dockerignore` keeps the raw corpora, built indices and private manuscript material

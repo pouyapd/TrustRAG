@@ -66,9 +66,9 @@ detail):
 flowchart TD
     A["Public corpora<br/>QASPER, NQ,<br/>HotpotQA, 2Wiki"] --> B["Loaders<br/>gold evidence as<br/>character spans"]
     B --> C["Chunker<br/>256-token chunks,<br/>offsets verified"]
-    C --> L["1. Within-document<br/>localisation<br/>seven localisers"]
+    C --> L["1. Within-document<br/>localisation on<br/>QASPER and NQ"]
     C --> R["2. Decomposition<br/>and failure<br/>attribution"]
-    L --> LS["hit@k, MRR,<br/>lift over chance,<br/>McNemar + Holm"]
+    L --> LS["seven localisers:<br/>hit@k, MRR, lift,<br/>McNemar + Holm"]
     R --> RS["coverage A, B, C;<br/>taxonomy with<br/>two gates"]
     RS --> H["3. Human study,<br/>gold-span audit,<br/>oracle control"]
 ```
@@ -279,6 +279,9 @@ correlations, sweeps, corpus contrasts and limitations:
 
 ![Both retrieval gates scored against the final human-reviewed labels](results/figures/human_validation.png)
 
+<sub>Left: both retrieval gates scored against the 200 final human-reviewed labels (one annotator, the
+author). Right: the same units paired, with the exact McNemar test.</sub>
+
 200 QASPER units were annotated by the author under written guidelines
 ([docs/ANNOTATION_GUIDELINES.md](docs/ANNOTATION_GUIDELINES.md)) in a blinded package built by
 [`scripts/build_annotation_package.py`](scripts/build_annotation_package.py). Provenance is
@@ -312,6 +315,10 @@ Full account: [docs/paper/human_validation_final.md](docs/paper/human_validation
 ## Gold-span completeness audit
 
 ![Proxy partition of the 133 zero-coverage units, before human adjudication](results/figures/gold_span_validity.png)
+
+<sub>How two automatic proxies split the 133 zero-coverage units *before* human adjudication. This is
+not the result: of the 10 units the proxies marked "answer present", 3 were confirmed by hand, and the
+adjudicated under-coverage is 0.053 (table below).</sub>
 
 Span-level scoring assumes the annotated spans are the only places the answer can be derived from.
 QASPER marks supporting paragraphs, not every sufficient passage, so a retriever that returns a
@@ -349,6 +356,9 @@ have been trusted on their own: of the 10 units they were confident about, 3 wer
 ## Oracle-evidence control (a replication)
 
 ![Oracle-evidence control](results/figures/oracle_evidence.png)
+
+<sub>Share of answers that contain every reference key fact, per retrieval stratum, with the retrieved
+context and with the gold spans supplied instead (Qwen2.5-0.5B-Instruct, n = 150).</sub>
 
 150 QASPER questions answered twice by the same generator (Qwen2.5-0.5B-Instruct), same prompt,
 same decoding; only the context differs (retrieved chunks vs the gold spans verbatim).
@@ -682,3 +692,4 @@ distributed under CC BY 4.0.
 ## Author
 
 Pouya Bathaei Pourmand — independent researcher, Genoa, Italy.
+ORCID [0009-0000-6875-6275](https://orcid.org/0009-0000-6875-6275).

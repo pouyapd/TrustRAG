@@ -67,6 +67,14 @@ not of one retriever. All four models are small and English (`limitations.md` §
 
 ## Figure 5 — Pipeline and evaluation overview
 
+> **Historical figure (note added 12 October 2026).** The taxonomy panel scores the default
+> (document-gated) rules against the automated, language-model reference labels of 2 September 2026
+> (`final_evaluation.json`: accuracy 0.74, macro F1 0.62, n = 200). It does not show the final
+> human-reviewed labels the manuscript reports, against which the document-gated variant scores
+> 0.600 and the evidence-gated variant 0.700 ([human_validation_final.md](human_validation_final.md)).
+> The README no longer shows this figure; it is kept because the command below still regenerates it
+> from the annotation package.
+
 **File:** `docs/figures/pipeline_evaluation.png`
 **Command:**
 ```bash
