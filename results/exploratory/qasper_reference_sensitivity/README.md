@@ -125,7 +125,7 @@ different questions (some localiser at rank 1 for 0.70–0.77, the best single o
 MPNet-base stays below BGE-small; bge-reranker-base is never the best QASPER localiser,
 never significantly different from BM25, and is the worst or second-worst neural one.
 
-**Depends on the reference:** the absolute QASPER levels, which drop by 3–6 pp under
+**Depends on the reference:** the absolute QASPER levels, which drop by 2.9–5.5 pp under
 `first`; which localiser is best (BGE-small or the ms-marco cross-encoder, never
 significantly apart); and both of the manuscript's significant QASPER pairs. BM25's
 deficits against BGE-small and the ms-marco cross-encoder survive Holm correction only

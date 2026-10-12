@@ -420,7 +420,7 @@ pair of bi-encoders differs significantly; every NQ lift over chance stays above
 **Depends on the reference.** Scored against all of its annotators, NQ hit@1 rises by 4–9 points
 (to 0.39–0.58, or 0.40–0.59 under NQ's official rule), the median rank becomes 1 for four
 localisers, and bge-reranker-base's lead over MPNet-base is no longer significant after Holm
-correction. With the first annotator as the reference on QASPER too, QASPER hit@1 falls by 3–6
+correction. With the first annotator as the reference on QASPER too, QASPER hit@1 falls by 2.9–5.5
 points on the 275 questions where that annotator's evidence is in the text, no QASPER pair
 survives Holm correction, and BM25 is no longer the weakest QASPER localiser. The statements
 "hit@1 at or below about half", "median rank 2 for almost every model" and "BM25 is the only
@@ -612,8 +612,9 @@ Read before quoting any number above.
   the cross-encoder reversal, the partly shared failures and the bi-encoder comparisons in
   place. The numbers move: under the union of annotators NQ hit@1 rises by 4–9 pp (to
   0.39–0.58, four localisers above 0.5, median rank 1 for four), and bge-reranker-base's lead
-  over MPNet-base is no longer significant; with the first annotator on QASPER too, no QASPER
-  pair survives Holm correction and BM25 is no longer the weakest QASPER localiser.
+  over MPNet-base no longer survives Holm correction (uncorrected *p* = 0.009); with the first
+  annotator on QASPER too, no QASPER pair survives Holm correction and BM25 is no longer the
+  weakest QASPER localiser.
 - **Reach × localisation** was tested on QASPER only (NQ reach is saturated) with limited power.
 - **The oracle control** has n = 150, one small reader, no sham control, and two strata with too
   few discordant pairs.
