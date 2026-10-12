@@ -1,5 +1,7 @@
 # Environment
 .env
+.env.*
+!.env.example
 .venv
 venv/
 env/
@@ -11,7 +13,11 @@ __pycache__/
 *.egg-info/
 .pytest_cache/
 .coverage
+coverage.xml
 htmlcov/
+.mypy_cache/
+/build/
+/dist/
 .ruff_cache/
 
 # Data
@@ -20,12 +26,22 @@ data/documents/*.pdf
 data/documents/*.txt
 !data/documents/.gitkeep
 reports/
+# Output folder suggested in the README for re-rendered figures
+figures_check/
 
 # IDE
 .vscode/
 .idea/
 *.swp
 .DS_Store
+Thumbs.db
+
+# Temporary and patch leftovers
+*.tmp
+*.bak
+*.orig
+*.rej
+*~
 
 # Notebooks
 .ipynb_checkpoints/
@@ -36,4 +52,6 @@ reports/
 # Raw third-party corpora - never redistributed, fetched as described in docs/DATASETS.md
 data/raw/
 data/build/
+
+# Private manuscript material and drafts: never commit
 manuscript_private/

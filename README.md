@@ -1,4 +1,7 @@
-# TrustRAG — evidence localisation and failure attribution for RAG evaluation
+# TrustRAG
+
+**Evidence-level evaluation for retrieval-augmented generation (RAG): once a retriever has
+reached the right document, does it rank the passage that supports the answer first?**
 
 [![CI](https://github.com/pouyapd/TrustRAG/actions/workflows/ci.yml/badge.svg)](https://github.com/pouyapd/TrustRAG/actions/workflows/ci.yml)
 ![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)
@@ -7,22 +10,98 @@
 [![Code archive v1.0.0: DOI 10.5281/zenodo.22879358](https://img.shields.io/badge/code%20archive%20v1.0.0-10.5281%2Fzenodo.22879358-blue)](https://doi.org/10.5281/zenodo.22879358)
 [![Annotation package: DOI 10.5281/zenodo.22879569](https://img.shields.io/badge/annotation%20package-10.5281%2Fzenodo.22879569-blue)](https://doi.org/10.5281/zenodo.22879569)
 
-**TrustRAG is a research framework for evaluating retrieval-augmented generation (RAG) at the
-level of evidence rather than documents.** A document-level retrieval metric counts any retrieved
-chunk of a relevant document as a success. TrustRAG measures what that metric cannot see: the gap
-between retrieving the correct document and localising the passage that actually supports the
-answer — the passage a generator needs, and the passage an evaluation decision about *which stage
-failed* depends on. It does this with an offset-carrying pipeline (every chunk keeps its character
-range in the source document, so evidence coverage is interval arithmetic, not string search), a
-document-restricted localisation protocol with an analytic chance level, a failure taxonomy whose
-retrieval rule can be gated on document-level or span-level evidence, and an audit of the evidence
-annotations that span-level scoring relies on.
+**[Quickstart](#quickstart)** · **[Main findings](#main-findings)** ·
+**[Reproduce the results](#reproducibility)** · **[Paper status and DOIs](#paper-status-and-identifiers)** ·
+**[Datasets](docs/DATASETS.md)** · **[Cite](#citation)**
+
+![Rank of the gold chunk inside its own document, for seven localisers on QASPER and Natural Questions](results/localisation/rank_distribution.png)
+
+<sub>Each localiser ranks every chunk of the document that holds the gold evidence; the bars show
+where the first chunk overlapping that evidence lands. Rank 1 (darkest) is reached for 0.29–0.40
+of QASPER questions and 0.35–0.51 of NQ questions, against an analytic chance level of 0.16 and
+0.12 (dashed line). Tables and per-question data: [results/localisation/](results/localisation/README.md).</sub>
+
+**Contents:** [Overview](#overview) · [How it works](#how-it-works) · [Quickstart](#quickstart) ·
+[Paper status and identifiers](#paper-status-and-identifiers) ·
+[The problem](#the-problem-right-document-wrong-passage) · [What is evaluated](#what-the-framework-evaluates) ·
+[Main findings](#main-findings) · [Human-reviewed attribution study](#human-reviewed-attribution-study) ·
+[Gold-span completeness audit](#gold-span-completeness-audit) · [Oracle-evidence control](#oracle-evidence-control-a-replication) ·
+[Decomposition and a withdrawn result](#retrieval-decomposition-and-a-withdrawn-result) ·
+[Reproducibility](#reproducibility) · [Repository structure](#repository-structure) · [Tests](#tests) ·
+[Limitations](#limitations) · [Version](#version-and-release) · [Citation](#citation) ·
+[Contributing](#contributing) · [License](#license)
+
+## Overview
+
+A document-level retrieval metric counts any retrieved chunk of a relevant document as a success.
+It cannot tell whether the chunk that reached the generator is the passage that supports the
+answer, and a decision about *which stage failed*, retrieval or generation, depends on exactly
+that. TrustRAG measures this gap. Every chunk keeps its character range in the source document, so
+evidence coverage is interval arithmetic, not string search; a document-restricted localisation
+protocol with an analytic chance level makes models and corpora comparable; a failure taxonomy can
+gate its retrieval rule on document-level or span-level evidence; and the evidence annotations
+that span-level scoring relies on are audited too.
 
 TrustRAG proposes no retrieval method and claims no state-of-the-art result. It is a measurement
 study: what happens inside the right document, on two public corpora, with the reference itself
 audited.
 
-## Research paper
+| | |
+|---|---|
+| **Research question** | When a retriever has reached the right document, how often does it rank the evidence passage first, and does that depend on the model or the corpus? |
+| **Contributions** | A within-document localisation protocol with a length-aware analytic chance level; seven localisers (BM25, four dense bi-encoders, two cross-encoder rerankers) under one protocol on two corpora; a failure taxonomy whose retrieval rule is scored against 200 human-reviewed labels; a completeness audit of the QASPER evidence annotations |
+| **Datasets** | QASPER dev (290 questions) and Natural Questions validation (300 questions) for localisation; HotpotQA and 2WikiMultihopQA for the retrieval decomposition only. Corpora are not redistributed: loaders, download commands and checksums are in [docs/DATASETS.md](docs/DATASETS.md) |
+| **Intended users** | Researchers who evaluate retrievers and rerankers for RAG at the level of evidence; builders of QA datasets whose evidence annotations serve as a scoring reference; readers checking the manuscript's numbers |
+| **Requirements** | Python 3.11+, a CPU; no API key for anything reported |
+| **Status** | Research code for a manuscript submitted to *Language Resources and Evaluation* and not yet peer-reviewed ([details](#paper-status-and-identifiers)) |
+
+## How it works
+
+The study follows three paths that share the same loaders and chunker. The module and script
+names are the ones in this repository; [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#the-study-end-to-end)
+gives the same map in more detail.
+
+```mermaid
+flowchart TD
+    A["Public corpora: QASPER, Natural Questions, HotpotQA, 2WikiMultihopQA<br/>fetched and checksummed as in docs/DATASETS.md"] --> B["src/data/loaders<br/>questions with gold evidence as character spans"]
+    B --> C["src/data/corpus.py, src/rag/chunking.py<br/>256-token chunks, overlap 32, offsets checked for every chunk"]
+    C --> L["1. Within-document localisation<br/>seven localisers rank every chunk of the gold document<br/>scripts/localisation_probe.py, localisation_extra.py"]
+    C --> R["2. Retrieval decomposition and failure attribution<br/>retrieve top-k from ChromaDB, generate, store every record<br/>scripts/reproduce_study.py"]
+    L --> LS["hit@k, MRR, lift over analytic chance,<br/>exact McNemar with Holm correction, cluster bootstrap<br/>results/localisation/"]
+    R --> RS["evidence coverage under definitions A, B and C,<br/>failure taxonomy with a document gate and an evidence gate<br/>results/*.json"]
+    RS --> H["3. Annotation and audits on the stored QASPER run<br/>200 human-reviewed labels, gold-span adjudication, oracle-evidence control<br/>annotation package, results/goldspan_adjudication/"]
+```
+
+## Quickstart
+
+Python 3.11 or newer (CI runs 3.12). Nothing below needs a GPU, an API key or a corpus download.
+
+```bash
+git clone https://github.com/pouyapd/TrustRAG.git && cd TrustRAG
+python -m venv venv && source venv/bin/activate      # Windows: venv\Scripts\activate
+pip install -r requirements.txt                      # service, evaluation, tests
+python scripts/run_offline_eval.py                   # end-to-end run on the bundled sample corpus, seconds
+pytest tests/ -q -rs                                 # some tests skip, with the reason, without the annotation package
+```
+
+Recompute one of the reported tables from the per-question ranks committed in the repository, and
+check that it matches:
+
+```bash
+python scripts/localisation_robustness.py --hit-at-k qasper --out results/localisation/hit_at_k_qasper.json
+git diff --stat results/                             # no output: identical to the committed file
+```
+
+`pip install -r requirements-research.txt` adds matplotlib, torch and transformers for the figures
+and the local generators. `requirements.txt` sets lower bounds only, so a fresh install resolves
+newer versions than the ones the results were produced with; to rebuild that exact environment
+(Python 3.12.7), install [`requirements-lock.txt`](requirements-lock.txt) instead; its header says
+how it was recorded. [Reproducibility](#reproducibility) lists what recomputes from a clone, from
+the annotation package, and from the corpora and models. The FastAPI service
+(`uvicorn src.api.main:app`) and the Docker setup are the pipeline the evaluation wraps;
+[docs/QUICKSTART.md](docs/QUICKSTART.md) covers them.
+
+## Paper status and identifiers
 
 **Right Document, Wrong Passage: Evidence Localisation in Retrieval-Augmented Generation Evaluation
 on QASPER and Natural Questions.** Pouya Bathaei Pourmand, 2026.
@@ -43,7 +122,7 @@ they point to different things:
 | [10.5281/zenodo.22879569](https://doi.org/10.5281/zenodo.22879569) | Zenodo version DOI of the **human annotation package** (SHA-256 `d6d84ecb155853939be2b6d482caedb808915e29aa54498fb78c7d09502ea44d`), under CC BY 4.0 because it excerpts QASPER text (see [Reproducibility](#reproducibility)). |
 | [10.5281/zenodo.22879357](https://doi.org/10.5281/zenodo.22879357) | Zenodo **concept DOI** of the record that holds both deposits. It resolves to the latest version in the record, which is currently the annotation package, and the DOI registry (DataCite) lists it as a CC BY 4.0 dataset, so it is not a DOI for the code. |
 
-**In one paragraph.** Every chunk of the document that holds the gold evidence is ranked against
+**Findings in one paragraph.** Every chunk of the document that holds the gold evidence is ranked against
 the question by seven localisers — BM25, four dense bi-encoders and two cross-encoder rerankers,
 22M–278M parameters — on QASPER (290 questions, NLP papers) and Natural Questions (300 questions,
 Wikipedia), under one protocol and a length-aware analytic chance level. Rank-1 localisation stays
@@ -55,17 +134,9 @@ across corpora. An author-conducted annotation study of 200 QASPER units finds t
 attribution on span coverage agrees with the human labels more often than gating on document
 coverage (accuracy 0.700 against 0.600), and an author-conducted, blind adjudication of 97 of the
 133 zero-coverage units puts the incompleteness of the QASPER span annotations at 0.053, about
-5–7% once the 36 units that were left unadjudicated are allowed for. The results argue for reporting localisation against chance and for auditing
-evidence annotations before they serve as a scoring reference.
-
-## Contents
-
-[The problem](#the-problem-right-document-wrong-passage) · [What is evaluated](#what-the-framework-evaluates) ·
-[Main findings](#main-findings) · [Human-reviewed attribution study](#human-reviewed-attribution-study) ·
-[Gold-span completeness audit](#gold-span-completeness-audit) · [Oracle-evidence control](#oracle-evidence-control-a-replication) ·
-[Decomposition and a withdrawn result](#retrieval-decomposition-and-a-withdrawn-result) ·
-[Reproducibility](#reproducibility) · [Repository structure](#repository-structure) · [Installation](#installation) ·
-[Tests](#tests) · [Limitations](#limitations) · [Version](#version-and-release) · [Citation](#citation) · [License](#license)
+5–7% once the 36 units that were left unadjudicated are allowed for. The results argue for
+reporting localisation against chance and for auditing evidence annotations before they serve as
+a scoring reference.
 
 ## The problem: right document, wrong passage
 
@@ -136,7 +207,7 @@ every row, so the comparison runs on the same retrieval output at no extra infer
 
 ## Main findings
 
-![Rank of the gold chunk inside its document, per model and corpus](results/localisation/rank_distribution.png)
+The rank distributions are in the figure at the [top of this page](#trustrag).
 
 | | QASPER (n = 290) | NQ (n = 300) |
 |---|---|---|
@@ -435,26 +506,6 @@ data/documents/, data/eval/   the small sample corpus used by the offline pipeli
 CITATION.cff, .zenodo.json, LICENSE, pyproject.toml, CHANGELOG.md
 ```
 
-## Installation
-
-Python 3.11 or newer (CI runs 3.12).
-
-```bash
-git clone https://github.com/pouyapd/TrustRAG.git && cd TrustRAG
-python -m venv venv && source venv/bin/activate      # Windows: venv\Scripts\activate
-pip install -r requirements.txt                      # service, evaluation, tests
-pip install -r requirements-research.txt             # + matplotlib, torch/transformers for figures and local generators
-python scripts/run_offline_eval.py                   # end-to-end smoke run on the sample corpus, seconds, no key
-```
-
-`requirements.txt` sets lower bounds only, so a fresh install resolves newer versions than the
-ones the results were produced with. To rebuild that exact environment (Python 3.12.7), install
-[`requirements-lock.txt`](requirements-lock.txt) instead; its header says how it was recorded.
-
-No API key is needed for anything reported here; all models run locally on CPU. The FastAPI
-service (`uvicorn src.api.main:app`) and the Docker setup are the pipeline the evaluation wraps;
-[docs/QUICKSTART.md](docs/QUICKSTART.md) covers them.
-
 ## Tests
 
 ```bash
@@ -472,7 +523,8 @@ and retrieval to a failure label, statistical helpers against known values, a te
 hit@k and the reach tests from the committed localisation rows, and a regression test for every
 defect found during the work — including the 600-character annotation-display truncation that hid
 retrieved evidence from the annotator and biased labels toward blaming retrieval. CI runs lint,
-tests, an evaluation regression and a Docker build on every push.
+tests, an evaluation regression and a Docker build on pushes to `main` and `research/**`
+branches and on pull requests to `main`.
 
 ## Limitations
 
@@ -542,6 +594,22 @@ The manuscript *Right document, wrong passage: evidence localisation in retrieva
 generation evaluation on QASPER and Natural Questions* was submitted to *Language Resources and
 Evaluation* on 23 September 2026 and is awaiting editorial assignment; a citation to the article
 will replace the software citation if it is published.
+
+## Contributing
+
+Issues and pull requests are welcome, in particular reports of a number that does not reproduce,
+broken links or commands, and corrections to the documentation.
+
+- Run `pytest tests/ -q -rs` and `ruff check src/ tests/ scripts/` before opening a pull request;
+  CI runs both.
+- Leave the files the manuscript reports unchanged: `results/localisation/`,
+  `results/goldspan_adjudication/`, `results/figures/` and `results/*.json` are fixed at tag
+  `v1.1.0`. If one of them is wrong, open an issue; a correction is made as a new tagged version
+  with a [CHANGELOG](CHANGELOG.md) entry, never by editing the tag.
+- Put a new analysis in a folder of its own, say in its README that it is not part of the
+  manuscript, and record the commit, inputs and configuration it was produced with.
+- Do not commit corpus files or text excerpted from them; the corpora are fetched as described in
+  [docs/DATASETS.md](docs/DATASETS.md).
 
 ## License
 

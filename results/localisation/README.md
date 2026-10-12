@@ -12,6 +12,12 @@ hit@5 on QASPER is 213/290 = 0.734 (not 0.735), bge-reranker-base MRR on QASPER 
 [0.404, 0.517]. The tables below and `hit_at_k_*.json` use the exact values; the generated
 `summary_*.md` files are left as the script wrote them.
 
+*Rounding note (12 October 2026).* Two cells of the "QASPER against NQ" table were
+rounded from already-rounded values. The lowest NQ lift over chance is BM25's 3.054, which
+rounds to 3.1 (not 3.0), and the lowest QASPER share of gold chunks at ranks 2–5 is
+BGE-small's 129/290 = 0.4448, which rounds to 0.44 (not 0.45). The table now gives the
+correctly rounded values, as the manuscript does; no result file changes.
+
 ## The question
 
 When a retriever has reached the right document, how often does it rank the passage
@@ -220,8 +226,8 @@ Global top-5 over the whole corpus (same questions): reach A, span coverage C, l
 | Chance hit@1 | 0.157 | 0.116 |
 | hit@1, all seven models | 0.290 – 0.400 | 0.353 – 0.507 |
 | hit@5, all seven models | 0.755 – 0.855 | 0.690 – 0.837 |
-| Lift over chance at rank 1 | 1.8 – 2.5× | 3.0 – 4.4× |
-| Share of gold chunks at ranks 2–5 | 0.45 – 0.49 | 0.33 – 0.39 |
+| Lift over chance at rank 1 | 1.8 – 2.5× | 3.1 – 4.4× |
+| Share of gold chunks at ranks 2–5 | 0.44 – 0.49 | 0.33 – 0.39 |
 | Median rank | 2 (BM25, MPNet: 3) | 2 (BM25: 3; bge-reranker: 1) |
 | Best single model | BGE-small, 0.400 | bge-reranker-base, 0.507 |
 | Worst neural model | bge-reranker-base, 0.310 | MiniLM, 0.387 |
