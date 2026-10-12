@@ -58,20 +58,28 @@ audited.
 
 ## How it works
 
-The study follows three paths that share the same loaders and chunker. The module and script
-names are the ones in this repository; [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#the-study-end-to-end)
-gives the same map in more detail.
+The study follows three paths that share the same loaders and chunker
+([docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#the-study-end-to-end) gives the same map in more
+detail):
 
 ```mermaid
 flowchart TD
-    A["Public corpora: QASPER, Natural Questions, HotpotQA, 2WikiMultihopQA<br/>fetched and checksummed as in docs/DATASETS.md"] --> B["src/data/loaders<br/>questions with gold evidence as character spans"]
-    B --> C["src/data/corpus.py, src/rag/chunking.py<br/>256-token chunks, overlap 32, offsets checked for every chunk"]
-    C --> L["1. Within-document localisation<br/>seven localisers rank every chunk of the gold document<br/>scripts/localisation_probe.py, localisation_extra.py"]
-    C --> R["2. Retrieval decomposition and failure attribution<br/>retrieve top-k from ChromaDB, generate, store every record<br/>scripts/reproduce_study.py"]
-    L --> LS["hit@k, MRR, lift over analytic chance,<br/>exact McNemar with Holm correction, cluster bootstrap<br/>results/localisation/"]
-    R --> RS["evidence coverage under definitions A, B and C,<br/>failure taxonomy with a document gate and an evidence gate<br/>results/*.json"]
-    RS --> H["3. Annotation and audits on the stored QASPER run<br/>200 human-reviewed labels, gold-span adjudication, oracle-evidence control<br/>annotation package, results/goldspan_adjudication/"]
+    A["Public corpora<br/>QASPER, NQ,<br/>HotpotQA, 2Wiki"] --> B["Loaders<br/>gold evidence as<br/>character spans"]
+    B --> C["Chunker<br/>256-token chunks,<br/>offsets verified"]
+    C --> L["1. Within-document<br/>localisation<br/>seven localisers"]
+    C --> R["2. Decomposition<br/>and failure<br/>attribution"]
+    L --> LS["hit@k, MRR,<br/>lift over chance,<br/>McNemar + Holm"]
+    R --> RS["coverage A, B, C;<br/>taxonomy with<br/>two gates"]
+    RS --> H["3. Human study,<br/>gold-span audit,<br/>oracle control"]
 ```
+
+| Step | Code | Output |
+|---|---|---|
+| Loaders | [`src/data/loaders/`](src/data/loaders/) | questions with gold evidence as character spans |
+| Chunker | [`src/rag/chunking.py`](src/rag/chunking.py), [`src/data/corpus.py`](src/data/corpus.py) | chunks whose text equals `document[start:end]`, checked for every chunk |
+| 1. Within-document localisation | [`localisation_probe.py`](scripts/localisation_probe.py), [`localisation_extra.py`](scripts/localisation_extra.py), [`localisation_report.py`](scripts/localisation_report.py) | [`results/localisation/`](results/localisation/README.md) |
+| 2. Decomposition and failure attribution | [`reproduce_study.py`](scripts/reproduce_study.py), [`src/evaluation/`](src/evaluation/) | `results/*.json` |
+| 3. Human study, gold-span audit, oracle control | [`build_annotation_package.py`](scripts/build_annotation_package.py), [`build_goldspan_adjudication.py`](scripts/build_goldspan_adjudication.py), [`run_oracle_evidence.py`](scripts/run_oracle_evidence.py) | annotation package, [`results/goldspan_adjudication/`](results/goldspan_adjudication/) |
 
 ## Quickstart
 
