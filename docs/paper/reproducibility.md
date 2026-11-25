@@ -1,8 +1,8 @@
 # Reproducibility map
 
 Every analysis reported in the README and in the manuscript (submitted to *Language
-Resources and Evaluation* on 23 September 2026, awaiting editorial assignment; not in this
-repository), mapped to the command that produces it and the file it reads. Run from the
+Resources and Evaluation* on 23 September 2026 and desk-rejected on 20 November 2026; not in
+this repository), mapped to the command that produces it and the file it reads. Run from the
 repository root after `pip install -r requirements.txt`. The within-document localisation study has its own
 command list in [results/localisation/README.md](../../results/localisation/README.md)
 (section "Reproducing"); the human study has its own in

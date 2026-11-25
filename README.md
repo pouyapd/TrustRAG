@@ -10,6 +10,16 @@ reached the right document, does it rank the passage that supports the answer fi
 [![Code archive v1.0.0: DOI 10.5281/zenodo.22879358](https://img.shields.io/badge/code%20archive%20v1.0.0-10.5281%2Fzenodo.22879358-blue)](https://doi.org/10.5281/zenodo.22879358)
 [![Annotation package: DOI 10.5281/zenodo.22879569](https://img.shields.io/badge/annotation%20package-10.5281%2Fzenodo.22879569-blue)](https://doi.org/10.5281/zenodo.22879569)
 
+> **Current work (November 2026): [reference construction in evidence-level evaluation](studies/reference_sensitivity_2026-11/README.md).**
+> The follow-up study asks how the choice of evidence reference (first annotator, union, plurality,
+> agreement, official rule) changes scores, model comparisons and significance. It covers 3,475
+> questions (QASPER 2,197, Natural Questions 1,278) and up to eleven localisers, and every result
+> is recomputable from text-free per-question orderings. Moving from the first annotator to the
+> union raises rank-1 localisation by 4–9 points for every model. A random-gold control shows the
+> gain is mostly real evidence. A single-annotator reference compresses the differences between
+> neural models and BM25. The revised manuscript is in preparation and not yet submitted. The rest
+> of this page documents the September 2026 study at tag `v1.1.0`.
+
 **[Quickstart](#quickstart)** · **[Main findings](#main-findings)** ·
 **[Reproduce the results](#reproducibility)** · **[Paper status and DOIs](#paper-status-and-identifiers)** ·
 **[Datasets](docs/DATASETS.md)** · **[Cite](#citation)**
@@ -54,7 +64,7 @@ audited.
 | **Datasets** | QASPER dev (290 questions) and Natural Questions validation (300 questions) for localisation; HotpotQA and 2WikiMultihopQA for the retrieval decomposition only. Corpora are not redistributed: loaders, download commands and checksums are in [docs/DATASETS.md](docs/DATASETS.md) |
 | **Intended users** | Researchers who evaluate retrievers and rerankers for RAG at the level of evidence; builders of QA datasets whose evidence annotations serve as a scoring reference; readers checking the manuscript's numbers |
 | **Requirements** | Python 3.11+, a CPU; no API key for anything reported |
-| **Status** | Research code for a manuscript submitted to *Language Resources and Evaluation* and not yet peer-reviewed ([details](#paper-status-and-identifiers)) |
+| **Status** | Research code. The September 2026 manuscript was desk-rejected by *Language Resources and Evaluation* on 20 November 2026 (no peer review). A revised manuscript based on the [follow-up study](studies/reference_sensitivity_2026-11/README.md) is in preparation ([details](#paper-status-and-identifiers)) |
 
 ## How it works
 
@@ -115,10 +125,13 @@ the annotation package, and from the corpora and models. The FastAPI service
 **Right Document, Wrong Passage: Evidence Localisation in Retrieval-Augmented Generation Evaluation
 on QASPER and Natural Questions.** Pouya Bathaei Pourmand, 2026.
 
-**Status (9 October 2026):** submitted to *Language Resources and Evaluation* (Springer) on
-23 September 2026; passed technical checks on 28 September 2026; awaiting editorial assignment.
-It has not been peer-reviewed, accepted or published, and this line will be updated when that
-changes. The manuscript is not in the repository.
+**Status (25 November 2026):** submitted to *Language Resources and Evaluation* (Springer) on
+23 September 2026, passed technical checks on 28 September 2026, and was desk-rejected on
+20 November 2026, without peer review. It was not published. A revised manuscript, *Whose evidence
+counts? Reference construction and completeness in evidence-level retrieval evaluation on QASPER
+and Natural Questions*, is in preparation and has not been submitted. Its code and results are in
+[`studies/reference_sensitivity_2026-11/`](studies/reference_sensitivity_2026-11/README.md).
+Neither manuscript is in the repository.
 
 The manuscript reports the code and results at tag
 **[v1.1.0](https://github.com/pouyapd/TrustRAG/tree/v1.1.0)**. Four identifiers are involved, and
@@ -407,9 +420,11 @@ and in the manuscript.
 
 ## Exploratory analyses after submission
 
-**Not part of the submitted manuscript, not peer-reviewed, and designed after submission.**
+**Not part of the September 2026 manuscript, not peer-reviewed, and designed after submission.**
 Everything here is under [`results/exploratory/`](results/exploratory/README.md) and changes no file and no number in
-the sections above.
+the sections above. These analyses led to the follow-up study in
+[`studies/reference_sensitivity_2026-11/`](studies/reference_sensitivity_2026-11/README.md). That
+study repeats them at full scale, with more references, models and controls.
 
 The two corpora build their evidence reference differently. QASPER's reference is the union of
 its annotators' evidence paragraphs, which matches QASPER's own evaluator; NQ's is the long answer
@@ -571,6 +586,8 @@ results/
   figures/           decomposition, oracle, human-validation and gold-span figures
   *.json             A/B/C decomposition, BM25 baseline and sweep outputs
   exploratory/       analyses made after submission, not in the manuscript (README in each folder)
+studies/
+  reference_sensitivity_2026-11/   follow-up study: scripts, text-free per-question orderings, analyses, audits, tests
 docs/
   EXPERIMENTS.md     decomposition protocol, all results, threats to validity
   TAXONOMY.md, EVALUATION.md, ANNOTATION_GUIDELINES.md, DATASETS.md, ARCHITECTURE.md, QUICKSTART.md
@@ -672,8 +689,8 @@ To cite the annotation package itself, use its version DOI,
 
 The manuscript *Right document, wrong passage: evidence localisation in retrieval-augmented
 generation evaluation on QASPER and Natural Questions* was submitted to *Language Resources and
-Evaluation* on 23 September 2026 and is awaiting editorial assignment; a citation to the article
-will replace the software citation if it is published.
+Evaluation* on 23 September 2026 and desk-rejected on 20 November 2026. A revised manuscript is in
+preparation. A citation to the article will replace the software citation if it is published.
 
 ## Contributing
 

@@ -43,4 +43,6 @@ abstract: >-
   it is not a DOI for the code. The manuscript "Right document, wrong passage: evidence
   localisation in retrieval-augmented generation evaluation on QASPER and Natural
   Questions" was submitted to Language Resources and Evaluation on 23 September 2026 and
-  is not yet peer-reviewed, accepted or published; cite this software release until it is.
+  desk-rejected on 20 November 2026 without peer review; it was not published. A revised
+  manuscript (studies/reference_sensitivity_2026-11/) is in preparation and not yet
+  submitted; cite this software release until an article exists.

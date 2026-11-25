@@ -1,0 +1,142 @@
+{
+ "platform": "Windows-11-10.0.26300-SP0",
+ "python": "3.12.7",
+ "n_items": 48,
+ "results": [
+  {
+   "model": "sentence-transformers/all-MiniLM-L6-v2",
+   "kind": "dense",
+   "backend": "torch",
+   "load_seconds": 4.4,
+   "items_per_second": 23.33,
+   "max_seq_length": 256
+  },
+  {
+   "model": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+   "kind": "cross",
+   "backend": "torch",
+   "load_seconds": 5.1,
+   "items_per_second": 19.08
+  },
+  {
+   "model": "Snowflake/snowflake-arctic-embed-xs",
+   "kind": "dense",
+   "backend": "torch",
+   "load_seconds": 9.6,
+   "items_per_second": 19.63,
+   "max_seq_length": 512
+  },
+  {
+   "model": "Snowflake/snowflake-arctic-embed-xs",
+   "kind": "dense",
+   "backend": "onnx",
+   "error": "TypeError: ORTModel._from_pretrained() got an unexpected keyword argument 'add_pooling_layer'",
+   "trace_tail": "ling.py\", line 575, in from_pretrained\n    return super().from_pretrained(\n           ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\user\\Desktop\\GITHUB\\TrustRAG\\venv\\Lib\\site-packages\\optimum\\modeling_base.py\", line 407, in from_pretrained\n    return from_pretrained_method(\n           ^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: ORTModel._from_pretrained() got an unexpected keyword argument 'add_pooling_layer'\n"
+  },
+  {
+   "model": "Snowflake/snowflake-arctic-embed-s",
+   "kind": "dense",
+   "backend": "torch",
+   "load_seconds": 8.3,
+   "items_per_second": 9.7,
+   "max_seq_length": 512
+  },
+  {
+   "model": "Snowflake/snowflake-arctic-embed-s",
+   "kind": "dense",
+   "backend": "onnx",
+   "error": "TypeError: ORTModel._from_pretrained() got an unexpected keyword argument 'add_pooling_layer'",
+   "trace_tail": "ling.py\", line 575, in from_pretrained\n    return super().from_pretrained(\n           ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\user\\Desktop\\GITHUB\\TrustRAG\\venv\\Lib\\site-packages\\optimum\\modeling_base.py\", line 407, in from_pretrained\n    return from_pretrained_method(\n           ^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: ORTModel._from_pretrained() got an unexpected keyword argument 'add_pooling_layer'\n"
+  },
+  {
+   "model": "ibm-granite/granite-embedding-30m-english",
+   "kind": "dense",
+   "backend": "torch",
+   "load_seconds": 7.4,
+   "items_per_second": 20.32,
+   "max_seq_length": 512
+  },
+  {
+   "model": "ibm-granite/granite-embedding-30m-english",
+   "kind": "dense",
+   "backend": "onnx",
+   "load_seconds": 20.0,
+   "items_per_second": 19.45,
+   "max_seq_length": 512
+  },
+  {
+   "model": "Alibaba-NLP/gte-modernbert-base",
+   "kind": "dense",
+   "backend": "torch",
+   "load_seconds": 22.9,
+   "items_per_second": 1.1,
+   "max_seq_length": 8192
+  },
+  {
+   "model": "Alibaba-NLP/gte-modernbert-base",
+   "kind": "dense",
+   "backend": "onnx",
+   "load_seconds": 19.3,
+   "items_per_second": 1.13,
+   "max_seq_length": 8192
+  },
+  {
+   "model": "BAAI/bge-m3",
+   "kind": "dense",
+   "backend": "torch",
+   "load_seconds": 46.5,
+   "items_per_second": 0.62,
+   "max_seq_length": 8192
+  },
+  {
+   "model": "BAAI/bge-m3",
+   "kind": "dense",
+   "backend": "onnx",
+   "load_seconds": 43.4,
+   "error": "KeyError: 'last_hidden_state'",
+   "trace_tail": "y\", line 1046, in forward\n    model_output = model_method(**filtered_kwargs)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\user\\Desktop\\GITHUB\\TrustRAG\\venv\\Lib\\site-packages\\optimum\\onnxruntime\\modeling.py\", line 729, in forward\n    last_hidden_state = model_outputs[\"last_hidden_state\"]\n                        ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^\nKeyError: 'last_hidden_state'\n"
+  },
+  {
+   "model": "mixedbread-ai/mxbai-rerank-xsmall-v1",
+   "kind": "cross",
+   "backend": "torch",
+   "load_seconds": 12.8,
+   "items_per_second": 3.59
+  },
+  {
+   "model": "mixedbread-ai/mxbai-rerank-xsmall-v1",
+   "kind": "cross",
+   "backend": "onnx",
+   "load_seconds": 14.3,
+   "items_per_second": 3.7
+  },
+  {
+   "model": "jinaai/jina-reranker-v1-turbo-en",
+   "kind": "cross",
+   "backend": "torch",
+   "load_seconds": 25.9,
+   "items_per_second": 6.9
+  },
+  {
+   "model": "jinaai/jina-reranker-v1-turbo-en",
+   "kind": "cross",
+   "backend": "onnx",
+   "load_seconds": 9.6,
+   "items_per_second": 10.08
+  },
+  {
+   "model": "Alibaba-NLP/gte-reranker-modernbert-base",
+   "kind": "cross",
+   "backend": "torch",
+   "load_seconds": 17.1,
+   "items_per_second": 1.09
+  },
+  {
+   "model": "Alibaba-NLP/gte-reranker-modernbert-base",
+   "kind": "cross",
+   "backend": "onnx",
+   "load_seconds": 23.2,
+   "items_per_second": 1.38
+  }
+ ]
+}

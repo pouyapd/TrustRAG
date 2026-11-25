@@ -1,0 +1,969 @@
+{
+ "status": "automated consistency audit; not a human annotation; no labels changed",
+ "nli_model": "cross-encoder/nli-deberta-v3-base",
+ "hypothesis_template": "The answer to the question \"<q>\" is: <a>.",
+ "thresholds": {
+  "high": 0.9,
+  "low": 0.1
+ },
+ "n_units": 133,
+ "n_judged": 97,
+ "n_unread": 36,
+ "author_yes": 7,
+ "author_no": 90,
+ "auc_nli_vs_author": 0.6952380952380952,
+ "median_entailment_yes": 0.015744648873806,
+ "median_entailment_no": 0.002973098889924586,
+ "flag_author_no_but_nli_high": [],
+ "flag_author_yes_but_nli_low": [
+  "unit_0040",
+  "unit_0067",
+  "unit_0099",
+  "unit_0109",
+  "unit_0122",
+  "unit_0146",
+  "unit_0152"
+ ],
+ "unread_with_nli_high": [],
+ "under_coverage": {
+  "author_count": 0.05263157894736842,
+  "if_flagged_no_were_yes": 0.05263157894736842,
+  "if_flagged_yes_were_no": 0.0,
+  "plus_unread_nli_high": 0.05263157894736842,
+  "upper_bound_all_flags_and_unread_high": 0.05263157894736842
+ },
+ "runtime_seconds": 2608.8,
+ "units": [
+  {
+   "annotation_id": "unit_0000",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.00410861661657691,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0002",
+   "bucket": "D_ambiguous_lexical_only",
+   "author_label": "NO",
+   "max_entailment": 0.0013686488382518291,
+   "n_pairs": 20
+  },
+  {
+   "annotation_id": "unit_0003",
+   "bucket": "C_possibly_inferable",
+   "author_label": "NO",
+   "max_entailment": 0.002818969776853919,
+   "n_pairs": 15
+  },
+  {
+   "annotation_id": "unit_0005",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.002503742231056094,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0006",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.0004469746199902147,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0007",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.0011503011919558048,
+   "n_pairs": 15
+  },
+  {
+   "annotation_id": "unit_0008",
+   "bucket": "D_ambiguous_lexical_only",
+   "author_label": "NO",
+   "max_entailment": 0.0021905882749706507,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0009",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.0036630998365581036,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0010",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.0010259895352646708,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0011",
+   "bucket": "B_supported_outside_gold_span",
+   "author_label": "NO",
+   "max_entailment": 0.005839935038238764,
+   "n_pairs": 40
+  },
+  {
+   "annotation_id": "unit_0012",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.0012285164557397366,
+   "n_pairs": 15
+  },
+  {
+   "annotation_id": "unit_0013",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.004852964077144861,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0015",
+   "bucket": "B_supported_outside_gold_span",
+   "author_label": "NO",
+   "max_entailment": 0.006086503621190786,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0016",
+   "bucket": "C_possibly_inferable",
+   "author_label": "NO",
+   "max_entailment": 0.0019236010266467929,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0017",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.0006231362349353731,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0018",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.03362301364541054,
+   "n_pairs": 30
+  },
+  {
+   "annotation_id": "unit_0019",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.00131587078794837,
+   "n_pairs": 15
+  },
+  {
+   "annotation_id": "unit_0020",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.0017241286113858223,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0021",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.05820281803607941,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0022",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.0014241028111428022,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0023",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.0031272280029952526,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0025",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.006117295008152723,
+   "n_pairs": 20
+  },
+  {
+   "annotation_id": "unit_0028",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.006896724924445152,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0029",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.001471064519137144,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0030",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.013986130245029926,
+   "n_pairs": 25
+  },
+  {
+   "annotation_id": "unit_0031",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.0009928772924467921,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0033",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.000829926400911063,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0034",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.0009933393448591232,
+   "n_pairs": 15
+  },
+  {
+   "annotation_id": "unit_0036",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.0011536672245711088,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0037",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.0008015122730284929,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0039",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.0007715693209320307,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0040",
+   "bucket": "D_ambiguous_lexical_only",
+   "author_label": "YES",
+   "max_entailment": 0.04499190300703049,
+   "n_pairs": 15
+  },
+  {
+   "annotation_id": "unit_0041",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.004440391901880503,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0042",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.009861688129603863,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0044",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.007093618158251047,
+   "n_pairs": 15
+  },
+  {
+   "annotation_id": "unit_0045",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.0011707053054124117,
+   "n_pairs": 15
+  },
+  {
+   "annotation_id": "unit_0047",
+   "bucket": "D_ambiguous_lexical_only",
+   "author_label": "NO",
+   "max_entailment": 0.0012114094570279121,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0049",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.0010325476760044694,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0050",
+   "bucket": "C_possibly_inferable",
+   "author_label": "NO",
+   "max_entailment": 0.004149588290601969,
+   "n_pairs": 15
+  },
+  {
+   "annotation_id": "unit_0053",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.0035921919625252485,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0055",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.0057617356069386005,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0056",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.0015230805147439241,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0057",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.0008798059425316751,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0058",
+   "bucket": "B_supported_outside_gold_span",
+   "author_label": "NO",
+   "max_entailment": 0.003553528804332018,
+   "n_pairs": 35
+  },
+  {
+   "annotation_id": "unit_0059",
+   "bucket": "D_ambiguous_lexical_only",
+   "author_label": "NO",
+   "max_entailment": 0.0014735247241333127,
+   "n_pairs": 25
+  },
+  {
+   "annotation_id": "unit_0060",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.0075245266780257225,
+   "n_pairs": 15
+  },
+  {
+   "annotation_id": "unit_0062",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.022673146799206734,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0063",
+   "bucket": "B_supported_outside_gold_span",
+   "author_label": "NO",
+   "max_entailment": 0.058349609375,
+   "n_pairs": 40
+  },
+  {
+   "annotation_id": "unit_0064",
+   "bucket": "D_ambiguous_lexical_only",
+   "author_label": "NO",
+   "max_entailment": 0.0014605930773541331,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0066",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.0013965178513899446,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0067",
+   "bucket": "B_supported_outside_gold_span",
+   "author_label": "YES",
+   "max_entailment": 0.015617845579981804,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0068",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.016768693923950195,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0071",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.0007132081664167345,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0073",
+   "bucket": "D_ambiguous_lexical_only",
+   "author_label": "NO",
+   "max_entailment": 0.0012630397686734796,
+   "n_pairs": 20
+  },
+  {
+   "annotation_id": "unit_0075",
+   "bucket": "D_ambiguous_lexical_only",
+   "author_label": "NO",
+   "max_entailment": 0.001202986459247768,
+   "n_pairs": 20
+  },
+  {
+   "annotation_id": "unit_0077",
+   "bucket": "D_ambiguous_lexical_only",
+   "author_label": "NO",
+   "max_entailment": 0.6134902238845825,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0080",
+   "bucket": "C_possibly_inferable",
+   "author_label": "NO",
+   "max_entailment": 0.0014366686809808016,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0081",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.0006939633167348802,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0082",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.001628474099561572,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0085",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.0019350607180967927,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0089",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.0007235127268359065,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0090",
+   "bucket": "C_possibly_inferable",
+   "author_label": "NO",
+   "max_entailment": 0.002010924508795142,
+   "n_pairs": 15
+  },
+  {
+   "annotation_id": "unit_0091",
+   "bucket": "D_ambiguous_lexical_only",
+   "author_label": "NO",
+   "max_entailment": 0.004718900192528963,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0093",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.0015571333933621645,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0095",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.00048040496767498553,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0097",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.0009287105058319867,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0098",
+   "bucket": "D_ambiguous_lexical_only",
+   "author_label": "NO",
+   "max_entailment": 0.0016666105948388577,
+   "n_pairs": 15
+  },
+  {
+   "annotation_id": "unit_0099",
+   "bucket": "B_supported_outside_gold_span",
+   "author_label": "YES",
+   "max_entailment": 0.0009305701241828501,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0101",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.0016436494188383222,
+   "n_pairs": 15
+  },
+  {
+   "annotation_id": "unit_0102",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.0007531530573032796,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0103",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.006611452903598547,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0104",
+   "bucket": "D_ambiguous_lexical_only",
+   "author_label": "NO",
+   "max_entailment": 0.0014947016024962068,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0105",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.013031816110014915,
+   "n_pairs": 25
+  },
+  {
+   "annotation_id": "unit_0106",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.006116131786257029,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0107",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.00952457170933485,
+   "n_pairs": 15
+  },
+  {
+   "annotation_id": "unit_0108",
+   "bucket": "B_supported_outside_gold_span",
+   "author_label": "NO",
+   "max_entailment": 0.0006240924121811986,
+   "n_pairs": 25
+  },
+  {
+   "annotation_id": "unit_0109",
+   "bucket": "D_ambiguous_lexical_only",
+   "author_label": "YES",
+   "max_entailment": 0.02261544018983841,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0110",
+   "bucket": "D_ambiguous_lexical_only",
+   "author_label": "NO",
+   "max_entailment": 0.06525158882141113,
+   "n_pairs": 15
+  },
+  {
+   "annotation_id": "unit_0111",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.002533147344365716,
+   "n_pairs": 20
+  },
+  {
+   "annotation_id": "unit_0112",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.054763007909059525,
+   "n_pairs": 20
+  },
+  {
+   "annotation_id": "unit_0116",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.01018394622951746,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0118",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.0044320314191281796,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0119",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.10457528382539749,
+   "n_pairs": 15
+  },
+  {
+   "annotation_id": "unit_0121",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.015407769940793514,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0122",
+   "bucket": "B_supported_outside_gold_span",
+   "author_label": "YES",
+   "max_entailment": 0.0016429703682661057,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0123",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.0007898095645941794,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0124",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.02001783810555935,
+   "n_pairs": 25
+  },
+  {
+   "annotation_id": "unit_0126",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.009970586746931076,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0127",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.0012676985934376717,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0129",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.0051317112520337105,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0130",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.0013214442878961563,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0131",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.002038598293438554,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0132",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.0005881683900952339,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0133",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.006915485020726919,
+   "n_pairs": 15
+  },
+  {
+   "annotation_id": "unit_0134",
+   "bucket": "D_ambiguous_lexical_only",
+   "author_label": "NO",
+   "max_entailment": 0.0019286033930256963,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0136",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.0012559923343360424,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0137",
+   "bucket": "D_ambiguous_lexical_only",
+   "author_label": "NO",
+   "max_entailment": 0.0033046395983546972,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0138",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.016546525061130524,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0142",
+   "bucket": "C_possibly_inferable",
+   "author_label": "NO",
+   "max_entailment": 0.004927641712129116,
+   "n_pairs": 40
+  },
+  {
+   "annotation_id": "unit_0143",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.000915291893761605,
+   "n_pairs": 15
+  },
+  {
+   "annotation_id": "unit_0145",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.002878662897273898,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0146",
+   "bucket": "D_ambiguous",
+   "author_label": "YES",
+   "max_entailment": 0.015744648873806,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0149",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.0008884696871973574,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0150",
+   "bucket": "D_ambiguous_lexical_only",
+   "author_label": "NO",
+   "max_entailment": 0.0008320700144395232,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0151",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.0031038911547511816,
+   "n_pairs": 15
+  },
+  {
+   "annotation_id": "unit_0152",
+   "bucket": "C_possibly_inferable",
+   "author_label": "YES",
+   "max_entailment": 0.033722613006830215,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0153",
+   "bucket": "D_ambiguous_lexical_only",
+   "author_label": "NO",
+   "max_entailment": 0.031806882470846176,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0154",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.0020034913904964924,
+   "n_pairs": 20
+  },
+  {
+   "annotation_id": "unit_0157",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.0006156136514618993,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0158",
+   "bucket": "D_ambiguous_lexical_only",
+   "author_label": "NO",
+   "max_entailment": 0.0019171605817973614,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0159",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.010398482903838158,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0160",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.0018351185135543346,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0161",
+   "bucket": "D_ambiguous_lexical_only",
+   "author_label": "NO",
+   "max_entailment": 0.007938766852021217,
+   "n_pairs": 60
+  },
+  {
+   "annotation_id": "unit_0163",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.03871053457260132,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0164",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.0011733218561857939,
+   "n_pairs": 20
+  },
+  {
+   "annotation_id": "unit_0166",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.0007861276972107589,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0167",
+   "bucket": "C_possibly_inferable",
+   "author_label": "NO",
+   "max_entailment": 0.04152406379580498,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0168",
+   "bucket": "D_ambiguous_lexical_only",
+   "author_label": "NO",
+   "max_entailment": 0.0008913197088986635,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0169",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.0044985366985201836,
+   "n_pairs": 15
+  },
+  {
+   "annotation_id": "unit_0170",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.003206398105248809,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0171",
+   "bucket": "B_supported_outside_gold_span",
+   "author_label": "NO",
+   "max_entailment": 0.004654253367334604,
+   "n_pairs": 15
+  },
+  {
+   "annotation_id": "unit_0174",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.0002526736061554402,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0175",
+   "bucket": "B_supported_outside_gold_span",
+   "author_label": "NO",
+   "max_entailment": 0.0009998282184824347,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0176",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.0027081852313131094,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0179",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.02045930176973343,
+   "n_pairs": 15
+  },
+  {
+   "annotation_id": "unit_0181",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.008560576476156712,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0182",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.0030584000051021576,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0185",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.0028087799437344074,
+   "n_pairs": 45
+  },
+  {
+   "annotation_id": "unit_0186",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.004868771880865097,
+   "n_pairs": 5
+  },
+  {
+   "annotation_id": "unit_0190",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.0012917020358145237,
+   "n_pairs": 20
+  },
+  {
+   "annotation_id": "unit_0196",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.001003255951218307,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0197",
+   "bucket": "A_genuinely_unsupported",
+   "author_label": null,
+   "max_entailment": 0.001617748523131013,
+   "n_pairs": 10
+  },
+  {
+   "annotation_id": "unit_0199",
+   "bucket": "D_ambiguous",
+   "author_label": "NO",
+   "max_entailment": 0.007615590002387762,
+   "n_pairs": 10
+  }
+ ]
+}
