@@ -3,8 +3,9 @@
 The manuscript *Right document, wrong passage: evidence localisation in
 retrieval-augmented generation evaluation on QASPER and Natural Questions* was submitted
 to *Language Resources and Evaluation* on 23 September 2026; it passed technical checks on
-28 September 2026 and is awaiting editorial assignment (status as of 9 October 2026; not
-peer-reviewed, accepted or published). The manuscript itself is not in this repository.
+28 September 2026 and was desk-rejected on 20 November 2026, without peer review (not
+published). A revised manuscript is in preparation; its code and results are in
+[`studies/reference_sensitivity_2026-11/`](../../studies/reference_sensitivity_2026-11/README.md). The manuscript itself is not in this repository.
 The documents in this folder record, with their source files, the measurements it draws on. They were written
 at different stages of the project and are kept as written; the stage of each is stated
 here so that nothing is read as more current than it is.

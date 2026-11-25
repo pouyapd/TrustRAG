@@ -110,7 +110,7 @@ corpora (`results/localisation/README.md`). The retriever-ranking inversion that
 originally headed this list was withdrawn (§3, item 2).
 
 That framing is adopted in the manuscript, which was submitted to *Language Resources and
-Evaluation* on 23 September 2026 and is not in this repository: the paper claims a measurement
+Evaluation* on 23 September 2026 (desk-rejected on 20 November 2026) and is not in this repository: the paper claims a measurement
 protocol, the measurements it yields on two public corpora, and an audit of the evidence
 annotations those measurements depend on — not a new method or a new evaluation paradigm.
 

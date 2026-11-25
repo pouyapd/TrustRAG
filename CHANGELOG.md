@@ -1,5 +1,21 @@
 # Changelog
 
+## Unreleased — follow-up study on reference construction (25 November 2026)
+
+New files only; no existing result file changes and tag `v1.1.0` is untouched.
+
+- **Manuscript status.** The September 2026 manuscript was desk-rejected by *Language Resources
+  and Evaluation* on 20 November 2026, without peer review. Updated in the README,
+  `CITATION.cff`, `.zenodo.json` (repository file only; the Zenodo records are unchanged),
+  `docs/paper/README.md`, `docs/paper/reproducibility.md` and `docs/paper/literature_review.md`.
+  A revised manuscript is in preparation and not submitted.
+- **Follow-up study** in `studies/reference_sensitivity_2026-11/`: scoring, analysis and audit
+  scripts; text-free per-question orderings for QASPER (2,197 questions) and Natural Questions
+  (1,278); per-corpus analyses; statistical, tie and adjudication audits; CPU feasibility
+  benchmark; 13 tests. The question text was removed from the released orderings. The
+  analyses were re-run from the released files and matched the stored outputs exactly.
+  `scripts/gpu_score.py` is included but has not been run.
+
 ## Unreleased — documentation and reproducibility corrections, exploratory analyses
 
 No existing result file and no number the manuscript reports changes; tag `v1.1.0` is untouched and
