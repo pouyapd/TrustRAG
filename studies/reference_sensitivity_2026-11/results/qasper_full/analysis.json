@@ -168,13 +168,16 @@
      "only_a": 290,
      "only_b": 488,
      "p": 1.241657231448424e-12,
+     "p_perm": 4.999750012499375e-05,
      "cluster95": [
       -0.1149,
       -0.0647
      ],
-     "p_holm": 1.614154400882951e-11,
+     "p_holm": 0.0007499625018749063,
      "significant": true,
-     "winner": "minilm"
+     "winner": "minilm",
+     "p_mcnemar_holm": 1.614154400882951e-11,
+     "significant_mcnemar": true
     },
     {
      "a": "bm25",
@@ -183,13 +186,16 @@
      "only_a": 204,
      "only_b": 366,
      "p": 1.1313941619366458e-11,
+     "p_perm": 4.999750012499375e-05,
      "cluster95": [
       -0.0956,
       -0.052
      ],
-     "p_holm": 1.2363140033110318e-10,
+     "p_holm": 0.0007499625018749063,
      "significant": true,
-     "winner": "ce_msmarco_minilm"
+     "winner": "ce_msmarco_minilm",
+     "p_mcnemar_holm": 1.2363140033110318e-10,
+     "significant_mcnemar": true
     },
     {
      "a": "bm25",
@@ -198,13 +204,16 @@
      "only_a": 275,
      "only_b": 459,
      "p": 1.1239218211918471e-11,
+     "p_perm": 4.999750012499375e-05,
      "cluster95": [
       -0.1089,
       -0.0596
      ],
-     "p_holm": 1.2363140033110318e-10,
+     "p_holm": 0.0007499625018749063,
      "significant": true,
-     "winner": "granite30m"
+     "winner": "granite30m",
+     "p_mcnemar_holm": 1.2363140033110318e-10,
+     "significant_mcnemar": true
     },
     {
      "a": "bm25",
@@ -213,13 +222,16 @@
      "only_a": 212,
      "only_b": 390,
      "p": 3.6860993134816675e-13,
+     "p_perm": 4.999750012499375e-05,
      "cluster95": [
       -0.104,
       -0.0585
      ],
-     "p_holm": 5.160539038874334e-12,
+     "p_holm": 0.0007499625018749063,
      "significant": true,
-     "winner": "jina_turbo"
+     "winner": "jina_turbo",
+     "p_mcnemar_holm": 5.160539038874334e-12,
+     "significant_mcnemar": true
     },
     {
      "a": "bm25",
@@ -228,13 +240,16 @@
      "only_a": 173,
      "only_b": 479,
      "p": 3.961604988862531e-34,
+     "p_perm": 4.999750012499375e-05,
      "cluster95": [
       -0.163,
       -0.1162
      ],
-     "p_holm": 5.942407483293797e-33,
+     "p_holm": 0.0007499625018749063,
      "significant": true,
-     "winner": "colbert_small"
+     "winner": "colbert_small",
+     "p_mcnemar_holm": 5.942407483293797e-33,
+     "significant_mcnemar": true
     },
     {
      "a": "minilm",
@@ -243,13 +258,16 @@
      "only_a": 388,
      "only_b": 352,
      "p": 0.1981917642968896,
+     "p_perm": 0.22988850557472126,
      "cluster95": [
       -0.0084,
       0.0428
      ],
      "p_holm": 1.0,
      "significant": false,
-     "winner": null
+     "winner": null,
+     "p_mcnemar_holm": 1.0,
+     "significant_mcnemar": false
     },
     {
      "a": "minilm",
@@ -258,13 +276,16 @@
      "only_a": 280,
      "only_b": 266,
      "p": 0.5780127708319973,
+     "p_perm": 0.576221188940553,
      "cluster95": [
       -0.0139,
       0.0272
      ],
      "p_holm": 1.0,
      "significant": false,
-     "winner": null
+     "winner": null,
+     "p_mcnemar_holm": 1.0,
+     "significant_mcnemar": false
     },
     {
      "a": "minilm",
@@ -273,13 +294,16 @@
      "only_a": 370,
      "only_b": 350,
      "p": 0.47891596904362277,
+     "p_perm": 0.5023748812559372,
      "cluster95": [
       -0.0164,
       0.0346
      ],
      "p_holm": 1.0,
      "significant": false,
-     "winner": null
+     "winner": null,
+     "p_mcnemar_holm": 1.0,
+     "significant_mcnemar": false
     },
     {
      "a": "minilm",
@@ -288,13 +312,16 @@
      "only_a": 298,
      "only_b": 406,
      "p": 5.3437192075847554e-05,
+     "p_perm": 0.00014999250037498125,
      "cluster95": [
       -0.0747,
       -0.023
      ],
-     "p_holm": 0.00037406034453093287,
+     "p_holm": 0.0010499475026248687,
      "significant": true,
-     "winner": "colbert_small"
+     "winner": "colbert_small",
+     "p_mcnemar_holm": 0.00037406034453093287,
+     "significant_mcnemar": true
     },
     {
      "a": "ce_msmarco_minilm",
@@ -303,13 +330,16 @@
      "only_a": 333,
      "only_b": 355,
      "p": 0.4233733977789712,
+     "p_perm": 0.4653767311634418,
      "cluster95": [
       -0.0353,
       0.0154
      ],
      "p_holm": 1.0,
      "significant": false,
-     "winner": null
+     "winner": null,
+     "p_mcnemar_holm": 1.0,
+     "significant_mcnemar": false
     },
     {
      "a": "ce_msmarco_minilm",
@@ -318,13 +348,16 @@
      "only_a": 187,
      "only_b": 203,
      "p": 0.44756232754032504,
+     "p_perm": 0.47237638118094094,
      "cluster95": [
       -0.0254,
       0.0119
      ],
      "p_holm": 1.0,
      "significant": false,
-     "winner": null
+     "winner": null,
+     "p_mcnemar_holm": 1.0,
+     "significant_mcnemar": false
     },
     {
      "a": "ce_msmarco_minilm",
@@ -333,13 +366,16 @@
      "only_a": 151,
      "only_b": 295,
      "p": 8.479016164263134e-12,
+     "p_perm": 4.999750012499375e-05,
      "cluster95": [
       -0.0849,
       -0.0463
      ],
-     "p_holm": 1.017481939711576e-10,
+     "p_holm": 0.0007499625018749063,
      "significant": true,
-     "winner": "colbert_small"
+     "winner": "colbert_small",
+     "p_mcnemar_holm": 1.017481939711576e-10,
+     "significant_mcnemar": true
     },
     {
      "a": "granite30m",
@@ -348,13 +384,16 @@
      "only_a": 353,
      "only_b": 347,
      "p": 0.8501237785063115,
+     "p_perm": 0.8546072696365181,
      "cluster95": [
       -0.0221,
       0.0267
      ],
      "p_holm": 1.0,
      "significant": false,
-     "winner": null
+     "winner": null,
+     "p_mcnemar_holm": 1.0,
+     "significant_mcnemar": false
     },
     {
      "a": "granite30m",
@@ -363,13 +402,16 @@
      "only_a": 273,
      "only_b": 395,
      "p": 2.6792126283272763e-06,
+     "p_perm": 4.999750012499375e-05,
      "cluster95": [
       -0.0797,
       -0.0312
      ],
-     "p_holm": 2.143370102661821e-05,
+     "p_holm": 0.0007499625018749063,
      "significant": true,
-     "winner": "colbert_small"
+     "winner": "colbert_small",
+     "p_mcnemar_holm": 2.143370102661821e-05,
+     "significant_mcnemar": true
     },
     {
      "a": "jina_turbo",
@@ -378,13 +420,16 @@
      "only_a": 189,
      "only_b": 317,
      "p": 1.3850902538685874e-08,
+     "p_perm": 4.999750012499375e-05,
      "cluster95": [
       -0.0792,
       -0.0366
      ],
-     "p_holm": 1.2465812284817286e-07,
+     "p_holm": 0.0007499625018749063,
      "significant": true,
-     "winner": "colbert_small"
+     "winner": "colbert_small",
+     "p_mcnemar_holm": 1.2465812284817286e-07,
+     "significant_mcnemar": true
     }
    ],
    "significant_pairs": [
@@ -551,13 +596,16 @@
      "only_a": 262,
      "only_b": 423,
      "p": 8.206353521245845e-10,
+     "p_perm": 4.999750012499375e-05,
      "cluster95": [
       -0.101,
       -0.0511
      ],
-     "p_holm": 1.1488894929744183e-08,
+     "p_holm": 0.0007499625018749063,
      "significant": true,
-     "winner": "minilm"
+     "winner": "minilm",
+     "p_mcnemar_holm": 1.1488894929744183e-08,
+     "significant_mcnemar": true
     },
     {
      "a": "bm25",
@@ -566,13 +614,16 @@
      "only_a": 184,
      "only_b": 307,
      "p": 3.133561388685067e-08,
+     "p_perm": 4.999750012499375e-05,
      "cluster95": [
       -0.0785,
       -0.0378
      ],
-     "p_holm": 3.446917527553574e-07,
+     "p_holm": 0.0007499625018749063,
      "significant": true,
-     "winner": "ce_msmarco_minilm"
+     "winner": "ce_msmarco_minilm",
+     "p_mcnemar_holm": 3.446917527553574e-07,
+     "significant_mcnemar": true
     },
     {
      "a": "bm25",
@@ -581,13 +632,16 @@
      "only_a": 245,
      "only_b": 390,
      "p": 9.54300428110466e-09,
+     "p_perm": 4.999750012499375e-05,
      "cluster95": [
       -0.0921,
       -0.0444
      ],
-     "p_holm": 1.2405905565436059e-07,
+     "p_holm": 0.0007499625018749063,
      "significant": true,
-     "winner": "granite30m"
+     "winner": "granite30m",
+     "p_mcnemar_holm": 1.2405905565436059e-07,
+     "significant_mcnemar": true
     },
     {
      "a": "bm25",
@@ -596,13 +650,16 @@
      "only_a": 194,
      "only_b": 323,
      "p": 1.5322027137985484e-08,
+     "p_perm": 4.999750012499375e-05,
      "cluster95": [
       -0.0828,
       -0.039
      ],
-     "p_holm": 1.8386432565582582e-07,
+     "p_holm": 0.0007499625018749063,
      "significant": true,
-     "winner": "jina_turbo"
+     "winner": "jina_turbo",
+     "p_mcnemar_holm": 1.8386432565582582e-07,
+     "significant_mcnemar": true
     },
     {
      "a": "bm25",
@@ -611,13 +668,16 @@
      "only_a": 167,
      "only_b": 388,
      "p": 2.8855026991211603e-21,
+     "p_perm": 4.999750012499375e-05,
      "cluster95": [
       -0.1269,
       -0.0823
      ],
-     "p_holm": 4.3282540486817405e-20,
+     "p_holm": 0.0007499625018749063,
      "significant": true,
-     "winner": "colbert_small"
+     "winner": "colbert_small",
+     "p_mcnemar_holm": 4.3282540486817405e-20,
+     "significant_mcnemar": true
     },
     {
      "a": "minilm",
@@ -626,13 +686,16 @@
      "only_a": 343,
      "only_b": 305,
      "p": 0.14602806746401417,
+     "p_perm": 0.16604169791510426,
      "cluster95": [
       -0.0067,
       0.0433
      ],
-     "p_holm": 0.876168404784085,
+     "p_holm": 0.9962501874906255,
      "significant": false,
-     "winner": null
+     "winner": null,
+     "p_mcnemar_holm": 0.876168404784085,
+     "significant_mcnemar": false
     },
     {
      "a": "minilm",
@@ -641,13 +704,16 @@
      "only_a": 249,
      "only_b": 233,
      "p": 0.4945007299247592,
+     "p_perm": 0.495775211239438,
      "cluster95": [
       -0.0121,
       0.0282
      ],
      "p_holm": 1.0,
      "significant": false,
-     "winner": null
+     "winner": null,
+     "p_mcnemar_holm": 1.0,
+     "significant_mcnemar": false
     },
     {
      "a": "minilm",
@@ -656,13 +722,16 @@
      "only_a": 333,
      "only_b": 301,
      "p": 0.21822918897335647,
+     "p_perm": 0.24113794310284486,
      "cluster95": [
       -0.0101,
       0.0399
      ],
      "p_holm": 1.0,
      "significant": false,
-     "winner": null
+     "winner": null,
+     "p_mcnemar_holm": 1.0,
+     "significant_mcnemar": false
     },
     {
      "a": "minilm",
@@ -671,13 +740,16 @@
      "only_a": 281,
      "only_b": 341,
      "p": 0.017925876823437156,
+     "p_perm": 0.02519874006299685,
      "cluster95": [
       -0.0532,
       -0.0038
      ],
-     "p_holm": 0.12548113776406009,
+     "p_holm": 0.17639118044097796,
      "significant": false,
-     "winner": null
+     "winner": null,
+     "p_mcnemar_holm": 0.12548113776406009,
+     "significant_mcnemar": false
     },
     {
      "a": "ce_msmarco_minilm",
@@ -686,13 +758,16 @@
      "only_a": 291,
      "only_b": 313,
      "p": 0.3928580325588369,
+     "p_perm": 0.40777961101944904,
      "cluster95": [
       -0.0342,
       0.0141
      ],
      "p_holm": 1.0,
      "significant": false,
-     "winner": null
+     "winner": null,
+     "p_mcnemar_holm": 1.0,
+     "significant_mcnemar": false
     },
     {
      "a": "ce_msmarco_minilm",
@@ -701,13 +776,16 @@
      "only_a": 171,
      "only_b": 177,
      "p": 0.7887237224126451,
+     "p_perm": 0.7986100694965251,
      "cluster95": [
       -0.0209,
       0.0155
      ],
      "p_holm": 1.0,
      "significant": false,
-     "winner": null
+     "winner": null,
+     "p_mcnemar_holm": 1.0,
+     "significant_mcnemar": false
     },
     {
      "a": "ce_msmarco_minilm",
@@ -716,13 +794,16 @@
      "only_a": 140,
      "only_b": 238,
      "p": 5.273998190183858e-07,
+     "p_perm": 4.999750012499375e-05,
      "cluster95": [
       -0.0647,
       -0.028
      ],
-     "p_holm": 5.273998190183858e-06,
+     "p_holm": 0.0007499625018749063,
      "significant": true,
-     "winner": "colbert_small"
+     "winner": "colbert_small",
+     "p_mcnemar_holm": 5.273998190183858e-06,
+     "significant_mcnemar": true
     },
     {
      "a": "granite30m",
@@ -731,13 +812,16 @@
      "only_a": 306,
      "only_b": 290,
      "p": 0.5389706885592177,
+     "p_perm": 0.5448727563621819,
      "cluster95": [
       -0.0164,
       0.0316
      ],
      "p_holm": 1.0,
      "significant": false,
-     "winner": null
+     "winner": null,
+     "p_mcnemar_holm": 1.0,
+     "significant_mcnemar": false
     },
     {
      "a": "granite30m",
@@ -746,13 +830,16 @@
      "only_a": 253,
      "only_b": 329,
      "p": 0.0018536545169847956,
+     "p_perm": 0.004099795010249488,
      "cluster95": [
       -0.0602,
       -0.012
      ],
-     "p_holm": 0.014829236135878365,
+     "p_holm": 0.0327983600819959,
      "significant": true,
-     "winner": "colbert_small"
+     "winner": "colbert_small",
+     "p_mcnemar_holm": 0.014829236135878365,
+     "significant_mcnemar": true
     },
     {
      "a": "jina_turbo",
@@ -761,13 +848,16 @@
      "only_a": 170,
      "only_b": 262,
      "p": 1.1136780294399997e-05,
+     "p_perm": 0.000199990000499975,
      "cluster95": [
       -0.0632,
       -0.0238
      ],
-     "p_holm": 0.00010023102264959998,
+     "p_holm": 0.001799910004499775,
      "significant": true,
-     "winner": "colbert_small"
+     "winner": "colbert_small",
+     "p_mcnemar_holm": 0.00010023102264959998,
+     "significant_mcnemar": true
     }
    ],
    "significant_pairs": [
@@ -933,13 +1023,16 @@
      "only_a": 270,
      "only_b": 450,
      "p": 2.0099774950157738e-11,
+     "p_perm": 4.999750012499375e-05,
      "cluster95": [
       -0.1059,
       -0.0577
      ],
-     "p_holm": 2.4119729940189286e-10,
+     "p_holm": 0.0007499625018749063,
      "significant": true,
-     "winner": "minilm"
+     "winner": "minilm",
+     "p_mcnemar_holm": 2.4119729940189286e-10,
+     "significant_mcnemar": true
     },
     {
      "a": "bm25",
@@ -948,13 +1041,16 @@
      "only_a": 182,
      "only_b": 349,
      "p": 3.7731566805981363e-13,
+     "p_perm": 4.999750012499375e-05,
      "cluster95": [
       -0.0963,
       -0.0561
      ],
-     "p_holm": 5.282419352837391e-12,
+     "p_holm": 0.0007499625018749063,
      "significant": true,
-     "winner": "ce_msmarco_minilm"
+     "winner": "ce_msmarco_minilm",
+     "p_mcnemar_holm": 5.282419352837391e-12,
+     "significant_mcnemar": true
     },
     {
      "a": "bm25",
@@ -963,13 +1059,16 @@
      "only_a": 253,
      "only_b": 421,
      "p": 1.0099925659577022e-10,
+     "p_perm": 4.999750012499375e-05,
      "cluster95": [
       -0.1004,
       -0.0531
      ],
-     "p_holm": 1.1109918225534724e-09,
+     "p_holm": 0.0007499625018749063,
      "significant": true,
-     "winner": "granite30m"
+     "winner": "granite30m",
+     "p_mcnemar_holm": 1.1109918225534724e-09,
+     "significant_mcnemar": true
     },
     {
      "a": "bm25",
@@ -978,13 +1077,16 @@
      "only_a": 190,
      "only_b": 358,
      "p": 6.483206227018721e-13,
+     "p_perm": 4.999750012499375e-05,
      "cluster95": [
       -0.0982,
       -0.0554
      ],
-     "p_holm": 8.428168095124337e-12,
+     "p_holm": 0.0007499625018749063,
      "significant": true,
-     "winner": "jina_turbo"
+     "winner": "jina_turbo",
+     "p_mcnemar_holm": 8.428168095124337e-12,
+     "significant_mcnemar": true
     },
     {
      "a": "bm25",
@@ -993,13 +1095,16 @@
      "only_a": 163,
      "only_b": 437,
      "p": 7.26284328297723e-30,
+     "p_perm": 4.999750012499375e-05,
      "cluster95": [
       -0.1469,
       -0.1035
      ],
-     "p_holm": 1.0894264924465844e-28,
+     "p_holm": 0.0007499625018749063,
      "significant": true,
-     "winner": "colbert_small"
+     "winner": "colbert_small",
+     "p_mcnemar_holm": 1.0894264924465844e-28,
+     "significant_mcnemar": true
     },
     {
      "a": "minilm",
@@ -1008,13 +1113,16 @@
      "only_a": 355,
      "only_b": 342,
      "p": 0.6494767769251383,
+     "p_perm": 0.664766761661917,
      "cluster95": [
       -0.0181,
       0.0309
      ],
      "p_holm": 1.0,
      "significant": false,
-     "winner": null
+     "winner": null,
+     "p_mcnemar_holm": 1.0,
+     "significant_mcnemar": false
     },
     {
      "a": "minilm",
@@ -1023,13 +1131,16 @@
      "only_a": 270,
      "only_b": 258,
      "p": 0.632184009223908,
+     "p_perm": 0.6257687115644218,
      "cluster95": [
       -0.0144,
       0.0258
      ],
      "p_holm": 1.0,
      "significant": false,
-     "winner": null
+     "winner": null,
+     "p_mcnemar_holm": 1.0,
+     "significant_mcnemar": false
     },
     {
      "a": "minilm",
@@ -1038,13 +1149,16 @@
      "only_a": 350,
      "only_b": 338,
      "p": 0.6749756331163526,
+     "p_perm": 0.6897155142242888,
      "cluster95": [
       -0.0193,
       0.03
      ],
      "p_holm": 1.0,
      "significant": false,
-     "winner": null
+     "winner": null,
+     "p_mcnemar_holm": 1.0,
+     "significant_mcnemar": false
     },
     {
      "a": "minilm",
@@ -1053,13 +1167,16 @@
      "only_a": 285,
      "only_b": 379,
      "p": 0.0003008282456869227,
+     "p_perm": 0.0006999650017499125,
      "cluster95": [
       -0.0673,
       -0.0182
      ],
-     "p_holm": 0.002105797719808459,
+     "p_holm": 0.004899755012249388,
      "significant": true,
-     "winner": "colbert_small"
+     "winner": "colbert_small",
+     "p_mcnemar_holm": 0.002105797719808459,
+     "significant_mcnemar": true
     },
     {
      "a": "ce_msmarco_minilm",
@@ -1068,13 +1185,16 @@
      "only_a": 319,
      "only_b": 320,
      "p": 1.0,
+     "p_perm": 1.0,
      "cluster95": [
       -0.0237,
       0.0243
      ],
      "p_holm": 1.0,
      "significant": false,
-     "winner": null
+     "winner": null,
+     "p_mcnemar_holm": 1.0,
+     "significant_mcnemar": false
     },
     {
      "a": "ce_msmarco_minilm",
@@ -1083,13 +1203,16 @@
      "only_a": 187,
      "only_b": 188,
      "p": 1.0,
+     "p_perm": 1.0,
      "cluster95": [
       -0.0175,
       0.0177
      ],
      "p_holm": 1.0,
      "significant": false,
-     "winner": null
+     "winner": null,
+     "p_mcnemar_holm": 1.0,
+     "significant_mcnemar": false
     },
     {
      "a": "ce_msmarco_minilm",
@@ -1098,13 +1221,16 @@
      "only_a": 153,
      "only_b": 260,
      "p": 1.5698031167227023e-07,
+     "p_perm": 4.999750012499375e-05,
      "cluster95": [
       -0.067,
       -0.0303
      ],
-     "p_holm": 1.5698031167227023e-06,
+     "p_holm": 0.0007499625018749063,
      "significant": true,
-     "winner": "colbert_small"
+     "winner": "colbert_small",
+     "p_mcnemar_holm": 1.5698031167227023e-06,
+     "significant_mcnemar": true
     },
     {
      "a": "granite30m",
@@ -1113,13 +1239,16 @@
      "only_a": 325,
      "only_b": 325,
      "p": 1.0,
+     "p_perm": 1.0,
      "cluster95": [
       -0.0238,
       0.0234
      ],
      "p_holm": 1.0,
      "significant": false,
-     "winner": null
+     "winner": null,
+     "p_mcnemar_holm": 1.0,
+     "significant_mcnemar": false
     },
     {
      "a": "granite30m",
@@ -1128,13 +1257,16 @@
      "only_a": 265,
      "only_b": 371,
      "p": 3.0124783882563747e-05,
+     "p_perm": 4.999750012499375e-05,
      "cluster95": [
       -0.0723,
       -0.0248
      ],
-     "p_holm": 0.00024099827106050997,
+     "p_holm": 0.0007499625018749063,
      "significant": true,
-     "winner": "colbert_small"
+     "winner": "colbert_small",
+     "p_mcnemar_holm": 0.00024099827106050997,
+     "significant_mcnemar": true
     },
     {
      "a": "jina_turbo",
@@ -1143,13 +1275,16 @@
      "only_a": 186,
      "only_b": 292,
      "p": 1.425594283829323e-06,
+     "p_perm": 4.999750012499375e-05,
      "cluster95": [
       -0.0679,
       -0.028
      ],
-     "p_holm": 1.2830348554463908e-05,
+     "p_holm": 0.0007499625018749063,
      "significant": true,
-     "winner": "colbert_small"
+     "winner": "colbert_small",
+     "p_mcnemar_holm": 1.2830348554463908e-05,
+     "significant_mcnemar": true
     }
    ],
    "significant_pairs": [
@@ -1316,13 +1451,16 @@
      "only_a": 150,
      "only_b": 275,
      "p": 1.3807647315338516e-09,
+     "p_perm": 4.999750012499375e-05,
      "cluster95": [
       -0.126,
       -0.0665
      ],
-     "p_holm": 1.7949941509940072e-08,
+     "p_holm": 0.0007499625018749063,
      "significant": true,
-     "winner": "minilm"
+     "winner": "minilm",
+     "p_mcnemar_holm": 1.7949941509940072e-08,
+     "significant_mcnemar": true
     },
     {
      "a": "bm25",
@@ -1331,13 +1469,16 @@
      "only_a": 97,
      "only_b": 218,
      "p": 7.60814112132028e-12,
+     "p_perm": 4.999750012499375e-05,
      "cluster95": [
       -0.1202,
       -0.0664
      ],
-     "p_holm": 1.0651397569848391e-10,
+     "p_holm": 0.0007499625018749063,
      "significant": true,
-     "winner": "ce_msmarco_minilm"
+     "winner": "ce_msmarco_minilm",
+     "p_mcnemar_holm": 1.0651397569848391e-10,
+     "significant_mcnemar": true
     },
     {
      "a": "bm25",
@@ -1346,13 +1487,16 @@
      "only_a": 141,
      "only_b": 257,
      "p": 6.453806602114797e-09,
+     "p_perm": 4.999750012499375e-05,
      "cluster95": [
       -0.1197,
       -0.0588
      ],
-     "p_holm": 7.099187262326277e-08,
+     "p_holm": 0.0007499625018749063,
      "significant": true,
-     "winner": "granite30m"
+     "winner": "granite30m",
+     "p_mcnemar_holm": 7.099187262326277e-08,
+     "significant_mcnemar": true
     },
     {
      "a": "bm25",
@@ -1361,13 +1505,16 @@
      "only_a": 105,
      "only_b": 211,
      "p": 2.4958000745297772e-09,
+     "p_perm": 4.999750012499375e-05,
      "cluster95": [
       -0.1093,
       -0.0555
      ],
-     "p_holm": 2.9949600894357325e-08,
+     "p_holm": 0.0007499625018749063,
      "significant": true,
-     "winner": "jina_turbo"
+     "winner": "jina_turbo",
+     "p_mcnemar_holm": 2.9949600894357325e-08,
+     "significant_mcnemar": true
     },
     {
      "a": "bm25",
@@ -1376,13 +1523,16 @@
      "only_a": 84,
      "only_b": 274,
      "p": 1.2379540140207918e-24,
+     "p_perm": 4.999750012499375e-05,
      "cluster95": [
       -0.1749,
       -0.1179
      ],
-     "p_holm": 1.8569310210311877e-23,
+     "p_holm": 0.0007499625018749063,
      "significant": true,
-     "winner": "colbert_small"
+     "winner": "colbert_small",
+     "p_mcnemar_holm": 1.8569310210311877e-23,
+     "significant_mcnemar": true
     },
     {
      "a": "minilm",
@@ -1391,13 +1541,16 @@
      "only_a": 211,
      "only_b": 207,
      "p": 0.8833640249423304,
+     "p_perm": 0.8843557822108895,
      "cluster95": [
       -0.0285,
       0.0354
      ],
      "p_holm": 1.0,
      "significant": false,
-     "winner": null
+     "winner": null,
+     "p_mcnemar_holm": 1.0,
+     "significant_mcnemar": false
     },
     {
      "a": "minilm",
@@ -1406,13 +1559,16 @@
      "only_a": 165,
      "only_b": 156,
      "p": 0.6552916314420829,
+     "p_perm": 0.6436678166091695,
      "cluster95": [
       -0.019,
       0.0325
      ],
      "p_holm": 1.0,
      "significant": false,
-     "winner": null
+     "winner": null,
+     "p_mcnemar_holm": 1.0,
+     "significant_mcnemar": false
     },
     {
      "a": "minilm",
@@ -1421,13 +1577,16 @@
      "only_a": 224,
      "only_b": 205,
      "p": 0.38484367324561547,
+     "p_perm": 0.4129293535323234,
      "cluster95": [
       -0.0189,
       0.0467
      ],
      "p_holm": 1.0,
      "significant": false,
-     "winner": null
+     "winner": null,
+     "p_mcnemar_holm": 1.0,
+     "significant_mcnemar": false
     },
     {
      "a": "minilm",
@@ -1436,13 +1595,16 @@
      "only_a": 178,
      "only_b": 243,
      "p": 0.0017804486818214648,
+     "p_perm": 0.002999850007499625,
      "cluster95": [
       -0.082,
       -0.0189
      ],
-     "p_holm": 0.012463140772750254,
+     "p_holm": 0.020998950052497377,
      "significant": true,
-     "winner": "colbert_small"
+     "winner": "colbert_small",
+     "p_mcnemar_holm": 0.012463140772750254,
+     "significant_mcnemar": true
     },
     {
      "a": "ce_msmarco_minilm",
@@ -1451,13 +1613,16 @@
      "only_a": 194,
      "only_b": 189,
      "p": 0.8380818187956256,
+     "p_perm": 0.8448577571121444,
      "cluster95": [
       -0.0258,
       0.0333
      ],
      "p_holm": 1.0,
      "significant": false,
-     "winner": null
+     "winner": null,
+     "p_mcnemar_holm": 1.0,
+     "significant_mcnemar": false
     },
     {
      "a": "ce_msmarco_minilm",
@@ -1466,13 +1631,16 @@
      "only_a": 128,
      "only_b": 113,
      "p": 0.3671847629664618,
+     "p_perm": 0.38693065346732664,
      "cluster95": [
       -0.0138,
       0.0367
      ],
      "p_holm": 1.0,
      "significant": false,
-     "winner": null
+     "winner": null,
+     "p_mcnemar_holm": 1.0,
+     "significant_mcnemar": false
     },
     {
      "a": "ce_msmarco_minilm",
@@ -1481,13 +1649,16 @@
      "only_a": 91,
      "only_b": 160,
      "p": 1.577117123626925e-05,
+     "p_perm": 4.999750012499375e-05,
      "cluster95": [
       -0.0778,
       -0.0297
      ],
-     "p_holm": 0.00014194054112642325,
+     "p_holm": 0.0007499625018749063,
      "significant": true,
-     "winner": "colbert_small"
+     "winner": "colbert_small",
+     "p_mcnemar_holm": 0.00014194054112642325,
+     "significant_mcnemar": true
     },
     {
      "a": "granite30m",
@@ -1496,13 +1667,16 @@
      "only_a": 205,
      "only_b": 195,
      "p": 0.6527645977066692,
+     "p_perm": 0.6433178341082946,
      "cluster95": [
       -0.0225,
       0.0368
      ],
      "p_holm": 1.0,
      "significant": false,
-     "winner": null
+     "winner": null,
+     "p_mcnemar_holm": 1.0,
+     "significant_mcnemar": false
     },
     {
      "a": "granite30m",
@@ -1511,13 +1685,16 @@
      "only_a": 163,
      "only_b": 237,
      "p": 0.0002527231842105805,
+     "p_perm": 0.0005499725013749313,
      "cluster95": [
       -0.0886,
       -0.0258
      ],
-     "p_holm": 0.002021785473684644,
+     "p_holm": 0.00439978001099945,
      "significant": true,
-     "winner": "colbert_small"
+     "winner": "colbert_small",
+     "p_mcnemar_holm": 0.002021785473684644,
+     "significant_mcnemar": true
     },
     {
      "a": "jina_turbo",
@@ -1526,13 +1703,16 @@
      "only_a": 109,
      "only_b": 193,
      "p": 1.542305452156037e-06,
+     "p_perm": 4.999750012499375e-05,
      "cluster95": [
       -0.0899,
       -0.0386
      ],
-     "p_holm": 1.542305452156037e-05,
+     "p_holm": 0.0007499625018749063,
      "significant": true,
-     "winner": "colbert_small"
+     "winner": "colbert_small",
+     "p_mcnemar_holm": 1.542305452156037e-05,
+     "significant_mcnemar": true
     }
    ],
    "significant_pairs": [
@@ -1550,8 +1730,8 @@
   }
  },
  "settings": {
-  "scored": "studies/reference_sensitivity_2026-11/results/raw/qasper_full.json.gz",
-  "out": "studies/reference_sensitivity_2026-11/results/qasper_full",
+  "scored": "results/raw/qasper_full.json.gz",
+  "out": "results/qasper_full",
   "n_boot": 4000,
   "n_draws": 1000,
   "seed": 20261123
@@ -2275,7 +2455,7 @@
    "jina_turbo": 0.0,
    "colbert_small": 1.0
   },
-  "holm_conclusion_same_as_study_share_of_200": 0.985,
+  "holm_conclusion_same_as_study_share_of_200": 0.975,
   "distinct_holm_conclusions_in_200": 2
  },
  "annotator_agreement": {
@@ -2412,19 +2592,19 @@
  },
  "subsample_first_vs_union": {
   "100": {
-   "share_conclusions_differ": 0.268,
-   "mean_significant_pairs_first": 0.336,
-   "mean_significant_pairs_union": 0.56
+   "share_conclusions_differ": 0.26,
+   "mean_significant_pairs_first": 0.288,
+   "mean_significant_pairs_union": 0.53
   },
   "300": {
-   "share_conclusions_differ": 0.714,
-   "mean_significant_pairs_first": 1.884,
-   "mean_significant_pairs_union": 2.9
+   "share_conclusions_differ": 0.716,
+   "mean_significant_pairs_first": 1.74,
+   "mean_significant_pairs_union": 2.788
   },
   "1000": {
-   "share_conclusions_differ": 0.848,
-   "mean_significant_pairs_first": 6.472,
-   "mean_significant_pairs_union": 8.014
+   "share_conclusions_differ": 0.844,
+   "mean_significant_pairs_first": 6.266,
+   "mean_significant_pairs_union": 7.856
   },
   "full": {
    "n": 2111,

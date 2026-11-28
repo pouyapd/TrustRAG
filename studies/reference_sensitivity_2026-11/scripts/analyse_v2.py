@@ -7,8 +7,10 @@ For one corpus file it computes, under every evidence reference the dataset supp
   chance-corrected hit@1 (hit - chance) / (1 - chance), Wilson and document-cluster
   bootstrap intervals;
 * the effect of the reference on each model's score (paired, cluster-bootstrapped);
-* pairwise model comparisons (exact McNemar, Holm over all pairs) per reference, and
-  which conclusions change between references;
+* pairwise model comparisons per reference: primary inference is a paired sign-flip
+  permutation test on cluster sums (QASPER: paper; NQ: Wikipedia page, so that revisions of
+  one page form one cluster), Holm over all pairs; the exact McNemar test with Holm is kept as
+  a secondary, question-level analysis; and which conclusions change between references;
 * single-annotator resampling: the spread of each score over random annotator draws;
 * agreement between the dataset's own annotators at chunk level (pairwise identical /
   overlapping / disjoint gold chunks, mean Jaccard, Krippendorff's alpha, binary);
@@ -79,6 +81,19 @@ def gold_single(q: dict, corpus: str, rng: random.Random) -> set[int]:
     return set(q["gold_by_annotator"][str(a)])
 
 
+def cluster_key(corpus: str, doc_id: str) -> str:
+    """Clustering unit: the QASPER paper; for NQ the Wikipedia page (URL title, decoded,
+    case-folded), so that different revisions of one page and duplicated copies are one cluster."""
+    if corpus == "qasper":
+        return doc_id
+    import html
+    import re
+    import urllib.parse
+    base = doc_id.split("#")[0]
+    m = re.search(r"title=([^&]+)", html.unescape(base))
+    return urllib.parse.unquote(m.group(1)).replace("_", " ").strip().casefold() if m else base
+
+
 def rank_of(order: list[int], gold: set[int]) -> int:
     return next(p for p, i in enumerate(order, 1) if i in gold)
 
@@ -97,7 +112,8 @@ def rows_for(data: dict, models: list[str], scheme: str, rng: random.Random | No
             gold = gold_for(q, corpus, scheme)
         if not gold:
             continue
-        rows.append({"qid": q["question_id"], "doc": q["doc_id"], "D": q["D"], "m": len(gold), "gold": gold,
+        rows.append({"qid": q["question_id"], "doc": q["doc_id"], "cluster": cluster_key(corpus, q["doc_id"]),
+                     "D": q["D"], "m": len(gold), "gold": gold,
                      "rank": {m: rank_of(q["orders"][m], gold) for m in models}})
     return rows
 
@@ -111,7 +127,7 @@ def chance(rows: list[dict]) -> dict:
 def by_doc(rows: list[dict], values: list[float]) -> list[list[float]]:
     groups: dict[str, list[float]] = {}
     for r, v in zip(rows, values, strict=True):
-        groups.setdefault(r["doc"], []).append(v)
+        groups.setdefault(r["cluster"], []).append(v)
     return list(groups.values())
 
 
@@ -140,21 +156,38 @@ def _wilson(k: int, n: int, z: float = 1.959964) -> tuple[float, float]:
     return centre - half, centre + half
 
 
-def pairwise(rows: list[dict], models: list[str], n_boot: int) -> list[dict]:
+def cluster_perm_p(rows: list[dict], diff: np.ndarray, n_perm: int, rng: np.random.Generator) -> float:
+    """Two-sided paired sign-flip permutation test on cluster sums of per-question differences."""
+    idx: dict[str, int] = {}
+    g = np.array([idx.setdefault(r["cluster"], len(idx)) for r in rows])
+    sums = np.bincount(g, weights=diff, minlength=len(idx))
+    obs = abs(sums.sum())
+    flips = rng.choice(np.array([-1.0, 1.0]), size=(n_perm, len(sums)))
+    return float((1 + (np.abs(flips @ sums) >= obs - 1e-9).sum()) / (n_perm + 1))
+
+
+def pairwise(rows: list[dict], models: list[str], n_boot: int, n_perm: int = 20000, seed: int = 1) -> list[dict]:
+    """All model pairs on hit@1. Primary: cluster permutation + Holm ('significant', 'p_holm').
+    Secondary: exact McNemar + Holm ('p', 'p_mcnemar_holm', 'significant_mcnemar')."""
+    rng = np.random.default_rng(seed)
     out = []
     for a, b in itertools.combinations(models, 2):
         ha = np.array([r["rank"][a] == 1 for r in rows])
         hb = np.array([r["rank"][b] == 1 for r in rows])
         only_a, only_b = int((ha & ~hb).sum()), int((hb & ~ha).sum())
         test = mcnemar_exact(only_a, only_b)
-        cb = cluster_bootstrap(by_doc(rows, list(ha.astype(int) - hb.astype(int))), n_boot=n_boot, seed=0)
+        diff = ha.astype(float) - hb.astype(float)
+        cb = cluster_bootstrap(by_doc(rows, list(diff)), n_boot=n_boot, seed=0)
         out.append({"a": a, "b": b, "delta_hit@1": float(ha.mean() - hb.mean()), "only_a": only_a,
-                    "only_b": only_b, "p": float(test.p_value), "cluster95": cb["ci95"]})
-    adj = holm([x["p"] for x in out])
-    for x, p in zip(out, adj, strict=True):
+                    "only_b": only_b, "p": float(test.p_value), "p_perm": cluster_perm_p(rows, diff, n_perm, rng),
+                    "cluster95": cb["ci95"]})
+    for x, p in zip(out, holm([x["p_perm"] for x in out]), strict=True):
         x["p_holm"] = float(p)
         x["significant"] = bool(p < 0.05)
         x["winner"] = (x["a"] if x["delta_hit@1"] > 0 else x["b"]) if x["significant"] else None
+    for x, p in zip(out, holm([x["p"] for x in out]), strict=True):
+        x["p_mcnemar_holm"] = float(p)
+        x["significant_mcnemar"] = bool(p < 0.05)
     return out
 
 
@@ -295,7 +328,7 @@ def subsample_conclusions(data: dict, models: list[str], ref_a: str, ref_b: str,
     """How often do Holm conclusions under two references differ, for random subsamples?
 
     Questions defined under both references are subsampled without replacement; on each
-    subsample all pairs are tested (exact McNemar, Holm) under each reference.
+    subsample all pairs are tested (cluster permutation with 2,000 sign flips, Holm) under each reference.
     """
     ra = {r["qid"]: r for r in rows_for(data, models, ref_a)}
     rb = {r["qid"]: r for r in rows_for(data, models, ref_b)}
@@ -309,8 +342,8 @@ def subsample_conclusions(data: dict, models: list[str], ref_a: str, ref_b: str,
         sig_a = sig_b = 0
         for _ in range(n_sub):
             pick = rng.sample(common, n)
-            sa = {(x["a"], x["b"], x["winner"]) for x in pairwise([ra[q] for q in pick], models, n_boot=1) if x["significant"]}
-            sb = {(x["a"], x["b"], x["winner"]) for x in pairwise([rb[q] for q in pick], models, n_boot=1) if x["significant"]}
+            sa = {(x["a"], x["b"], x["winner"]) for x in pairwise([ra[q] for q in pick], models, n_boot=1, n_perm=2000) if x["significant"]}
+            sb = {(x["a"], x["b"], x["winner"]) for x in pairwise([rb[q] for q in pick], models, n_boot=1, n_perm=2000) if x["significant"]}
             differ += sa != sb
             sig_a += len(sa)
             sig_b += len(sb)
@@ -403,7 +436,7 @@ def main() -> int:
         best[max(models, key=lambda m: h[m])] += 1
         if d < 200:  # Holm conclusions on the first 200 draws (tests are the slow part)
             sig_sets.append(tuple(sorted(f"{x['winner']}>{x['b'] if x['winner'] == x['a'] else x['a']}"
-                                         for x in pairwise(rows, models, n_boot=1) if x["significant"])))
+                                         for x in pairwise(rows, models, n_boot=1, n_perm=2000) if x["significant"])))
     study_sig = tuple(sorted(result["schemes"][study]["significant_pairs"]))
     result["single_annotator"] = {
         "n_draws": args.n_draws, "seed": args.seed,

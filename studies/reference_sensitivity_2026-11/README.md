@@ -1,167 +1,90 @@
-# Reference construction in evidence-level retrieval evaluation (November 2026)
+# Reference construction in evidence-level retrieval evaluation (study of November 2026)
 
-**Status.** These are the code and results for a revised manuscript, *Whose evidence counts?
-Reference construction and completeness in evidence-level retrieval evaluation on QASPER and
-Natural Questions* (Pouya Bathaei Pourmand). The manuscript is in preparation for journal
-submission. It has not been submitted, peer-reviewed or published, and it is not in this
-repository. It replaces the September 2026 manuscript (tag `v1.1.0`, described in the
-[top-level README](../../README.md)). *Language Resources and Evaluation* desk-rejected that
-version on 20 November 2026, without peer review.
+Code, text-free per-question data and results of the current TrustRAG study. The study is reported in
+a single-author journal manuscript, which has not been published and is not in this repository.
+Overview, figures and main findings: [top-level README](../../README.md).
 
-This folder adds new files only. It changes no file that tag `v1.1.0` reports.
+## What is in this folder
 
-## Question
+| Path | Content |
+|---|---|
+| `results/raw/` | Per question and model: the complete best-first chunk ordering, every annotator's gold chunk positions, the chunk character ranges and the global top-20. Full samples (QASPER 2,197, NQ 1,278), the earlier study's subsets (290, 300) and the 300-question reproduction runs. **No dataset text**: the question text was removed; join on `question_id` with the corpus to recover it |
+| `results/chunk_sensitivity/` | Text-free orderings at 128, 256 and 512 tokens on the subsets (BM25, MiniLM-L6, ms-marco CE) |
+| `results/<corpus>/analysis.json` | Per-corpus analysis: scores under every reference, intervals, pairwise tests, single-annotator draws, agreement, penalised evidence, reach |
+| `results/audit/` | Cluster-level inference, seven-model inference, overlap-rule and chunk-size sensitivity, statistical audit (including the uniform random-gold control), position-matched control, tie audit, adjudication audit, numeric consistency |
+| `results/feasibility/`, `FEASIBILITY_REPORT.md` | CPU throughput of the candidate models |
+| `data/colbert/` | ColBERT-small orderings on full NQ, used to build the NQ subset file |
+| `annotation_protocol/` | Protocol, guidelines and templates for an independent second derivability adjudication and a blinded repeat (not yet carried out) |
+| `scripts/`, `tests/` | Analysis pipeline and tests |
 
-Evidence-level retrieval evaluation credits a retriever only when it returns the passage that
-supports the answer, judged against human evidence annotations. Many QA datasets have several
-annotators per question, so a study must decide how to combine their annotations into one
-reference. How much does that decision change scores, model comparisons and significance
-conclusions? And how much valid evidence does a single-annotator reference miss?
-
-## Design
-
-- **Within-document localisation.** For every answerable question, every chunk of the gold
-  document (256 tokens, overlap 32) is ranked against the question. The full ordering is stored,
-  so any reference can be rescored without running a model again. The rank-1 hit rate is compared
-  with an exact chance level, `P(rank ≤ k) = 1 − C(D−m, k) / C(D, k)`.
-- **References.** First annotator, union, plurality and agreement (QASPER); first, union,
-  plurality and the official NQ rule (Natural Questions); and one annotator drawn at random per
-  question (1,000 draws).
-- **Data.** QASPER dev + test v0.3, 2,197 answerable questions. Natural Questions validation
-  shards 0–1, 1,278 questions. 3,475 questions in total. The earlier study's 290 QASPER and 300 NQ
-  questions are analysed as subsets.
-- **Localisers.**
-
-  | Model | Family | Params | Year | Scope |
-  |---|---|---:|---|---|
-  | BM25 (Okapi) | lexical | — | — | full samples |
-  | all-MiniLM-L6-v2 | bi-encoder | 22M | 2021 | full samples |
-  | granite-embedding-30m-english | bi-encoder | 30M | 2024 | full samples |
-  | ms-marco-MiniLM-L-6-v2 | cross-encoder | 22M | 2021 | full samples |
-  | jina-reranker-v1-turbo-en | cross-encoder | 38M | 2024 | full samples |
-  | answerai-colbert-small-v1 | late interaction | 33M | 2024 | full QASPER; NQ 300-question subset |
-  | bge-m3 (dense) | bi-encoder | 568M | 2024 | QASPER 290-question subset |
-  | bge-small, e5-small, all-mpnet-base, bge-reranker-base | bi-/cross-encoders | 33M–278M | 2021–2023 | 290/300-question subsets (earlier study) |
-
-  Models were chosen from throughput measured on this laptop's CPU
-  ([`results/feasibility/benchmark.json`](results/feasibility/benchmark.json)). Larger models were
-  not run at full scale; see [Limitations](#limitations).
-- **Statistics.** Exact McNemar tests with Holm correction, document-cluster bootstrap
-  (4,000 draws), document-level sign-flip permutation tests (20,000), simulated power and minimum
-  detectable differences, and Krippendorff's α with question-cluster intervals. Also a random-gold
-  control, sample splits (QASPER dev/test, NQ shard 0/1) and a tie audit.
-
-## Main results (full samples)
-
-| | QASPER | Natural Questions |
-|---|---|---|
-| Questions | 2,197 | 1,278 |
-| hit@1 gain, first annotator → union | +4.2 to +7.3 points | +5.6 to +9.1 points |
-| Range from redrawing the single annotator | ≤ 2.0 points | ≤ 2.0 points |
-| Random-gold control (real gain ÷ random gain) | 1.7–3.9× | 3.8–9.3× |
-| Annotator pairs that mark disjoint evidence | 20% | 14% |
-| Krippendorff's α (chunk level, 95% CI) | 0.65 (0.63–0.67) | 0.81 (0.78–0.85) |
-| Rank-1 misses that another annotator marked as gold | 8–14% | 10–18% |
-| Pairwise conclusions whose significance depends on the reference | 1 pair | 1 pair |
-
-- **The reference rule moves scores more than the choice of annotator does.** Moving from the
-  first annotator to the union raises rank-1 localisation for every model. Redrawing the
-  annotator under a fixed rule moves it by at most 2 points.
-- **The gain is mostly real evidence.** Adding the other annotators' evidence raises hit@1
-  1.7–9.3 times as much as adding the same number of random chunks.
-- **A single-annotator reference compresses differences between models.** Models that differ
-  significantly never change order. But the union raises the neural localisers more than BM25,
-  so with one annotator their differences shrink. Example: on NQ, MiniLM-L6 vs BM25 is +2.2
-  points (p = 0.32) under the first annotator and +5.0 points (p = 0.005) under the union. That
-  first-annotator test has about 17% power, so this is an illustration of the mechanism. Which
-  pair changes significance differs between sample splits.
-- **Missed evidence grows with model strength.** The share of rank-1 misses that another
-  annotator marked as gold rises with hit@1 (Spearman 1.00 on QASPER, 0.90 on NQ).
-- **Robustness.** Permutation tests agree with McNemar on every comparison. Ties have a
-  negligible effect (≤ 0.04 points). The same pattern holds for the models that were too slow
-  for the full samples: on the earlier study's 290 QASPER questions, BGE-M3 (568M) gains
-  5.1 points from the union reference, and on its 300 NQ questions ColBERT-small gains 8.3
-  points. On both subsets, every neural model gains more than BM25.
-
-Per-model scores under every reference, with intervals, are in `results/<corpus>/analysis.json`.
-
-## Verification
-
-- 228 reported metric values were re-derived with separate code; the largest difference is
-  3e-17 ([`results/audit/statistical_audit.json`](results/audit/statistical_audit.json)).
-- Krippendorff's α matches the `krippendorff` package exactly. McNemar matches `scipy`'s
-  binomial test. The exact chance level matches brute-force enumeration.
-- The new scorer reproduces the earlier study's stored ranks with 0 mismatches
-  (`results/repro_qasper_300/`, `scripts/check_reproduction.py`).
-- BM25 orderings recomputed from scores: 2,197/2,197 and 1,278/1,278 identical
-  ([`results/audit/tie_audit.json`](results/audit/tie_audit.json)).
-- 13 unit tests: `pytest studies/reference_sensitivity_2026-11/tests -q`.
-- The analyses in `results/*/analysis.json` were re-run from the published text-free files
-  under `results/raw/` and matched the stored outputs exactly (25 November 2026).
+**Relation to the manuscript's supplementary material.** The manuscript's supplementary material is an
+anonymized, self-contained copy of these scripts and files, made for double-anonymized review.
+Before this update (see the [CHANGELOG](../../CHANGELOG.md)), this folder held an earlier version of the per-corpus analysis (without the
+cluster-level primary test, NQ page clustering or the McNemar fields), and not the cluster-level
+inference, sensitivity, position-matched control or verification scripts. The orderings and gold
+chunks in `results/raw/` were already identical to the analysed ones.
 
 ## Reproduce
 
-From a clone, without corpora or models (about one minute per corpus):
+Run every command from this folder. Steps 1–10 need no corpus, model or internet (about 30 minutes
+on a laptop CPU); outputs can be compared with the committed files (`git diff --stat results`).
 
-```bash
-pip install -r requirements.txt krippendorff
-S=studies/reference_sensitivity_2026-11
-python $S/scripts/analyse_v2.py $S/results/raw/nq_full.json.gz     --out $S/results/nq_full
-python $S/scripts/analyse_v2.py $S/results/raw/qasper_full.json.gz --out $S/results/qasper_full
-git diff --stat $S/results            # only the recorded settings block may differ
-pytest $S/tests -q
-```
+| Step | Command | Output | Time |
+|---|---|---|---|
+| 1 | `python scripts/build_subsets.py` | `results/raw/nq_sub300.json.gz` (rebuilt); `qasper_sub290.json.gz` updated in place | seconds |
+| 2 | `python scripts/analyse_v2.py results/raw/<f>.json.gz --out results/<f>` for `qasper_full`, `nq_full`, `qasper_sub290`, `nq_sub300`, `repro_qasper_300` | `results/<f>/analysis.json` | 12–20 min |
+| 3 | `python scripts/cluster_inference.py` | `results/audit/cluster_inference.json` | about 1 min |
+| 4 | `python scripts/seven_inference.py` | `results/audit/seven_inference.json` | seconds |
+| 5 | `python scripts/overlap_sensitivity.py` | `results/audit/overlap_sensitivity.json` | about 1 min |
+| 6 | `python scripts/chunk_analysis.py` | `results/audit/chunk_sensitivity.json` | seconds |
+| 7 | `python scripts/stat_audit.py` | `results/audit/statistical_audit.json` (metric re-derivation, α, McNemar against SciPy, power, uniform random-gold control) | 7–15 min |
+| 8 | `python scripts/position_control.py` | `results/audit/position_control.json` (checks first that it reproduces the uniform control of step 7) | about 2 min |
+| 9 | `python scripts/make_tables.py` | `manuscript/generated/*.tex` (tables, number macros) and `figures/*.pdf`, written locally and not tracked (`.gitignore`) | seconds |
+| 10 | `python scripts/verify_numbers.py` | `results/audit/numeric_consistency.json`: independent re-implementation, compared with the analyses, macros and tables | seconds |
+| 11 | `pytest tests -q` | unit tests | seconds |
 
-`results/raw/*.json.gz` hold, per question: the full best-first chunk ordering for every model,
-every annotator's gold chunk positions, the chunk character ranges, and the global top-20 for
-BM25 and the bi-encoders. **They contain no dataset text.** The question text was removed before
-release; join on `question_id` with the corpus to recover it.
+Dependencies: `pip install -r ../../requirements.txt krippendorff matplotlib` (Python 3.11 or newer;
+the results were produced with Python 3.12.7, see `environment_freeze.txt`).
 
-To re-score from the corpora (CPU hours; fetch the corpora as described in
-[docs/DATASETS.md](../../docs/DATASETS.md) first):
+**Steps that need the corpora, the models or the internet.** Fetch the corpora as described in
+[docs/DATASETS.md](../../docs/DATASETS.md).
 
-```bash
-python $S/scripts/score_v2.py --help                  # BM25, MiniLM, ms-marco CE; full orderings
-python $S/scripts/add_model.py <scored> --model granite30m   # resumable; also jina_turbo, bge_m3
-python $S/scripts/colbert_bridge.py export|score|merge <name>  # ColBERT via PyLate, separate venv
-python $S/scripts/stat_audit.py                       # statistical audit
-python $S/scripts/tie_audit.py                        # tie audit (needs the corpora)
-```
+| Script | Needs | Purpose |
+|---|---|---|
+| `score_v2.py` | corpora, models | scores BM25, MiniLM and the ms-marco cross-encoder and stores full orderings |
+| `add_model.py`, `add_cross_encoder.py` | corpora, models | adds Granite-30M, Jina-turbo (ONNX), BGE-M3 or a cross-encoder to a scored file; resumable |
+| `colbert_bridge.py` | corpora, PyLate (separate environment) | ColBERT-small orderings |
+| `tie_audit.py` | corpora (question text) | recomputes BM25 scores and the effect of ties |
+| `adjudication_audit.py` | annotation package, NLI model | NLI cross-check of the derivability labels |
+| `benchmark_models.py` | corpora, models | CPU throughput (machine-specific) |
+| `check_reproduction.py` | earlier-study ranks | compares the scorer with the earlier study's stored ranks |
+| `gpu_score.py` | GPU | GPU scorer for larger models. **Not run**; no result from it is reported |
 
-`scripts/gpu_score.py` is a GPU scorer for larger models (BGE-M3, Qwen3-Embedding-0.6B,
-bge-reranker-v2-m3 and Qwen3-Reranker-0.6B), with the same protocol as `add_model.py`. **It has
-not been run.** No Colab GPU could be assigned on 25 November 2026, and no result from it is
-reported anywhere.
+The per-question files record the corpus files they were scored from (`config.raw_files`: path relative to the
+repository root and SHA-256); fetch them to `data/raw/` as described in `docs/DATASETS.md`.
 
-Environment: Python 3.12.7, Windows 11, CPU only (`environment_freeze.txt`). Model revisions are
-the Hugging Face commits recorded in each scored file's `config.models`. Seeds are fixed in the
-scripts (bootstrap 0, single-annotator draws 20261123, permutation 1, power 2, random-gold
-control 3).
+Seeds: cluster bootstrap 0, permutations 1, power 2, random-gold controls 3, subsamples 7,
+single-annotator draws 20261123. Model revisions are the Hugging Face commits recorded in each
+scored file's `config.models`.
+
+## Position-matched random-gold control
+
+The uniform control (`stat_audit.py`, control G) adds, on every question where the union adds chunks
+to the first annotator's gold, the same number of chunks drawn uniformly from the document's
+non-gold chunks. `position_control.py` replaces each added chunk instead by a random non-gold chunk at
+the same distance, in chunk positions, from the first annotator's nearest gold chunk, taking the
+nearest available distance when no such chunk is left (exact match in 61% of QASPER and 46% of NQ
+draws; within one chunk in 91% and 72%). Real gain ÷ matched gain: 1.7–3.3 on QASPER and 3.0–5.3 on
+NQ, against 1.7–3.9 and 3.8–9.3 for the uniform control; for every model, the cluster bootstrap 95%
+interval of the real minus matched gain excludes zero.
 
 ## Limitations
 
-- **Small models at full scale.** The full samples use models of 22M–38M parameters. BGE-M3 ran
-  only on 290 QASPER questions, and ColBERT only on 300 NQ questions. gte-modernbert and the
-  ModernBERT/LLM rerankers were infeasible on this CPU (measured, see the benchmark file).
-- **One chunk size** (256 tokens) and one overlap rule.
-- **Single adjudicator.** The small derivability adjudication (7 of 133 units, 5.3%) was done by
-  the author alone. An automated NLI cross-check contradicted none of the NO labels but could not
-  confirm the YES labels, so the rate lies between 0% and 5.3%. No second human annotator has been
-  recruited; inter-annotator reliability of that judgement is unmeasured.
-- **Two datasets.** Datasets with one annotator per question cannot be analysed this way.
-- **Size of the effect varies by split.** QASPER dev and test differ (dev has fewer second
-  annotators), so pooled estimates are not split-independent.
-- **No answer-quality measurement.** Nothing here is a claim about generation.
-
-## Files
-
-```
-scripts/   score_v2.py, add_model.py, add_cross_encoder.py, colbert_bridge.py, gpu_score.py (not run),
-           build_subsets.py, analyse_v2.py, stat_audit.py, tie_audit.py, adjudication_audit.py,
-           benchmark_models.py, check_reproduction.py
-results/   raw/ (text-free per-question orderings), <corpus>/analysis.json, audit/, feasibility/
-tests/     test_revision.py (13 tests)
-```
-
-The scripts import the repository's loaders, chunker and statistics (`src/`, `scripts/`), so run
-them from the repository root.
+- Small models at full scale (22M–38M parameters); BGE-M3 only on 290 QASPER questions, ColBERT-small
+  only on 300 NQ questions; no LLM reranker.
+- Chunk-size sensitivity only on the subsets and with three models; the compression of model
+  differences is established at 256-token chunks.
+- The derivability adjudication (7 of 133 units) has one adjudicator and no reliability estimate; an
+  NLI cross-check bounds the rate between 0% and 5.3%.
+- Holm correction within each corpus and reference, not across all analyses.
+- No measurement of answer quality.

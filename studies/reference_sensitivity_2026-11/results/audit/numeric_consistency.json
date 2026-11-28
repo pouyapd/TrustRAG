@@ -1,0 +1,670 @@
+{
+ "comparisons": {
+  "qasper": {
+   "checked": 292,
+   "max_abs_diff": 0.0007527289617809269,
+   "mismatches": [],
+   "missing": []
+  },
+  "nq": {
+   "checked": 253,
+   "max_abs_diff": 0.0008391008054392246,
+   "mismatches": [],
+   "missing": []
+  }
+ },
+ "macro_checks": [
+  {
+   "macro": "QShiftMin",
+   "manuscript": "4.2",
+   "recomputed": "4.2",
+   "ok": true
+  },
+  {
+   "macro": "QShiftMax",
+   "manuscript": "7.3",
+   "recomputed": "7.3",
+   "ok": true
+  },
+  {
+   "macro": "NShiftMin",
+   "manuscript": "5.6",
+   "recomputed": "5.6",
+   "ok": true
+  },
+  {
+   "macro": "NShiftMax",
+   "manuscript": "9.1",
+   "recomputed": "9.1",
+   "ok": true
+  },
+  {
+   "macro": "QPairDisj",
+   "manuscript": "20",
+   "recomputed": "20",
+   "ok": true
+  },
+  {
+   "macro": "NPairDisj",
+   "manuscript": "14",
+   "recomputed": "14",
+   "ok": true
+  },
+  {
+   "macro": "QAlpha",
+   "manuscript": "0.65",
+   "recomputed": "0.65",
+   "ok": true
+  },
+  {
+   "macro": "NAlpha",
+   "manuscript": "0.81",
+   "recomputed": "0.81",
+   "ok": true
+  },
+  {
+   "macro": "QN",
+   "manuscript": "2,197",
+   "recomputed": "2,197",
+   "ok": true
+  },
+  {
+   "macro": "NN",
+   "manuscript": "1,278",
+   "recomputed": "1,278",
+   "ok": true
+  },
+  {
+   "macro": "TotalN",
+   "manuscript": "3,475",
+   "recomputed": "3,475",
+   "ok": true
+  },
+  {
+   "macro": "QGapFirst",
+   "manuscript": "10.5",
+   "recomputed": "10.5",
+   "ok": true
+  },
+  {
+   "macro": "QGapUnion",
+   "manuscript": "13.9",
+   "recomputed": "13.9",
+   "ok": true
+  },
+  {
+   "macro": "QChanceFirst",
+   "manuscript": "0.117",
+   "recomputed": "0.117",
+   "ok": true
+  },
+  {
+   "macro": "QChanceUnion",
+   "manuscript": "0.147",
+   "recomputed": "0.147",
+   "ok": true
+  },
+  {
+   "macro": "QKappaShiftMin",
+   "manuscript": "1.5",
+   "recomputed": "1.5",
+   "ok": true
+  },
+  {
+   "macro": "QKappaShiftMax",
+   "manuscript": "6.0",
+   "recomputed": "6.0",
+   "ok": true
+  },
+  {
+   "macro": "QPenMin",
+   "manuscript": "8",
+   "recomputed": "8",
+   "ok": true
+  },
+  {
+   "macro": "QPenMax",
+   "manuscript": "14",
+   "recomputed": "14",
+   "ok": true
+  },
+  {
+   "macro": "NGapFirst",
+   "manuscript": "14.0",
+   "recomputed": "14.0",
+   "ok": true
+  },
+  {
+   "macro": "NGapUnion",
+   "manuscript": "17.1",
+   "recomputed": "17.1",
+   "ok": true
+  },
+  {
+   "macro": "NChanceFirst",
+   "manuscript": "0.117",
+   "recomputed": "0.117",
+   "ok": true
+  },
+  {
+   "macro": "NChanceUnion",
+   "manuscript": "0.142",
+   "recomputed": "0.142",
+   "ok": true
+  },
+  {
+   "macro": "NKappaShiftMin",
+   "manuscript": "4.4",
+   "recomputed": "4.4",
+   "ok": true
+  },
+  {
+   "macro": "NKappaShiftMax",
+   "manuscript": "8.6",
+   "recomputed": "8.6",
+   "ok": true
+  },
+  {
+   "macro": "NPenMin",
+   "manuscript": "10",
+   "recomputed": "10",
+   "ok": true
+  },
+  {
+   "macro": "NPenMax",
+   "manuscript": "18",
+   "recomputed": "18",
+   "ok": true
+  },
+  {
+   "macro": "PenAllMin",
+   "manuscript": "8",
+   "recomputed": "8",
+   "ok": true
+  },
+  {
+   "macro": "PenAllMax",
+   "manuscript": "18",
+   "recomputed": "18",
+   "ok": true
+  }
+ ],
+ "table_checks": [
+  {
+   "table": "tab_main",
+   "corpus": "qasper",
+   "row": "n",
+   "manuscript": [
+    "$n=2{,}197$",
+    "$n=2{,}111$",
+    "$n=2{,}197$",
+    "$n=1{,}296$"
+   ],
+   "recomputed": [
+    "$n=2{,}197$",
+    "$n=2{,}111$",
+    "$n=2{,}197$",
+    "$n=1{,}296$"
+   ],
+   "ok": true
+  },
+  {
+   "table": "tab_main",
+   "corpus": "qasper",
+   "row": "BM25",
+   "manuscript": [
+    "0.291",
+    "0.253",
+    "0.259",
+    "0.256"
+   ],
+   "recomputed": [
+    "0.291",
+    "0.253",
+    "0.259",
+    "0.256"
+   ],
+   "ok": true
+  },
+  {
+   "table": "tab_main",
+   "corpus": "qasper",
+   "row": "MiniLM-L6",
+   "manuscript": [
+    "0.381",
+    "0.329",
+    "0.340",
+    "0.353"
+   ],
+   "recomputed": [
+    "0.381",
+    "0.329",
+    "0.340",
+    "0.353"
+   ],
+   "ok": true
+  },
+  {
+   "table": "tab_main",
+   "corpus": "qasper",
+   "row": "Granite-30M",
+   "manuscript": [
+    "0.375",
+    "0.322",
+    "0.335",
+    "0.346"
+   ],
+   "recomputed": [
+    "0.375",
+    "0.322",
+    "0.335",
+    "0.346"
+   ],
+   "ok": true
+  },
+  {
+   "table": "tab_main",
+   "corpus": "qasper",
+   "row": "ColBERT-small",
+   "manuscript": [
+    "0.431",
+    "0.358",
+    "0.383",
+    "0.403"
+   ],
+   "recomputed": [
+    "0.431",
+    "0.358",
+    "0.383",
+    "0.403"
+   ],
+   "ok": true
+  },
+  {
+   "table": "tab_main",
+   "corpus": "qasper",
+   "row": "ms-marco CE",
+   "manuscript": [
+    "0.365",
+    "0.311",
+    "0.335",
+    "0.350"
+   ],
+   "recomputed": [
+    "0.365",
+    "0.311",
+    "0.335",
+    "0.350"
+   ],
+   "ok": true
+  },
+  {
+   "table": "tab_main",
+   "corpus": "qasper",
+   "row": "Jina-turbo",
+   "manuscript": [
+    "0.372",
+    "0.314",
+    "0.335",
+    "0.338"
+   ],
+   "recomputed": [
+    "0.372",
+    "0.314",
+    "0.335",
+    "0.338"
+   ],
+   "ok": true
+  },
+  {
+   "table": "tab_main",
+   "corpus": "qasper",
+   "row": "$c_1$",
+   "manuscript": [
+    "0.147",
+    "0.117",
+    "0.124",
+    "0.108"
+   ],
+   "recomputed": [
+    "0.147",
+    "0.117",
+    "0.124",
+    "0.108"
+   ],
+   "ok": true
+  },
+  {
+   "table": "tab_main",
+   "corpus": "qasper",
+   "row": "$\\kappa_1$ BM25",
+   "manuscript": [
+    "0.169",
+    "0.154",
+    "0.153",
+    "0.166"
+   ],
+   "recomputed": [
+    "0.169",
+    "0.154",
+    "0.153",
+    "0.166"
+   ],
+   "ok": true
+  },
+  {
+   "table": "tab_main",
+   "corpus": "qasper",
+   "row": "$\\kappa_1$ MiniLM-L6",
+   "manuscript": [
+    "0.274",
+    "0.240",
+    "0.247",
+    "0.274"
+   ],
+   "recomputed": [
+    "0.274",
+    "0.240",
+    "0.247",
+    "0.274"
+   ],
+   "ok": true
+  },
+  {
+   "table": "tab_main",
+   "corpus": "qasper",
+   "row": "$\\kappa_1$ Granite-30M",
+   "manuscript": [
+    "0.267",
+    "0.231",
+    "0.241",
+    "0.266"
+   ],
+   "recomputed": [
+    "0.267",
+    "0.231",
+    "0.241",
+    "0.266"
+   ],
+   "ok": true
+  },
+  {
+   "table": "tab_main",
+   "corpus": "qasper",
+   "row": "$\\kappa_1$ ColBERT-small",
+   "manuscript": [
+    "0.332",
+    "0.272",
+    "0.296",
+    "0.330"
+   ],
+   "recomputed": [
+    "0.332",
+    "0.272",
+    "0.296",
+    "0.330"
+   ],
+   "ok": true
+  },
+  {
+   "table": "tab_main",
+   "corpus": "qasper",
+   "row": "$\\kappa_1$ ms-marco CE",
+   "manuscript": [
+    "0.255",
+    "0.220",
+    "0.240",
+    "0.271"
+   ],
+   "recomputed": [
+    "0.255",
+    "0.220",
+    "0.240",
+    "0.271"
+   ],
+   "ok": true
+  },
+  {
+   "table": "tab_main",
+   "corpus": "qasper",
+   "row": "$\\kappa_1$ Jina-turbo",
+   "manuscript": [
+    "0.264",
+    "0.223",
+    "0.241",
+    "0.258"
+   ],
+   "recomputed": [
+    "0.264",
+    "0.223",
+    "0.241",
+    "0.258"
+   ],
+   "ok": true
+  },
+  {
+   "table": "tab_main",
+   "corpus": "nq",
+   "row": "n",
+   "manuscript": [
+    "$n=1{,}278$",
+    "$n=1{,}278$",
+    "$n=1{,}138$",
+    "$n=1{,}278$"
+   ],
+   "recomputed": [
+    "$n=1{,}278$",
+    "$n=1{,}278$",
+    "$n=1{,}138$",
+    "$n=1{,}278$"
+   ],
+   "ok": true
+  },
+  {
+   "table": "tab_main",
+   "corpus": "nq",
+   "row": "BM25",
+   "manuscript": [
+    "0.338",
+    "0.394",
+    "0.405",
+    "0.347"
+   ],
+   "recomputed": [
+    "0.338",
+    "0.394",
+    "0.405",
+    "0.347"
+   ],
+   "ok": true
+  },
+  {
+   "table": "tab_main",
+   "corpus": "nq",
+   "row": "MiniLM-L6",
+   "manuscript": [
+    "0.360",
+    "0.444",
+    "0.457",
+    "0.384"
+   ],
+   "recomputed": [
+    "0.360",
+    "0.444",
+    "0.457",
+    "0.384"
+   ],
+   "ok": true
+  },
+  {
+   "table": "tab_main",
+   "corpus": "nq",
+   "row": "Granite-30M",
+   "manuscript": [
+    "0.387",
+    "0.478",
+    "0.492",
+    "0.412"
+   ],
+   "recomputed": [
+    "0.387",
+    "0.478",
+    "0.492",
+    "0.412"
+   ],
+   "ok": true
+  },
+  {
+   "table": "tab_main",
+   "corpus": "nq",
+   "row": "ms-marco CE",
+   "manuscript": [
+    "0.477",
+    "0.561",
+    "0.580",
+    "0.502"
+   ],
+   "recomputed": [
+    "0.477",
+    "0.561",
+    "0.580",
+    "0.502"
+   ],
+   "ok": true
+  },
+  {
+   "table": "tab_main",
+   "corpus": "nq",
+   "row": "Jina-turbo",
+   "manuscript": [
+    "0.478",
+    "0.565",
+    "0.583",
+    "0.509"
+   ],
+   "recomputed": [
+    "0.478",
+    "0.565",
+    "0.583",
+    "0.509"
+   ],
+   "ok": true
+  },
+  {
+   "table": "tab_main",
+   "corpus": "nq",
+   "row": "$c_1$",
+   "manuscript": [
+    "0.117",
+    "0.142",
+    "0.142",
+    "0.120"
+   ],
+   "recomputed": [
+    "0.117",
+    "0.142",
+    "0.142",
+    "0.120"
+   ],
+   "ok": true
+  },
+  {
+   "table": "tab_main",
+   "corpus": "nq",
+   "row": "$\\kappa_1$ BM25",
+   "manuscript": [
+    "0.250",
+    "0.294",
+    "0.306",
+    "0.259"
+   ],
+   "recomputed": [
+    "0.250",
+    "0.294",
+    "0.306",
+    "0.259"
+   ],
+   "ok": true
+  },
+  {
+   "table": "tab_main",
+   "corpus": "nq",
+   "row": "$\\kappa_1$ MiniLM-L6",
+   "manuscript": [
+    "0.275",
+    "0.353",
+    "0.367",
+    "0.301"
+   ],
+   "recomputed": [
+    "0.275",
+    "0.353",
+    "0.367",
+    "0.301"
+   ],
+   "ok": true
+  },
+  {
+   "table": "tab_main",
+   "corpus": "nq",
+   "row": "$\\kappa_1$ Granite-30M",
+   "manuscript": [
+    "0.306",
+    "0.392",
+    "0.408",
+    "0.332"
+   ],
+   "recomputed": [
+    "0.306",
+    "0.392",
+    "0.408",
+    "0.332"
+   ],
+   "ok": true
+  },
+  {
+   "table": "tab_main",
+   "corpus": "nq",
+   "row": "$\\kappa_1$ ms-marco CE",
+   "manuscript": [
+    "0.407",
+    "0.488",
+    "0.510",
+    "0.434"
+   ],
+   "recomputed": [
+    "0.407",
+    "0.488",
+    "0.510",
+    "0.434"
+   ],
+   "ok": true
+  },
+  {
+   "table": "tab_main",
+   "corpus": "nq",
+   "row": "$\\kappa_1$ Jina-turbo",
+   "manuscript": [
+    "0.409",
+    "0.493",
+    "0.514",
+    "0.443"
+   ],
+   "recomputed": [
+    "0.409",
+    "0.493",
+    "0.514",
+    "0.443"
+   ],
+   "ok": true
+  }
+ ],
+ "summary": {
+  "analysis_leaves_checked": 545,
+  "analysis_mismatches": 0,
+  "macros_checked": 29,
+  "macro_mismatches": 0,
+  "table_rows_checked": 26,
+  "table_row_mismatches": 0
+ }
+}

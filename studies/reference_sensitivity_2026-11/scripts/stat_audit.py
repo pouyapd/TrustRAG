@@ -176,13 +176,14 @@ def check_tests(raw, ana):
             worst_p = max(worst_p, abs(p - x["p"]))
             ps.append(x["p"])
         adj = holm_independent(np.array(ps))
-        worst_holm = max(worst_holm, *(abs(a - x["p_holm"]) for a, x in zip(adj, v["pairwise"])))
+        worst_holm = max(worst_holm, *(abs(a - x["p_mcnemar_holm"]) for a, x in zip(adj, v["pairwise"])))
     return {"max_abs_difference_mcnemar_vs_scipy_binomtest": worst_p, "max_abs_difference_holm": worst_holm}
 
 
 # --------------------------------------------------------------------------- E
 def cluster_permutation(raw, n_perm=20000, seed=1):
-    """Paired sign-flip test at document level for every pair, Holm-corrected; compare."""
+    """Independent re-implementation of the primary test: paired sign-flip permutation on cluster
+    sums (QASPER paper, NQ page), Holm; compared with the analysis's primary decisions and with McNemar."""
     corpus = raw["corpus"]
     models = list(raw["config"]["models"])
     rng = np.random.default_rng(seed)
@@ -193,7 +194,7 @@ def cluster_permutation(raw, n_perm=20000, seed=1):
         for a, b in itertools.combinations(models, 2):
             byd: dict[str, float] = {}
             for r in rows:
-                byd[r["doc"]] = byd.get(r["doc"], 0) + int(r["rank"][a] == 1) - int(r["rank"][b] == 1)
+                byd[r["cluster"]] = byd.get(r["cluster"], 0) + int(r["rank"][a] == 1) - int(r["rank"][b] == 1)
             d = np.array(list(byd.values()), dtype=float)
             obs = abs(d.sum())
             flips = rng.choice([-1.0, 1.0], size=(n_perm, len(d)))
@@ -201,12 +202,16 @@ def cluster_permutation(raw, n_perm=20000, seed=1):
             p = (1 + (null >= obs - 1e-12).sum()) / (n_perm + 1)
             res.append({"a": a, "b": b, "p_perm": float(p)})
         adj = holm_independent(np.array([x["p_perm"] for x in res]))
-        ana_pairs = {(x["a"], x["b"]): x["significant"] for x in A_cache[corpus]["schemes"][s]["pairwise"]}
+        ana = {(x["a"], x["b"]): x for x in A_cache[corpus]["schemes"][s]["pairwise"]}
         for x, pa in zip(res, adj):
             x["p_perm_holm"] = float(pa)
             x["significant_perm"] = bool(pa < 0.05)
-            x["significant_mcnemar"] = ana_pairs[(x["a"], x["b"])]
-        out[s] = {"pairs": res, "conclusions_agree": all(x["significant_perm"] == x["significant_mcnemar"] for x in res)}
+            x["significant_primary_analysis"] = ana[(x["a"], x["b"])]["significant"]
+            x["significant_mcnemar"] = ana[(x["a"], x["b"])]["significant_mcnemar"]
+        out[s] = {"pairs": res,
+                  "reimplementation_agrees_with_primary": all(x["significant_perm"] == x["significant_primary_analysis"] for x in res),
+                  "conclusions_agree": all(x["significant_perm"] == x["significant_mcnemar"] for x in res),
+                  "pairs_where_mcnemar_differs": [f"{x['a']}-{x['b']}" for x in res if x["significant_perm"] != x["significant_mcnemar"]]}
     return out
 
 

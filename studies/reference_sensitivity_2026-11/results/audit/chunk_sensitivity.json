@@ -1,0 +1,556 @@
+{
+ "qasper": {
+  "128": {
+   "n_common": 275,
+   "mean_chunks_per_doc": 45.97241379310345,
+   "chance_hit1_first": 0.0912581460908213,
+   "chance_hit1_union": 0.11455555619984602,
+   "hit1_first": {
+    "bm25": 0.20727272727272728,
+    "minilm": 0.28363636363636363,
+    "ce_msmarco_minilm": 0.29818181818181816
+   },
+   "hit1_union": {
+    "bm25": 0.23448275862068965,
+    "minilm": 0.33448275862068966,
+    "ce_msmarco_minilm": 0.35172413793103446
+   },
+   "union_minus_first": {
+    "bm25": {
+     "delta": 0.03272727272727273,
+     "ci95_cluster": [
+      0.014868511634310891,
+      0.053004202805439556
+     ],
+     "p_perm": 0.004199790010499475,
+     "p_perm_doc_cluster": 0.003949802509874506,
+     "n_clusters": 111,
+     "p_perm_holm": 0.004199790010499475
+    },
+    "minilm": {
+     "delta": 0.05818181818181818,
+     "ci95_cluster": [
+      0.032371199814342076,
+      0.0878672582647478
+     ],
+     "p_perm": 0.00014999250037498125,
+     "p_perm_doc_cluster": 9.99950002499875e-05,
+     "n_clusters": 111,
+     "p_perm_holm": 0.00044997750112494374
+    },
+    "ce_msmarco_minilm": {
+     "delta": 0.05090909090909091,
+     "ci95_cluster": [
+      0.02563868613138686,
+      0.07773949744797802
+     ],
+     "p_perm": 0.0008499575021248938,
+     "p_perm_doc_cluster": 0.0008499575021248938,
+     "n_clusters": 111,
+     "p_perm_holm": 0.0016999150042497876
+    }
+   },
+   "neural_minus_bm25": {
+    "minilm": {
+     "delta": 0.025454545454545455,
+     "ci95_cluster": [
+      0.0,
+      0.053231939163498096
+     ],
+     "p_perm": 0.11219439028048597,
+     "p_perm_doc_cluster": 0.11924403779811009,
+     "n_clusters": 111,
+     "p_perm_holm": 0.22438878056097195
+    },
+    "ce_msmarco_minilm": {
+     "delta": 0.01818181818181818,
+     "ci95_cluster": [
+      -0.007017543859649123,
+      0.043796347456887784
+     ],
+     "p_perm": 0.27003649817509123,
+     "p_perm_doc_cluster": 0.26538673066346685,
+     "n_clusters": 111,
+     "p_perm_holm": 0.27003649817509123
+    }
+   },
+   "significant_first": [
+    "ce_msmarco_minilm>bm25"
+   ],
+   "significant_union": [
+    "ce_msmarco_minilm>bm25",
+    "minilm>bm25"
+   ],
+   "significance_changed": [
+    "minilm>bm25"
+   ],
+   "config": {
+    "chunk_size": 128,
+    "chunk_overlap": 32,
+    "ce_max_length": 512,
+    "n_chunks": 5231,
+    "limit_per_file": 300
+   }
+  },
+  "256": {
+   "n_common": 275,
+   "mean_chunks_per_doc": 19.982758620689655,
+   "chance_hit1_first": 0.12678872141065153,
+   "chance_hit1_union": 0.15722607988862264,
+   "hit1_first": {
+    "bm25": 0.2690909090909091,
+    "minilm": 0.33090909090909093,
+    "ce_msmarco_minilm": 0.3381818181818182
+   },
+   "hit1_union": {
+    "bm25": 0.2896551724137931,
+    "minilm": 0.3758620689655172,
+    "ce_msmarco_minilm": 0.38620689655172413
+   },
+   "union_minus_first": {
+    "bm25": {
+     "delta": 0.02909090909090909,
+     "ci95_cluster": [
+      0.011278195488721804,
+      0.04906258304544249
+     ],
+     "p_perm": 0.007049647517624119,
+     "p_perm_doc_cluster": 0.007849607519624019,
+     "n_clusters": 111,
+     "p_perm_holm": 0.007049647517624119
+    },
+    "minilm": {
+     "delta": 0.05090909090909091,
+     "ci95_cluster": [
+      0.026615969581749048,
+      0.078125
+     ],
+     "p_perm": 0.00044997750112494374,
+     "p_perm_doc_cluster": 0.000199990000499975,
+     "n_clusters": 111,
+     "p_perm_holm": 0.0013499325033748313
+    },
+    "ce_msmarco_minilm": {
+     "delta": 0.04,
+     "ci95_cluster": [
+      0.019931904688565708,
+      0.06390977443609022
+     ],
+     "p_perm": 0.0012499375031248437,
+     "p_perm_doc_cluster": 0.0007499625018749063,
+     "n_clusters": 111,
+     "p_perm_holm": 0.0024998750062496873
+    }
+   },
+   "neural_minus_bm25": {
+    "minilm": {
+     "delta": 0.02181818181818182,
+     "ci95_cluster": [
+      -0.0037174721189591076,
+      0.0486153455284553
+     ],
+     "p_perm": 0.1791910404479776,
+     "p_perm_doc_cluster": 0.18024098795060248,
+     "n_clusters": 111,
+     "p_perm_holm": 0.3583820808959552
+    },
+    "ce_msmarco_minilm": {
+     "delta": 0.01090909090909091,
+     "ci95_cluster": [
+      -0.00796812749003984,
+      0.03284859271274519
+     ],
+     "p_perm": 0.5069746512674367,
+     "p_perm_doc_cluster": 0.503774811259437,
+     "n_clusters": 111,
+     "p_perm_holm": 0.5069746512674367
+    }
+   },
+   "significant_first": [
+    "ce_msmarco_minilm>bm25"
+   ],
+   "significant_union": [
+    "ce_msmarco_minilm>bm25",
+    "minilm>bm25"
+   ],
+   "significance_changed": [
+    "minilm>bm25"
+   ],
+   "config": {
+    "chunk_size": 256,
+    "chunk_overlap": 32,
+    "ce_max_length": 512,
+    "n_chunks": 2272,
+    "limit_per_file": 300
+   }
+  },
+  "512": {
+   "n_common": 275,
+   "mean_chunks_per_doc": 9.548275862068966,
+   "chance_hit1_first": 0.1938929834066889,
+   "chance_hit1_union": 0.23858018443029533,
+   "hit1_first": {
+    "bm25": 0.33090909090909093,
+    "minilm": 0.36363636363636365,
+    "ce_msmarco_minilm": 0.39636363636363636
+   },
+   "hit1_union": {
+    "bm25": 0.3620689655172414,
+    "minilm": 0.43103448275862066,
+    "ce_msmarco_minilm": 0.4586206896551724
+   },
+   "union_minus_first": {
+    "bm25": {
+     "delta": 0.04363636363636364,
+     "ci95_cluster": [
+      0.02142857142857143,
+      0.07097257460432525
+     ],
+     "p_perm": 0.0009499525023748813,
+     "p_perm_doc_cluster": 0.0011499425028748563,
+     "n_clusters": 111,
+     "p_perm_holm": 0.0009499525023748813
+    },
+    "minilm": {
+     "delta": 0.08,
+     "ci95_cluster": [
+      0.046690166380765105,
+      0.11765265041377769
+     ],
+     "p_perm": 4.999750012499375e-05,
+     "p_perm_doc_cluster": 4.999750012499375e-05,
+     "n_clusters": 111,
+     "p_perm_holm": 0.00014999250037498125
+    },
+    "ce_msmarco_minilm": {
+     "delta": 0.05818181818181818,
+     "ci95_cluster": [
+      0.030533704230818994,
+      0.08800070422535211
+     ],
+     "p_perm": 9.99950002499875e-05,
+     "p_perm_doc_cluster": 0.00014999250037498125,
+     "n_clusters": 111,
+     "p_perm_holm": 0.000199990000499975
+    }
+   },
+   "neural_minus_bm25": {
+    "minilm": {
+     "delta": 0.03636363636363636,
+     "ci95_cluster": [
+      0.0072992700729927005,
+      0.06666666666666667
+     ],
+     "p_perm": 0.031248437578121093,
+     "p_perm_doc_cluster": 0.028948552572371382,
+     "n_clusters": 111,
+     "p_perm_holm": 0.062496875156242186
+    },
+    "ce_msmarco_minilm": {
+     "delta": 0.014545454545454545,
+     "ci95_cluster": [
+      -0.01486988847583643,
+      0.04529644915034449
+     ],
+     "p_perm": 0.48202589870506474,
+     "p_perm_doc_cluster": 0.47697615119244036,
+     "n_clusters": 111,
+     "p_perm_holm": 0.48202589870506474
+    }
+   },
+   "significant_first": [],
+   "significant_union": [
+    "ce_msmarco_minilm>bm25"
+   ],
+   "significance_changed": [
+    "ce_msmarco_minilm>bm25"
+   ],
+   "config": {
+    "chunk_size": 512,
+    "chunk_overlap": 32,
+    "ce_max_length": 512,
+    "n_chunks": 1085,
+    "limit_per_file": 300
+   }
+  }
+ },
+ "nq": {
+  "128": {
+   "n_common": 300,
+   "mean_chunks_per_doc": 96.77666666666667,
+   "chance_hit1_first": 0.09315762193591146,
+   "chance_hit1_union": 0.11524321322588536,
+   "hit1_first": {
+    "bm25": 0.24,
+    "minilm": 0.27666666666666667,
+    "ce_msmarco_minilm": 0.43
+   },
+   "hit1_union": {
+    "bm25": 0.29333333333333333,
+    "minilm": 0.36,
+    "ce_msmarco_minilm": 0.5233333333333333
+   },
+   "union_minus_first": {
+    "bm25": {
+     "delta": 0.05333333333333334,
+     "ci95_cluster": [
+      0.029801324503311258,
+      0.07973421926910298
+     ],
+     "p_perm": 0.00014999250037498125,
+     "p_perm_doc_cluster": 4.999750012499375e-05,
+     "n_clusters": 297,
+     "p_perm_holm": 0.00014999250037498125
+    },
+    "minilm": {
+     "delta": 0.08333333333333333,
+     "ci95_cluster": [
+      0.05333333333333334,
+      0.11589403973509933
+     ],
+     "p_perm": 4.999750012499375e-05,
+     "p_perm_doc_cluster": 4.999750012499375e-05,
+     "n_clusters": 297,
+     "p_perm_holm": 0.00014999250037498125
+    },
+    "ce_msmarco_minilm": {
+     "delta": 0.09333333333333334,
+     "ci95_cluster": [
+      0.06039763417207246,
+      0.12795471158958005
+     ],
+     "p_perm": 4.999750012499375e-05,
+     "p_perm_doc_cluster": 4.999750012499375e-05,
+     "n_clusters": 297,
+     "p_perm_holm": 0.00014999250037498125
+    }
+   },
+   "neural_minus_bm25": {
+    "minilm": {
+     "delta": 0.03,
+     "ci95_cluster": [
+      0.0,
+      0.06020066889632107
+     ],
+     "p_perm": 0.07689615519224038,
+     "p_perm_doc_cluster": 0.07999600019999,
+     "n_clusters": 297,
+     "p_perm_holm": 0.0975951202439878
+    },
+    "ce_msmarco_minilm": {
+     "delta": 0.04,
+     "ci95_cluster": [
+      0.0033333333333333335,
+      0.07667307692307694
+     ],
+     "p_perm": 0.0487975601219939,
+     "p_perm_doc_cluster": 0.04734763261836908,
+     "n_clusters": 297,
+     "p_perm_holm": 0.0975951202439878
+    }
+   },
+   "significant_first": [
+    "ce_msmarco_minilm>bm25",
+    "ce_msmarco_minilm>minilm"
+   ],
+   "significant_union": [
+    "ce_msmarco_minilm>bm25",
+    "ce_msmarco_minilm>minilm",
+    "minilm>bm25"
+   ],
+   "significance_changed": [
+    "minilm>bm25"
+   ],
+   "config": {
+    "chunk_size": 128,
+    "chunk_overlap": 32,
+    "ce_max_length": 512,
+    "n_chunks": 28630,
+    "limit_per_file": 300
+   }
+  },
+  "256": {
+   "n_common": 300,
+   "mean_chunks_per_doc": 41.77,
+   "chance_hit1_first": 0.11568049684888516,
+   "chance_hit1_union": 0.13971240297007967,
+   "hit1_first": {
+    "bm25": 0.35333333333333333,
+    "minilm": 0.38666666666666666,
+    "ce_msmarco_minilm": 0.46
+   },
+   "hit1_union": {
+    "bm25": 0.3933333333333333,
+    "minilm": 0.4633333333333333,
+    "ce_msmarco_minilm": 0.55
+   },
+   "union_minus_first": {
+    "bm25": {
+     "delta": 0.04,
+     "ci95_cluster": [
+      0.019933554817275746,
+      0.06333333333333334
+     ],
+     "p_perm": 0.0006499675016249188,
+     "p_perm_doc_cluster": 0.00039998000099995,
+     "n_clusters": 297,
+     "p_perm_holm": 0.0006499675016249188
+    },
+    "minilm": {
+     "delta": 0.07666666666666666,
+     "ci95_cluster": [
+      0.04966887417218543,
+      0.10738255033557047
+     ],
+     "p_perm": 4.999750012499375e-05,
+     "p_perm_doc_cluster": 4.999750012499375e-05,
+     "n_clusters": 297,
+     "p_perm_holm": 0.00014999250037498125
+    },
+    "ce_msmarco_minilm": {
+     "delta": 0.09,
+     "ci95_cluster": [
+      0.059800664451827246,
+      0.12374581939799331
+     ],
+     "p_perm": 4.999750012499375e-05,
+     "p_perm_doc_cluster": 4.999750012499375e-05,
+     "n_clusters": 297,
+     "p_perm_holm": 0.00014999250037498125
+    }
+   },
+   "neural_minus_bm25": {
+    "minilm": {
+     "delta": 0.03666666666666667,
+     "ci95_cluster": [
+      0.009966777408637873,
+      0.0664451827242525
+     ],
+     "p_perm": 0.019099045047747613,
+     "p_perm_doc_cluster": 0.018899055047247638,
+     "n_clusters": 297,
+     "p_perm_holm": 0.019099045047747613
+    },
+    "ce_msmarco_minilm": {
+     "delta": 0.05,
+     "ci95_cluster": [
+      0.019867549668874173,
+      0.08361204013377926
+     ],
+     "p_perm": 0.004849757512124394,
+     "p_perm_doc_cluster": 0.003649817509124544,
+     "n_clusters": 297,
+     "p_perm_holm": 0.009699515024248788
+    }
+   },
+   "significant_first": [
+    "ce_msmarco_minilm>bm25"
+   ],
+   "significant_union": [
+    "ce_msmarco_minilm>bm25",
+    "ce_msmarco_minilm>minilm",
+    "minilm>bm25"
+   ],
+   "significance_changed": [
+    "ce_msmarco_minilm>minilm",
+    "minilm>bm25"
+   ],
+   "config": {
+    "chunk_size": 256,
+    "chunk_overlap": 32,
+    "ce_max_length": 512,
+    "n_chunks": 12358,
+    "limit_per_file": 300
+   }
+  },
+  "512": {
+   "n_common": 300,
+   "mean_chunks_per_doc": 19.74,
+   "chance_hit1_first": 0.16156667826344057,
+   "chance_hit1_union": 0.18828154300092448,
+   "hit1_first": {
+    "bm25": 0.4033333333333333,
+    "minilm": 0.47,
+    "ce_msmarco_minilm": 0.48333333333333334
+   },
+   "hit1_union": {
+    "bm25": 0.47333333333333333,
+    "minilm": 0.54,
+    "ce_msmarco_minilm": 0.5833333333333334
+   },
+   "union_minus_first": {
+    "bm25": {
+     "delta": 0.07,
+     "ci95_cluster": [
+      0.0429042904290429,
+      0.10033444816053512
+     ],
+     "p_perm": 4.999750012499375e-05,
+     "p_perm_doc_cluster": 4.999750012499375e-05,
+     "n_clusters": 297,
+     "p_perm_holm": 0.00014999250037498125
+    },
+    "minilm": {
+     "delta": 0.07,
+     "ci95_cluster": [
+      0.043333333333333335,
+      0.10067114093959731
+     ],
+     "p_perm": 4.999750012499375e-05,
+     "p_perm_doc_cluster": 4.999750012499375e-05,
+     "n_clusters": 297,
+     "p_perm_holm": 0.00014999250037498125
+    },
+    "ce_msmarco_minilm": {
+     "delta": 0.1,
+     "ci95_cluster": [
+      0.06688963210702341,
+      0.13468484183944712
+     ],
+     "p_perm": 4.999750012499375e-05,
+     "p_perm_doc_cluster": 4.999750012499375e-05,
+     "n_clusters": 297,
+     "p_perm_holm": 0.00014999250037498125
+    }
+   },
+   "neural_minus_bm25": {
+    "minilm": {
+     "delta": 0.0,
+     "ci95_cluster": [
+      -0.030100334448160536,
+      0.030100334448160536
+     ],
+     "p_perm": 1.0,
+     "p_perm_doc_cluster": 1.0,
+     "n_clusters": 297,
+     "p_perm_holm": 1.0
+    },
+    "ce_msmarco_minilm": {
+     "delta": 0.03,
+     "ci95_cluster": [
+      -0.0033112582781456954,
+      0.06375838926174497
+     ],
+     "p_perm": 0.1239438028098595,
+     "p_perm_doc_cluster": 0.11984400779961002,
+     "n_clusters": 297,
+     "p_perm_holm": 0.247887605619719
+    }
+   },
+   "significant_first": [
+    "ce_msmarco_minilm>bm25"
+   ],
+   "significant_union": [
+    "ce_msmarco_minilm>bm25"
+   ],
+   "significance_changed": [],
+   "config": {
+    "chunk_size": 512,
+    "chunk_overlap": 32,
+    "ce_max_length": 512,
+    "n_chunks": 5840,
+    "limit_per_file": 300
+   }
+  }
+ }
+}

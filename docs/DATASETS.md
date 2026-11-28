@@ -90,6 +90,14 @@ tar xzf data/raw/qasper-train-dev-v0.3.tgz -C data/raw
 curl -L -o data/raw/nq-validation-0.parquet \
   https://huggingface.co/api/datasets/google-research-datasets/natural_questions/parquet/default/validation/0.parquet
 
+# Also used by the reference-construction study (studies/reference_sensitivity_2026-11):
+# the QASPER test split (CC BY 4.0) and Natural Questions validation shard 1
+curl -L -o data/raw/qasper-test-and-evaluator-v0.3.tgz \
+  https://qasper-dataset.s3.us-west-2.amazonaws.com/qasper-test-and-evaluator-v0.3.tgz
+tar xzf data/raw/qasper-test-and-evaluator-v0.3.tgz -C data/raw   # place qasper-test-v0.3.json directly in data/raw/
+curl -L -o data/raw/nq-validation-1.parquet \
+  https://huggingface.co/api/datasets/google-research-datasets/natural_questions/parquet/default/validation/1.parquet
+
 # The two multi-hop corpora are used only by the A/B/C decomposition
 # (scripts/reproduce_study.py), not by the localisation study.
 
@@ -115,6 +123,8 @@ change upstream, so check the SHA-256 below before using a download.
 | `qasper-train-dev-v0.3.tgz` | `a28fdf966db827bcee3d873107d6b6669864fb7ca8fbf73a192f5e39191bdb5a` |
 | `qasper-dev-v0.3.json` (extracted from the archive) | `2ae7ee62a65b1c4225791c70de80c2aad4e8998cf1fd4f09a53103db4f21af93` |
 | `nq-validation-0.parquet` | `d38ab58b0dc7065992f0175320203dd321cb14a7d29ae6c622f87c8935fb23d1` |
+| `qasper-test-v0.3.json` (reference-construction study) | `6e29ad410e6e39aa1936017fb965b30a20eb2e7751997f55b97c9d281aa884e5` |
+| `nq-validation-1.parquet` (reference-construction study) | `b919537b9fb8bd4a2cfa3dd4e80d330efd699bae29f0b5d82dd52107949c71bb` |
 | `hotpot-distractor-validation-0.parquet` | `c20b638ca82b21d04fe12e14ff417ad05153d4d215a65de54497fca4e972f7c6` |
 | `2wiki-dev.parquet` | `c0d8b60b9026b728fb07ad74c5252a0f188f6942e8ba5c02df4dfa369502ea8d` |
 
