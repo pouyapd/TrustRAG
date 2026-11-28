@@ -1,5 +1,32 @@
 # Changelog
 
+## Unreleased — final analysis of the reference-construction study, new README (28 November 2026)
+
+No result file of tag `v1.1.0` changes.
+
+- **README.** The top-level README now presents the current study: research question, contribution,
+  protocol, verified findings, reproduction, datasets and licences, with a banner, a workflow diagram
+  and a results figure (`docs/figures/`; the figure is drawn from the result files by
+  `docs/figures/source/make_results_figure.py`). The former README, which documents the September
+  2026 study, moved unchanged to `docs/EARLIER_STUDY_2026-09.md`.
+- **Final analysis** in `studies/reference_sensitivity_2026-11/`: the final versions of `analyse_v2.py`
+  and `stat_audit.py`; new scripts for cluster-level inference (QASPER paper, NQ Wikipedia page),
+  the seven-model comparison, overlap-rule and chunk-size sensitivity, the position-matched
+  random-gold control (`position_control.py`), the tables (`make_tables.py`), the independent
+  re-implementation (`verify_numbers.py`); the
+  corresponding results; text-free chunk-size orderings, reproduction runs and ColBERT NQ orderings;
+  the second-adjudication protocol. The per-corpus analyses replace the earlier version; the
+  orderings and gold chunks in `results/raw/` are unchanged.
+- **Rounding.** `make_tables.py` takes the point estimate of the hit@1 reference effect from the
+  unrounded value in `cluster_inference.json` instead of re-rounding the four-decimal value stored in
+  `analysis.json` (QASPER, ms-marco CE: +5.4, not +5.5 points). The results figure uses the same values.
+- **Corpus paths in four scored files.** `results/raw/{qasper_full,nq_full,qasper_sub290,nq_sub300}.json.gz`
+  recorded two corpus files under an internal working-folder path. Only those two path strings in
+  `config.raw_files` now read `data/raw/<file>`; orderings, gold chunks, chunk ranges and the recorded
+  SHA-256 are unchanged, and every analysis re-run from the files gives identical results.
+  `docs/DATASETS.md` now lists how to obtain the QASPER test split and NQ validation shard 1, with checksums.
+- The tables, number macros and figures that `make_tables.py` writes are not tracked (`.gitignore`).
+
 ## Unreleased — follow-up study on reference construction (25 November 2026)
 
 New files only; no existing result file changes and tag `v1.1.0` is untouched.

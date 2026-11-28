@@ -1,0 +1,196 @@
+{
+ "method": "Control G adds to the first annotator's gold, on every question where the union adds chunks, the same number of chunks drawn uniformly from the document's non-union chunks. Other annotators' evidence is often close to the first annotator's, and neighbouring chunks share text (32-token overlap) and topic, so part of the real-versus-random contrast could reflect proximity alone. This control matches position: every real added chunk a is replaced by a random non-union chunk at the same distance d(a) = min_f |a - f| (in chunk positions) from the first annotator's gold chunks f, drawn without replacement within the question; when no unused non-union chunk exists at exactly that distance, the nearest available distance is used (counted as a fallback).",
+ "n_draws": 200,
+ "seed": 3,
+ "n_boot": 4000,
+ "qasper": {
+  "uniform_control_reproduced": true,
+  "n_questions_union_adds_chunks": 673,
+  "n_added_chunks": 1346,
+  "added_chunk_distance": {
+   "adjacent_share": 0.2526002971768202,
+   "within_2_share": 0.3974739970282318,
+   "median": 3.0
+  },
+  "models": {
+   "bm25": {
+    "gain_real_union": 0.13224368499257058,
+    "gain_matched_mean": 0.07948736998514117,
+    "gain_matched_95": [
+     0.07425705794947994,
+     0.0861812778603269
+    ],
+    "ratio_real_to_matched": 1.6637068884942516,
+    "real_minus_matched": 0.05275631500742942,
+    "real_minus_matched_cluster95": [
+     0.01694902046744485,
+     0.08895314676614152
+    ]
+   },
+   "minilm": {
+    "gain_real_union": 0.1723625557206538,
+    "gain_matched_mean": 0.08299405646359585,
+    "gain_matched_95": [
+     0.07726597325408618,
+     0.08770430906389302
+    ],
+    "ratio_real_to_matched": 2.076806015576045,
+    "real_minus_matched": 0.08936849925705795,
+    "real_minus_matched_cluster95": [
+     0.05303179429935141,
+     0.12604822038651234
+    ]
+   },
+   "ce_msmarco_minilm": {
+    "gain_real_union": 0.17087667161961367,
+    "gain_matched_mean": 0.08612184249628531,
+    "gain_matched_95": [
+     0.08023774145616643,
+     0.09212481426448738
+    ],
+    "ratio_real_to_matched": 1.9841269841269837,
+    "real_minus_matched": 0.08475482912332837,
+    "real_minus_matched_cluster95": [
+     0.047547438433320016,
+     0.12293043277800983
+    ]
+   },
+   "granite30m": {
+    "gain_real_union": 0.1738484398216939,
+    "gain_matched_mean": 0.09438335809806836,
+    "gain_matched_95": [
+     0.09063893016344725,
+     0.09955423476968796
+    ],
+    "ratio_real_to_matched": 1.8419395465994959,
+    "real_minus_matched": 0.07946508172362557,
+    "real_minus_matched_cluster95": [
+     0.03911680119581465,
+     0.11726248965060443
+    ]
+   },
+   "jina_turbo": {
+    "gain_real_union": 0.1827637444279346,
+    "gain_matched_mean": 0.07717682020802377,
+    "gain_matched_95": [
+     0.07280832095096583,
+     0.08172362555720654
+    ],
+    "ratio_real_to_matched": 2.368117058144012,
+    "real_minus_matched": 0.10558692421991085,
+    "real_minus_matched_cluster95": [
+     0.06969868094518773,
+     0.14345539112050743
+    ]
+   },
+   "colbert_small": {
+    "gain_real_union": 0.2288261515601783,
+    "gain_matched_mean": 0.06922734026745914,
+    "gain_matched_95": [
+     0.0638930163447251,
+     0.07429420505200594
+    ],
+    "ratio_real_to_matched": 3.305430349860485,
+    "real_minus_matched": 0.15959881129271916,
+    "real_minus_matched_cluster95": [
+     0.12147748344007721,
+     0.1982023161045718
+    ]
+   }
+  },
+  "matching": {
+   "exact_distance_share": 0.6137920431726908,
+   "within_1_chunk_share": 0.9065857178714859,
+   "within_2_chunks_share": 0.9533308232931726,
+   "mean_abs_distance_deviation": 0.5677848895582329
+  }
+ },
+ "nq": {
+  "uniform_control_reproduced": true,
+  "n_questions_union_adds_chunks": 389,
+  "n_added_chunks": 940,
+  "added_chunk_distance": {
+   "adjacent_share": 0.20106382978723406,
+   "within_2_share": 0.32340425531914896,
+   "median": 5.0
+  },
+  "models": {
+   "bm25": {
+    "gain_real_union": 0.18508997429305912,
+    "gain_matched_mean": 0.062287917737789196,
+    "gain_matched_95": [
+     0.05912596401028278,
+     0.06426735218508997
+    ],
+    "ratio_real_to_matched": 2.9715229054890635,
+    "real_minus_matched": 0.1228020565552699,
+    "real_minus_matched_cluster95": [
+     0.07756475861378206,
+     0.169713596339319
+    ]
+   },
+   "minilm": {
+    "gain_real_union": 0.2776349614395887,
+    "gain_matched_mean": 0.05790488431876608,
+    "gain_matched_95": [
+     0.056555269922879174,
+     0.05912596401028278
+    ],
+    "ratio_real_to_matched": 4.794672586015538,
+    "real_minus_matched": 0.2197300771208226,
+    "real_minus_matched_cluster95": [
+     0.1653733228980322,
+     0.27320334849139094
+    ]
+   },
+   "ce_msmarco_minilm": {
+    "gain_real_union": 0.2776349614395887,
+    "gain_matched_mean": 0.05464010282776349,
+    "gain_matched_95": [
+     0.05141388174807198,
+     0.056555269922879174
+    ],
+    "ratio_real_to_matched": 5.081157374735358,
+    "real_minus_matched": 0.2229948586118252,
+    "real_minus_matched_cluster95": [
+     0.16973898963730571,
+     0.27494871794871795
+    ]
+   },
+   "granite30m": {
+    "gain_real_union": 0.2982005141388175,
+    "gain_matched_mean": 0.0603598971722365,
+    "gain_matched_95": [
+     0.05912596401028278,
+     0.061696658097686374
+    ],
+    "ratio_real_to_matched": 4.940374787052812,
+    "real_minus_matched": 0.23784061696658096,
+    "real_minus_matched_cluster95": [
+     0.18152104100365585,
+     0.2941196281621457
+    ]
+   },
+   "jina_turbo": {
+    "gain_real_union": 0.2853470437017995,
+    "gain_matched_mean": 0.05347043701799485,
+    "gain_matched_95": [
+     0.04884318766066838,
+     0.056555269922879174
+    ],
+    "ratio_real_to_matched": 5.336538461538462,
+    "real_minus_matched": 0.2318766066838046,
+    "real_minus_matched_cluster95": [
+     0.17879107184804857,
+     0.2857143313847278
+    ]
+   }
+  },
+  "matching": {
+   "exact_distance_share": 0.4646225769669327,
+   "within_1_chunk_share": 0.7166761687571266,
+   "within_2_chunks_share": 0.7890535917901939,
+   "mean_abs_distance_deviation": 3.092521094640821
+  }
+ }
+}

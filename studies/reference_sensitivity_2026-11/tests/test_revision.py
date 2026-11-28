@@ -1,4 +1,4 @@
-"""Tests for the reference study's critical calculations. Run: pytest studies/reference_sensitivity_2026-11/tests"""
+"""Tests for the revision's critical calculations. Run: pytest studies/reference_sensitivity_2026-11/tests"""
 import itertools
 import random
 import sys
@@ -93,3 +93,40 @@ def test_cluster_bootstrap_centre_and_coverage():
     flat = [x for c in clusters for x in c]
     assert res["delta_hit@1"] == pytest.approx(np.mean(flat), abs=1e-4)
     assert res["ci95"][0] < np.mean(flat) < res["ci95"][1]
+
+
+# ----------------------------------------------------------------------- final audit additions
+@pytest.mark.parametrize("D,m", [(3, 1), (5, 2), (7, 7), (2, 1)])
+def test_chance_edge_cases_k_beyond_d_minus_m(D, m):
+    exact = random_expectations(D, m, ks=(1, 3, 5, 10))
+    for k in (1, 3, 5, 10):
+        if k > D - m:
+            assert exact[f"hit@{k}"] == pytest.approx(1.0)
+
+
+def test_nq_page_clustering_merges_revisions_and_copies():
+    a = "nq:https://en.wikipedia.org//w/index.php?title=Stranger_Things&amp;oldid=1"
+    b = "nq:https://en.wikipedia.org//w/index.php?title=Stranger_Things&amp;oldid=2#file1"
+    c = "nq:https://en.wikipedia.org//w/index.php?title=Fortnite&amp;oldid=1"
+    assert A.cluster_key("nq", a) == A.cluster_key("nq", b) != A.cluster_key("nq", c)
+    assert A.cluster_key("qasper", "qasper:1912.01214") == "qasper:1912.01214"
+
+
+def test_cluster_permutation_null_and_strong_effect():
+    rng = np.random.default_rng(0)
+    rows = [{"cluster": f"c{i // 3}"} for i in range(300)]
+    zero = np.zeros(300)
+    assert A.cluster_perm_p(rows, zero, 2000, rng) == pytest.approx(1.0)
+    strong = np.ones(300)  # every question favours A: smallest attainable p
+    assert A.cluster_perm_p(rows, strong, 2000, rng) == pytest.approx(1 / 2001)
+
+
+def test_primary_and_secondary_fields_present():
+    rng = random.Random(1)
+    rows = []
+    for i in range(120):
+        ra, rb = rng.choice([1, 2]), rng.choice([1, 1, 2])
+        rows.append({"cluster": f"d{i // 4}", "rank": {"x": ra, "y": rb}})
+    (pr,) = A.pairwise(rows, ["x", "y"], n_boot=50, n_perm=500)
+    for k in ("p", "p_perm", "p_holm", "p_mcnemar_holm", "significant", "significant_mcnemar"):
+        assert k in pr
